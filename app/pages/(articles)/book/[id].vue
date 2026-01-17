@@ -180,7 +180,7 @@ const shouldShowInlineTranslation = $computed(() => {
 
 // 定位翻译到原文下方
 function positionTranslations() {
-  if (loading.value || selectArticle.id === -1) return
+  if (loading || selectArticle.id === -1) return
   _nextTick(() => {
     const articleRect = articleWrapperRef.getBoundingClientRect()
     selectArticle.textTranslate.split('\n\n').forEach((paragraph, paraIndex) => {

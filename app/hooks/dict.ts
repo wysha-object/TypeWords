@@ -221,12 +221,13 @@ export function getCurrentStudyWord(): TaskWords {
 export function useGetDict() {
   const store = useBaseStore()
   const runtimeStore = useRuntimeStore()
-  let loading = ref(false)
+  let waiting = $ref(false)
+  let fetching = $ref(false)
   const route = useRoute()
   const router = useRouter()
 
   watch(
-    [() => store.load, loading],
+    [() => store.load, () => waiting],
     ([a, b]) => {
       if (a && b) {
         loadDict()
@@ -236,15 +237,16 @@ export function useGetDict() {
   )
 
   onMounted(() => {
+    // console.log('onMounted')
     if (route.query?.isAdd) {
       runtimeStore.editDict = getDefaultDict()
-    }else {
+    } else {
       if (!runtimeStore.editDict?.id) {
         let dictId = route.params?.id
         if (!dictId) {
           return router.push('/articles')
         }
-        loading.value = true
+        waiting = true
       } else {
         loadDict(runtimeStore.editDict)
       }
@@ -268,7 +270,7 @@ export function useGetDict() {
         ![DictId.articleCollect].includes(dict.en_name || dict.id) &&
         !dict?.is_default
       ) {
-        loading.value = true
+        fetching = true
         let r = await _getDictDataByUrl(dict, DictType.article)
         runtimeStore.editDict = r
       }
@@ -283,13 +285,15 @@ export function useGetDict() {
           }
         }
       }
-      loading.value = false
     } else {
       router.push('/articles')
     }
+
+    waiting = false
+    fetching = false
   }
 
-  return {
-    loading,
-  }
+  const loading = computed(() => waiting || fetching)
+
+  return { loading }
 }

@@ -1,16 +1,17 @@
 //@ts-ignore
 import VueVirtualScroller from 'vue-virtual-scroller'
 import { ENV } from '~/config/env.ts'
+import { useInit } from '~/composables/useInit.ts'
 
 export default defineNuxtPlugin(async nuxtApp => {
   if (
-    (!location.href.includes('localhost') &&
-      !location.href.includes('192.168') &&
-      !location.href.includes('172.16') &&
-      !location.href.includes('10.0'))
+    !location.href.includes('localhost') &&
+    !location.href.includes('192.168') &&
+    !location.href.includes('172.16') &&
+    !location.href.includes('10.0')
   ) {
     //51.la
-    (function () {
+    ;(function () {
       window.LA = window.LA || {
         ids: [{ id: '3OH8ITYRgwzo58L2', ck: '3OH8ITYRgwzo58L2' }],
         id: '3OH8ITYRgwzo58L2',
@@ -39,9 +40,9 @@ export default defineNuxtPlugin(async nuxtApp => {
         function gtag() {
           window.dataLayer.push(arguments)
         }
-//@ts-ignore
+        //@ts-ignore
         gtag('js', new Date())
-//@ts-ignore
+        //@ts-ignore
         gtag('config', 'G-50T6DRD837')
       }
       document.head.appendChild(ana)
@@ -57,11 +58,11 @@ export default defineNuxtPlugin(async nuxtApp => {
 
     // umami-saas
     ;(function () {
-      var umami2 = document.createElement("script");
+      var umami2 = document.createElement('script')
       umami2.src = ENV.RESOURCE_URL + 'libs/my-um.js'
-      umami2.setAttribute("data-website-id", "03102800-e8e8-40a2-addf-9999d5e5c525");
-      document.head.appendChild(umami2);
-    })();
+      umami2.setAttribute('data-website-id', '03102800-e8e8-40a2-addf-9999d5e5c525')
+      document.head.appendChild(umami2)
+    })()
   }
 
   if ('serviceWorker' in navigator) {
@@ -76,6 +77,35 @@ export default defineNuxtPlugin(async nuxtApp => {
         })
     })
   }
+
+  console.json = function (v: any, space = 0) {
+    const json = JSON.stringify(
+      v,
+      (key, value) => {
+        if (Array.isArray(value) && key !== 'nameList') {
+          return `__ARRAY__${JSON.stringify(value)}`
+        }
+        return value
+      },
+      space
+    )
+      .replace(/"__ARRAY__(\[.*?\])"/g, (_, arr) => arr)
+      // 专门处理 nameList，将其压缩成一行
+      .replace(/"nameList": \[\s*([^\]]+)\s*\]/g, (match, content) => {
+        // 移除数组内部的换行和多余空格，但保留字符串间的空格
+        const compressed = content.replace(/\s*\n\s*/g, ' ').trim()
+        return `"nameList": [${compressed}]`
+      })
+
+    console.log(json)
+    return json
+  }
+  console.parse = function (v: any) {
+    console.log(JSON.parse(v))
+  }
+
+  const init = useInit()
+  init()
 
   nuxtApp.vueApp.use(VueVirtualScroller)
 })

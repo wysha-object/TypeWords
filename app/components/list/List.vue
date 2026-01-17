@@ -1,4 +1,4 @@
-<script setup lang="ts" generic="T extends {id:string}">
+<script setup lang="ts" generic="T extends Article">
 
 import BaseIcon from "@/components/BaseIcon.vue";
 import { cloneDeep, throttle } from "@/utils";

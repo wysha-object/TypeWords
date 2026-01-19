@@ -280,7 +280,7 @@ const openLink = (url: string) => {
     <div class="flex flex-col items-center justify-center px-4 py-8">
       <!-- 页面标题 -->
       <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold mb-4">英语学习资源分享</h1>
+        <h1 class="text-4xl font-bold mb-4">{{ $t('resource_sharing') }}</h1>
         <p class="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
           以下是整理的一些英语学习资源，希望对大家有所帮助！
         </p>
@@ -289,7 +289,7 @@ const openLink = (url: string) => {
       <!-- 分类筛选 -->
       <div class="card-white flex flex-wrap justify-center gap-2 mb-8 p-4">
         <BaseButton :type="selectedCategory === 'all' ? 'primary' : 'info'" @click="selectedCategory = 'all'">
-          全部资源
+          {{ $t('all_resources') }}
         </BaseButton>
         <BaseButton
           v-for="category in categories"

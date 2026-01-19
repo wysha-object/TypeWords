@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="flex box-border cp color-white">
+  <div class="flex box-border cp">
     <div class="option-wrap">
       <slot></slot>
     </div>

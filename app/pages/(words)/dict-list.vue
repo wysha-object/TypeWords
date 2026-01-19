@@ -120,12 +120,12 @@ watch(dict_list, (val) => {
         <BackIcon class="z-2" @click='router.back'/>
         <div class="flex flex-1 gap-4" v-if="showSearchInput">
           <BaseInput clearable placeholder="请输入词典名称/缩写/类别" v-model="searchKey" class="flex-1" autofocus/>
-          <BaseButton @click="showSearchInput = false, searchKey = ''">取消</BaseButton>
+          <BaseButton @click="showSearchInput = false, searchKey = ''">{{ $t('cancel') }}</BaseButton>
         </div>
         <div class="py-1 flex flex-1 justify-end" v-else>
-          <span class="page-title absolute w-full center">词典列表</span>
+          <span class="page-title absolute w-full center">{{ $t('dict_list') }}</span>
           <BaseIcon
-            title="搜索"
+            :title="$t('search')"
             @click="showSearchInput = true"
             class="z-1"
             icon="fluent:search-24-regular">

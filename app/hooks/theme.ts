@@ -3,7 +3,7 @@ import { useSettingStore } from '@/stores/setting.ts'
 type Theme = 'light' | 'dark'
 
 // 获取系统主题
-function getSystemTheme(): Theme {
+export function getSystemTheme(): Theme {
   if (import.meta.server) return 'light'
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark'
@@ -14,12 +14,12 @@ function getSystemTheme(): Theme {
 }
 
 // 交换主题名称
-function swapTheme(theme: Theme): Theme {
+export function swapTheme(theme: Theme): Theme {
   return theme === 'light' ? 'dark' : 'light'
 }
 
 // 监听系统主题变化
-function listenToSystemThemeChange(call: (theme: Theme) => void) {
+export function listenToSystemThemeChange(call: (theme: Theme) => void) {
   if (import.meta.server) return
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (e.matches) {
@@ -33,6 +33,13 @@ function listenToSystemThemeChange(call: (theme: Theme) => void) {
       call('light')
     }
   })
+}
+
+export function setTheme(val: string) {
+  // auto模式下，则通过查询系统主题来设置主题名称
+  if (import.meta.client) {
+    document.documentElement.className = val === 'auto' ? getSystemTheme() : val
+  }
 }
 
 export default function useTheme() {
@@ -53,13 +60,6 @@ export default function useTheme() {
     // auto模式下，默认是使用系统主题，切换时应该使用当前系统主题为基础进行切换
     settingStore.theme = swapTheme(settingStore.theme === 'auto' ? getSystemTheme() : (settingStore.theme as Theme))
     setTheme(settingStore.theme)
-  }
-
-  function setTheme(val: string) {
-    // auto模式下，则通过查询系统主题来设置主题名称
-    if (import.meta.client) {
-      document.documentElement.className = val === 'auto' ? getSystemTheme() : val
-    }
   }
 
   // 获取当前具体的主题名称

@@ -236,11 +236,11 @@ watch(
           </div>
           <div class="dict-actions flex">
             <BaseButton v-if="runtimeStore.editDict.custom && runtimeStore.editDict.url" type="info" @click="reset">
-              恢复默认
+              {{ $t('restore_default') }}
             </BaseButton>
-            <BaseButton :loading="studyLoading || loading" type="info" @click="isEdit = true">编辑</BaseButton>
-            <BaseButton type="info" @click="router.push('/batch-edit-article')">文章管理</BaseButton>
-            <BaseButton :loading="studyLoading || loading" @click="startPractice">学习</BaseButton>
+            <BaseButton :loading="studyLoading || loading" type="info" @click="isEdit = true">{{ $t('edit') }}</BaseButton>
+            <BaseButton type="info" @click="router.push('/batch-edit-article')">{{ $t('article_management') }}</BaseButton>
+            <BaseButton :loading="studyLoading || loading" @click="startPractice">{{ $t('learn') }}</BaseButton>
           </div>
         </div>
         <div class="flex flex-1 overflow-hidden mt-3">
@@ -259,7 +259,7 @@ watch(
             <template v-if="selectArticle.id">
               <template v-if="selectArticle.id === -1">
                 <div class="flex gap-4 mt-2">
-                  <img
+                  <NuxtImg
                     :src="runtimeStore.editDict?.cover"
                     class="w-30 rounded-md"
                     v-if="runtimeStore.editDict?.cover"
@@ -267,7 +267,7 @@ watch(
                   />
                   <div class="text-lg">{{ runtimeStore.editDict.description }}</div>
                 </div>
-                <div class="text-base mt-10" v-if="totalSpend">总学习时长：{{ totalSpend }}</div>
+                <div class="text-base mt-10" v-if="totalSpend">{{ $t('total_study_time') }}：{{ totalSpend }}</div>
               </template>
               <template v-else>
                 <div ref="articleRef" class="flex-1 overflow-auto pb-30">
@@ -278,13 +278,13 @@ watch(
                         <span class="ml-6 text-2xl" v-if="showTranslate">{{ selectArticle.titleTranslate }}</span>
                       </span>
                       <div class="flex items-center gap-2 mr-4">
-                        <BaseIcon :title="`开关释义显示`" @click="showTranslate = !showTranslate">
+                        <BaseIcon :title="$t('toggle_translation')" @click="showTranslate = !showTranslate">
                           <IconFluentTranslate16Regular v-if="showTranslate" />
                           <IconFluentTranslateOff16Regular v-else />
                         </BaseIcon>
                         <BaseIcon
                           :disabled="!showTranslate"
-                          :title="`切换显示模式`"
+                          :title="$t('switch_display_mode')"
                           @click="showDisplayMode = !showDisplayMode"
                         >
                           <IconFluentTextAlignLeft16Regular />
@@ -293,13 +293,13 @@ watch(
                     </div>
 
                     <div class="flex gap-1 mr-4 justify-end" v-if="showDisplayMode">
-                      <BaseIcon title="逐行显示" @click="displayMode = 'inline'">
+                      <BaseIcon :title="$t('line_by_line')" @click="displayMode = 'inline'">
                         <IconFluentTextPositionThrough20Regular />
                       </BaseIcon>
-                      <BaseIcon title="单行显示" @click="displayMode = 'line'">
+                      <BaseIcon :title="$t('single_line')" @click="displayMode = 'line'">
                         <IconFluentTextAlignLeft16Regular />
                       </BaseIcon>
-                      <BaseIcon title="对照显示" @click="displayMode = 'card'">
+                      <BaseIcon :title="$t('comparison')" @click="displayMode = 'card'">
                         <IconFluentAlignSpaceFitVertical20Regular />
                       </BaseIcon>
                     </div>
@@ -310,7 +310,7 @@ watch(
                         class="text-xl color-translate-second"
                         v-if="showTranslate && (displayMode !== 'card' || shouldShowInlineTranslation)"
                       >
-                        问题: {{ selectArticle?.question?.translate }}
+                        {{ $t('question') }}: {{ selectArticle?.question?.translate }}
                       </div>
                     </div>
                   </div>
@@ -393,8 +393,8 @@ watch(
                   <template v-if="currentPractice.length">
                     <div class="line my-10"></div>
                     <div class="font-family text-base pr-2">
-                      <div class="text-2xl font-bold">学习记录</div>
-                      <div class="mt-1 mb-3">总学习时长：{{ msToHourMinute(total(currentPractice, 'spend')) }}</div>
+                      <div class="text-2xl font-bold">{{ $t('study_record') }}</div>
+                      <div class="mt-1 mb-3">{{ $t('total_study_time') }}：{{ msToHourMinute(total(currentPractice, 'spend')) }}</div>
                       <div
                         class="item border border-item border-solid mt-2 p-2 bg-[var(--bg-history)] rounded-md flex justify-between"
                         v-for="i in currentPractice"
@@ -417,7 +417,7 @@ watch(
                     @ended="next"
                   />
                   <div class="flex items-center gap-1">
-                    <span>结束后播放下一篇</span>
+                    <span>{{ $t('play_next_after_end') }}</span>
                     <Switch v-model="settingStore.articleAutoPlayNext" />
                   </div>
                 </div>
@@ -431,7 +431,7 @@ watch(
         <div class="dict-header flex justify-between items-center relative">
           <BackIcon class="dict-back z-2" @click="isAdd ? $router.back() : (isEdit = false)" />
           <div class="dict-title absolute text-2xl text-align-center w-full">
-            {{ runtimeStore.editDict.id ? '修改' : '创建' }}书籍
+            {{ runtimeStore.editDict.id ? $t('edit_book') : $t('create_book') }}
           </div>
         </div>
         <div class="center">

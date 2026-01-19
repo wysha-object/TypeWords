@@ -13,7 +13,7 @@ defineEmits<{
 
 <template>
   <div class="empty">
-    <img src="@/assets/img/缺省页_空白页-通用.svg" alt="">
+    <NuxtImg src="@/assets/img/缺省页_空白页-通用.svg" alt="" />
     <span>{{ text ?? '空荡荡的~' }}</span>
     <BaseButton v-if="showAdd" @click="$emit('add')">添加</BaseButton>
   </div>

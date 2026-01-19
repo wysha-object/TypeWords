@@ -377,7 +377,7 @@ function goHome() {}
                 @click="loginType = 'code'"
               >
                 <div>
-                  <span>验证码登录</span>
+                  <span>{{ $t('code_login') }}</span>
                   <div v-opacity="loginType === 'code'" class="mt-1 h-0.5 bg-blue-600"></div>
                 </div>
               </div>
@@ -387,7 +387,7 @@ function goHome() {}
                 @click="loginType = 'password'"
               >
                 <div>
-                  <span>密码登录</span>
+                  <span>{{ $t('password_login') }}</span>
                   <div v-opacity="loginType === 'password'" class="mt-1 h-0.5 bg-blue-600"></div>
                 </div>
               </div>
@@ -407,7 +407,7 @@ function goHome() {}
                   name="username"
                   autocomplete="tel"
                   size="large"
-                  placeholder="请输入手机号"
+                  :placeholder="$t('phone_placeholder')"
                 />
               </FormItem>
               <FormItem prop="code">
@@ -417,7 +417,7 @@ function goHome() {}
                     type="code"
                     size="large"
                     :max-length="PHONE_CONFIG.codeLength"
-                    placeholder="请输入验证码"
+                    :placeholder="$t('code_placeholder')"
                   />
                   <Code
                     :validate-field="() => phoneLoginFormRef.validateField('phone')"
@@ -437,7 +437,7 @@ function goHome() {}
                   name="username"
                   autocomplete="email"
                   size="large"
-                  placeholder="请输入手机号/邮箱地址"
+                  :placeholder="$t('account_placeholder')"
                 />
               </FormItem>
               <FormItem prop="password">
@@ -448,28 +448,28 @@ function goHome() {}
                     name="password"
                     autocomplete="current-password"
                     size="large"
-                    placeholder="请输入密码"
+                    :placeholder="$t('password_placeholder')"
                   />
                 </div>
               </FormItem>
             </Form>
 
             <Notice>
-              <span v-if="loginType === 'code'">，未注册的手机号将自动注册</span>
+              <span v-if="loginType === 'code'">，{{ $t('auto_register_notice') }}</span>
             </Notice>
 
-            <BaseButton class="w-full" size="large" :loading="loading" @click="handleLogin"> 登录 </BaseButton>
+            <BaseButton class="w-full" size="large" :loading="loading" @click="handleLogin"> {{ $t('login') }} </BaseButton>
 
             <!-- 底部操作链接 - 只在密码登录时显示 -->
             <div class="mt-4 flex justify-between text-sm" v-opacity="loginType !== 'code'">
-              <div class="link cp" @click="switchMode('forgot')">忘记密码?</div>
-              <div class="link cp" @click="switchMode('register')">注册账号</div>
+              <div class="link cp" @click="switchMode('forgot')">{{ $t('forgot_password') }}</div>
+              <div class="link cp" @click="switchMode('register')">{{ $t('register_account') }}</div>
             </div>
           </div>
 
           <!-- 注册模式 -->
           <div v-else-if="currentMode === 'register'">
-            <Header @click="switchMode('login')" title="注册新账号" />
+            <Header @click="switchMode('login')" :title="$t('register_new_account')" />
 
             <Form ref="registerFormRef" :rules="registerFormRules" :model="registerForm">
               <FormItem prop="account">
@@ -479,7 +479,7 @@ function goHome() {}
                   name="username"
                   autocomplete="username"
                   size="large"
-                  placeholder="请输入手机号/邮箱地址"
+                  :placeholder="$t('account_placeholder')"
                 />
               </FormItem>
               <FormItem prop="code">
@@ -488,7 +488,7 @@ function goHome() {}
                     v-model="registerForm.code"
                     type="code"
                     size="large"
-                    placeholder="请输入验证码"
+                    :placeholder="$t('code_placeholder')"
                     :max-length="PHONE_CONFIG.codeLength"
                   />
                   <Code
@@ -515,19 +515,19 @@ function goHome() {}
                   name="password"
                   autocomplete="new-password"
                   size="large"
-                  placeholder="请再次输入密码"
+                  :placeholder="$t('confirm_password_placeholder')"
                 />
               </FormItem>
             </Form>
 
             <Notice />
 
-            <BaseButton class="w-full" size="large" :loading="loading" @click="handleRegister"> 注册 </BaseButton>
+            <BaseButton class="w-full" size="large" :loading="loading" @click="handleRegister"> {{ $t('register') }} </BaseButton>
           </div>
 
           <!-- 忘记密码模式 -->
           <div v-else-if="currentMode === 'forgot'">
-            <Header @click="switchMode('login')" title="重置密码" />
+            <Header @click="switchMode('login')" :title="$t('reset_password')" />
 
             <Form ref="forgotFormRef" :rules="forgotFormRules" :model="forgotForm">
               <FormItem prop="account">
@@ -537,7 +537,7 @@ function goHome() {}
                   name="username"
                   autocomplete="username"
                   size="large"
-                  placeholder="请输入手机号/邮箱地址"
+                  :placeholder="$t('account_placeholder')"
                 />
               </FormItem>
               <FormItem prop="code">
@@ -546,7 +546,7 @@ function goHome() {}
                     v-model="forgotForm.code"
                     type="code"
                     size="large"
-                    placeholder="请输入验证码"
+                    :placeholder="$t('code_placeholder')"
                     :max-length="PHONE_CONFIG.codeLength"
                   />
                   <Code
@@ -573,13 +573,13 @@ function goHome() {}
                   name="password"
                   autocomplete="new-password"
                   size="large"
-                  placeholder="请再次输入新密码"
+                  :placeholder="$t('confirm_new_password')"
                 />
               </FormItem>
             </Form>
 
             <BaseButton class="w-full mt-2" size="large" :loading="loading" @click="handleForgotPassword">
-              重置密码
+              {{ $t('reset_password') }}
             </BaseButton>
           </div>
         </div>
@@ -587,7 +587,7 @@ function goHome() {}
         <!-- 右侧微信二维码 - 只在登录模式时显示 -->
         <div v-if="currentMode === 'login'" class="center flex-col bg-gray-100 rounded-xl px-12">
           <div class="relative w-40 h-40 bg-white rounded-xl overflow-hidden shadow-xl">
-            <img
+            <NuxtImg
               v-if="showWechatQR"
               :src="wechatQRUrl"
               alt="微信登录二维码"
@@ -600,8 +600,8 @@ function goHome() {}
               class="absolute left-0 top-0 w-full h-full center flex-col gap-space bg-white"
             >
               <IconFluentCheckmarkCircle20Filled class="color-green text-4xl" />
-              <div class="text-base text-gray-700 font-medium">扫描成功</div>
-              <div class="text-xs text-gray-600">微信中轻触允许即可登录</div>
+              <div class="text-base text-gray-700 font-medium">{{ $t('scan_success') }}</div>
+              <div class="text-xs text-gray-600">{{ $t('tap_allow_in_wechat') }}</div>
             </div>
             <!-- 取消登录蒙层 -->
             <div
@@ -609,9 +609,9 @@ function goHome() {}
               class="absolute left-0 top-0 w-full h-full center flex-col gap-space bg-white"
             >
               <IconFluentErrorCircle20Regular class="color-red text-4xl" />
-              <div class="text-base text-gray-700 font-medium">你已取消此次登录</div>
+              <div class="text-base text-gray-700 font-medium">{{ $t('login_cancelled') }}</div>
               <div class="text-xs text-gray-600">
-                你可<span class="color-link" @click="refreshQRCode">再次登录</span>，或关闭窗口
+                你可<span class="color-link" @click="refreshQRCode">{{ $t('login_again') }}</span>，或关闭窗口
               </div>
             </div>
             <!-- 过期蒙层 -->
@@ -624,19 +624,19 @@ function goHome() {}
           </div>
           <p class="mt-4 center gap-space">
             <IconIxWechatLogo class="text-xl color-green" />
-            <span class="text-sm text-gray-600">微信扫码登录</span>
+            <span class="text-sm text-gray-600">{{ $t('wechat_scan_login') }}</span>
           </p>
         </div>
       </div>
     </div>
 
     <div v-else class="card-white p-6 w-100">
-      <Header @click="logout" title="同步数据"></Header>
+      <Header @click="logout" :title="$t('sync_data')"></Header>
       <div class="flex flex-col justify-between h-60">
         <template v-if="importStep === ImportStep.CONFIRMATION">
           <div>
-            <h2>检测到您本地存在使用记录</h2>
-            <h3>是否需要同步到账户中？</h3>
+            <h2>{{ $t('local_data_detected') }}</h2>
+            <h3>{{ $t('sync_to_account_question') }}</h3>
           </div>
           <div class="flex gap-space justify-end">
             <template v-if="importStep === ImportStep.CONFIRMATION">
@@ -648,15 +648,15 @@ function goHome() {}
                 ]"
                 @confirm="forgetData"
               >
-                <BaseButton type="info">不同步</BaseButton>
+                <BaseButton type="info">{{ $t('no_sync') }}</BaseButton>
               </PopConfirm>
             </template>
-            <BaseButton @click="startSync">同步</BaseButton>
+            <BaseButton @click="startSync">{{ $t('sync') }}</BaseButton>
           </div>
         </template>
         <template v-if="importStep === ImportStep.PROCESSING">
           <div>
-            <div class="title text-align-center">正在导入中</div>
+            <div class="title text-align-center">{{ $t('syncing') }}</div>
             <ol class="pl-4">
               <li>您的用户数据已自动下载到您的电脑中，以便随时恢复</li>
               <li>随后将开始数据同步</li>
@@ -671,29 +671,29 @@ function goHome() {}
         </template>
         <template v-if="importStep === ImportStep.FAIL">
           <div>
-            <div class="title text-align-center">同步失败</div>
+            <div class="title text-align-center">{{ $t('sync_failed') }}</div>
             <div class="mt-10">
               <span>{{ reason }}</span>
             </div>
           </div>
           <div class="flex justify-end">
-            <BaseButton type="info" @click="jump2Feedback">反馈</BaseButton>
-            <BaseButton @click="goHome">进入网站</BaseButton>
+            <BaseButton type="info" @click="jump2Feedback">{{ $t('feedback') }}</BaseButton>
+            <BaseButton @click="goHome">{{ $t('enter_website') }}</BaseButton>
           </div>
         </template>
         <template v-if="importStep === ImportStep.SUCCESS">
           <div>
-            <div class="title text-align-center">同步成功</div>
+            <div class="title text-align-center">{{ $t('sync_success') }}</div>
             <div class="mt-10">
               <span>稍后将自动进入网站...</span>
             </div>
           </div>
           <div class="flex justify-end">
-            <BaseButton @click="goHome">进入网站</BaseButton>
+            <BaseButton @click="goHome">{{ $t('enter_website') }}</BaseButton>
           </div>
         </template>
       </div>
     </div>
   </div>
 </template>
-]
+

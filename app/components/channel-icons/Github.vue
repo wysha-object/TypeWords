@@ -1,18 +1,20 @@
 <script setup lang="ts">
-
-import { GITHUB } from "@/config/env.ts";
-import BaseIcon from "@/components/BaseIcon.vue";
+import { GITHUB } from '@/config/env.ts'
+import BaseIcon from '@/components/BaseIcon.vue'
 </script>
 
 <template>
-  <a :href="GITHUB" target="_blank" rel="noreferrer" aria-label="GITHUB 项目地址"
-     class="color-[--color-reverse-black] github">
-    <BaseIcon title="Github">
-      <IconSimpleIconsGithub/>
+  <a
+    :href="GITHUB"
+    target="_blank"
+    rel="noreferrer"
+    aria-label="GITHUB 项目地址"
+    class="color-reverse-black github"
+  >
+    <BaseIcon title="Github" v-bind="$attrs">
+      <IconSimpleIconsGithub />
     </BaseIcon>
   </a>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

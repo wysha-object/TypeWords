@@ -15,7 +15,7 @@ let showWechatDialog = $ref(false)
         加入我们的用户社群后，您可以与我们的开发团队进行沟通，分享您的使用体验和建议，帮助我们改进产品，同时也能够及时了解我们的最新动态和更新内容。
       </div>
       <div class="text-center">
-        <img src="/imgs/channel/wechat.png" alt="微信群二维码" class="w-70 rounded-xl shadow-lg">
+        <NuxtImg src="/imgs/channel/wechat.png" alt="微信群二维码" class="w-70 rounded-xl shadow-lg" />
       </div>
     </div>
   </Dialog>

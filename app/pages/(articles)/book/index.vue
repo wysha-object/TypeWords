@@ -259,7 +259,7 @@ watch(
             <template v-if="selectArticle.id">
               <template v-if="selectArticle.id === -1">
                 <div class="flex gap-4 mt-2">
-                  <img
+                  <NuxtImg
                     :src="runtimeStore.editDict?.cover"
                     class="w-30 rounded-md"
                     v-if="runtimeStore.editDict?.cover"

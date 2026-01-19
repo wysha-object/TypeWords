@@ -22,7 +22,7 @@ useSeoMeta({
   <BasePage>
     <div class="center">
       <div class="card-white qa w-2/3">
-        <div class="font-bold text-2xl mb-6">{{ $t('faq') }}</div>
+        <div class="font-bold text-2xl mb-6">常见问题解答</div>
         <div class="list">
           <Collapse
             q="网站是免费的吗？"

@@ -311,30 +311,30 @@ function transferOk() {
 <template>
   <BasePage>
     <div class="setting text-md card flex flex-col" style="height: calc(100vh - 3rem)">
-      <div class="page-title text-align-center">设置</div>
+      <div class="page-title text-align-center">{{ $t('setting') }}</div>
       <div class="flex flex-1 overflow-hidden gap-4">
         <div class="left">
           <div class="tabs">
             <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
               <IconFluentSettings20Regular width="20" />
-              <span>通用设置</span>
+              <span>{{ $t('general_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
               <IconFluentTextUnderlineDouble20Regular width="20" />
-              <span>单词设置</span>
+              <span>{{ $t('word_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
               <IconFluentBookLetter20Regular width="20" />
-              <span>文章设置</span>
+              <span>{{ $t('article_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
               <IconFluentDatabasePerson20Regular width="20" />
-              <span>数据管理</span>
+              <span>{{ $t('data_management') }}</span>
             </div>
 
             <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
               <IconFluentKeyboardLayoutFloat20Regular width="20" />
-              <span>快捷键设置</span>
+              <span>{{ $t('shortcut_settings') }}</span>
             </div>
 
             <div
@@ -349,12 +349,12 @@ function transferOk() {
               "
             >
               <IconFluentTextBulletListSquare20Regular width="20" />
-              <span>更新日志</span>
+              <span>{{ $t('update_log') }}</span>
               <div class="red-point" v-if="runtimeStore.isNew"></div>
             </div>
             <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
               <IconFluentPerson20Regular width="20" />
-              <span>关于</span>
+              <span>{{ $t('about') }}</span>
             </div>
           </div>
         </div>
@@ -366,8 +366,8 @@ function transferOk() {
 
           <div class="body" v-if="tabIndex === 3">
             <div class="row">
-              <label class="main-title">功能</label>
-              <div class="wrapper">快捷键(点击可修改)</div>
+              <label class="main-title">{{ $t('function') }}</label>
+              <div class="wrapper">{{ $t('shortcut_key') }}</div>
             </div>
             <div class="scroll">
               <div class="row" v-for="item of Object.entries(settingStore.shortcutKeyMap)">
@@ -376,18 +376,18 @@ function transferOk() {
                   <div class="set-key" v-if="editShortcutKey === item[0]">
                     <input
                       ref="shortcutInput"
-                      :value="item[1] ? item[1] : '未设置快捷键'"
+                      :value="item[1] ? item[1] : $t('no_shortcut_set')"
                       readonly
                       type="text"
                       @blur="handleInputBlur"
                     />
                     <span @click.stop="editShortcutKey = ''"
-                      >按键盘进行设置，<span class="text-red!">设置完成点击这里</span></span
+                      >{{ $t('press_key_to_set') }}，<span class="text-red!">{{ $t('click_here_when_done') }}</span></span
                     >
                   </div>
                   <div v-else>
                     <div v-if="item[1]">{{ item[1] }}</div>
-                    <span v-else>未设置快捷键</span>
+                    <span v-else>{{ $t('no_shortcut_set') }}</span>
                   </div>
                 </div>
               </div>
@@ -395,19 +395,18 @@ function transferOk() {
             <div class="row">
               <label class="item-title"></label>
               <div class="wrapper">
-                <BaseButton @click="resetShortcutKeyMap">恢复默认</BaseButton>
+                <BaseButton @click="resetShortcutKeyMap">{{ $t('restore_default') }}</BaseButton>
               </div>
             </div>
           </div>
 
           <div v-if="tabIndex === 4">
             <div>
-              所有用户数据
-              <b class="text-red">保存在本地浏览器中</b>。如果您需要在不同的设备、浏览器上使用 {{ APP_NAME }}，
+              {{ $t('data_saved_locally') }}。如果您需要在不同的设备、浏览器上使用 {{ APP_NAME }}，
               您需要手动进行数据导出和导入
             </div>
             <BaseButton :loading="exportLoading" size="large" class="mt-3" @click="exportData()"
-              >导出数据备份(ZIP)</BaseButton
+              >{{ $t('export_data_backup') }}</BaseButton
             >
             <div class="text-gray text-sm mt-2">💾 导出的ZIP文件包含所有学习数据，可在其他设备上导入恢复</div>
 
@@ -418,7 +417,7 @@ function transferOk() {
               >当前所有数据，请谨慎操作。执行导入操作时，会先自动备份当前数据到您的电脑中，供您随时恢复
             </div>
             <div class="flex gap-space mt-3">
-              <BaseButton size="large" @click="beforeImport" :loading="importLoading">导入数据恢复</BaseButton>
+              <BaseButton size="large" @click="beforeImport" :loading="importLoading">{{ $t('import_data_restore') }}</BaseButton>
               <input
                 type="file"
                 id="import"

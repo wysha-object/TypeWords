@@ -68,10 +68,10 @@ const searchList = computed<any[]>(() => {
             autofocus
             clearable
           />
-          <BaseButton @click="((showSearchInput = false), (searchKey = ''))">取消</BaseButton>
+          <BaseButton @click="((showSearchInput = false), (searchKey = ''))">{{ $t('cancel') }}</BaseButton>
         </div>
         <div class="py-1 flex flex-1 justify-end" v-else>
-          <span class="page-title absolute w-full center">书籍列表</span>
+          <span class="page-title absolute w-full center">{{ $t('book_list') }}</span>
           <BaseIcon @click="showSearchInput = true" class="z-1">
             <IconFluentSearch24Regular />
           </BaseIcon>

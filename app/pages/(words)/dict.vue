@@ -26,6 +26,7 @@ import { MessageBox } from '@/utils/MessageBox.tsx'
 import { nanoid } from 'nanoid'
 import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { wordDelete } from '@/apis/words.ts'
 import { copyOfficialDict } from '@/apis/dict.ts'
 import { PRACTICE_WORD_CACHE } from '@/utils/cache.ts'
@@ -36,6 +37,7 @@ const base = useBaseStore()
 const router = useRouter()
 const route = useRoute()
 const isMob = isMobile()
+const { t: $t } = useI18n()
 let loading = $ref(false)
 let allList = $ref([])
 
@@ -566,19 +568,19 @@ defineRender(() => {
             <div class="dict-title absolute page-title text-align-center w-full">{runtimeStore.editDict.name}</div>
             <div class="dict-actions flex">
               <BaseButton loading={studyLoading || loading} type="info" onClick={() => (isEdit = true)}>
-                编辑
+                {$t('edit')}
               </BaseButton>
               <BaseButton loading={studyLoading || loading} type="info" onClick={startTest}>
-                测试
+                {$t('test')}
               </BaseButton>
               <BaseButton id="study" loading={studyLoading || loading} onClick={addMyStudyList}>
-                学习
+                {$t('learn')}
               </BaseButton>
             </div>
           </div>
           {dict.description && (
             <>
-              <div class="text-lg  mt-2">介绍：{dict.description}</div>
+              <div class="text-lg  mt-2">{$t('introduction')}：{dict.description}</div>
               <div class="line my-3"></div>
             </>
           )}
@@ -587,10 +589,10 @@ defineRender(() => {
           {isMob && isOperate && (
             <div class="tab-navigation mb-3">
               <div class={`tab-item ${activeTab === 'list' ? 'active' : ''}`} onClick={() => (activeTab = 'list')}>
-                单词列表
+                {$t('word_list')}
               </div>
               <div class={`tab-item ${activeTab === 'edit' ? 'active' : ''}`} onClick={() => (activeTab = 'edit')}>
-                {wordForm.id ? '编辑' : '添加'}单词
+                {wordForm.id ? $t('edit') : $t('add')}{$t('word')}
               </div>
             </div>
           )}
@@ -639,7 +641,7 @@ defineRender(() => {
             </div>
             {isOperate ? (
               <div class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
-                <div class="common-title">{wordForm.id ? '修改' : '添加'}单词</div>
+                <div class="common-title">{wordForm.id ? $t('edit') : $t('add')}{$t('word')}</div>
                 <Form
                   class="flex-1 overflow-auto pr-2"
                   ref={e => (wordFormRef = e)}
@@ -707,10 +709,10 @@ defineRender(() => {
                 </Form>
                 <div class="center">
                   <BaseButton type="info" onClick={closeWordForm}>
-                    关闭
+                    {$t('close')}
                   </BaseButton>
                   <BaseButton type="primary" onClick={onSubmitWord}>
-                    保存
+                    {$t('save')}
                   </BaseButton>
                 </div>
               </div>
@@ -731,7 +733,7 @@ defineRender(() => {
               }}
             />
             <div class="dict-title absolute page-title text-align-center w-full">
-              {runtimeStore.editDict.id ? '修改' : '创建'}词典
+              {runtimeStore.editDict.id ? $t('edit_dict') : $t('create_dict')}
             </div>
           </div>
           <div class="center">

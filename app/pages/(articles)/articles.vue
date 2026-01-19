@@ -239,7 +239,7 @@ onMounted(() => {
       <div class="flex-1">
         <div class="flex justify-between items-start">
           <div class="flex items-center min-w-0">
-            <div class="title mr-4 truncate">本周学习记录</div>
+            <div class="title mr-4 truncate">{{ $t('this_week_record') }}</div>
             <div class="flex gap-4 color-gray">
               <div
                 class="w-6 h-6 md:w-8 md:h-8 rounded-md center text-sm md:text-base"
@@ -252,7 +252,7 @@ onMounted(() => {
             </div>
           </div>
           <div class="flex gap-4 items-center" v-opacity="base.sbook.id">
-            <div class="color-link cursor-pointer" @click="router.push('/book-list')">更换</div>
+            <div class="color-link cursor-pointer" @click="router.push('/book-list')">{{ $t('change_book') }}</div>
           </div>
         </div>
         <div class="flex flex-col sm:flex-row gap-3 items-center mt-3 gap-space w-full">
@@ -260,19 +260,19 @@ onMounted(() => {
             class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
           >
             <div class="text-[#409eff] text-xl font-bold">{{ todayTotalSpend }}</div>
-            <div class="text-gray-500">今日学习时长</div>
+            <div class="text-gray-500">{{ $t('today_study_time') }}</div>
           </div>
           <div
             class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
           >
             <div class="text-[#409eff] text-xl font-bold">{{ totalDay }}</div>
-            <div class="text-gray-500">总学习天数</div>
+            <div class="text-gray-500">{{ $t('total_study_days') }}</div>
           </div>
           <div
             class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
           >
             <div class="text-[#409eff] text-xl font-bold">{{ totalSpend }}</div>
-            <div class="text-gray-500">总学习时长</div>
+            <div class="text-gray-500">{{ $t('total_study_time') }}</div>
           </div>
         </div>
         <div class="flex gap-3 mt-3">
@@ -286,7 +286,7 @@ onMounted(() => {
 
           <BaseButton size="large" class="w-full md:w-auto" @click="startStudy" :disabled="!base.sbook.name">
             <div class="flex items-center gap-2 justify-center w-full">
-              <span class="line-height-[2]">{{ isSaveData ? '继续学习' : '开始学习' }}</span>
+              <span class="line-height-[2]">{{ isSaveData ? $t('continue_learning') : $t('start_learning') }}</span>
               <IconFluentArrowCircleRight16Regular class="text-xl" />
             </div>
           </BaseButton>
@@ -296,10 +296,10 @@ onMounted(() => {
 
     <div class="card flex flex-col">
       <div class="flex justify-between">
-        <div class="title">我的书籍</div>
+        <div class="title">{{ $t('my_books') }}</div>
         <div class="flex gap-4 items-center">
           <PopConfirm title="确认删除所有选中书籍？" @confirm="handleBatchDel" v-if="selectIds.length">
-            <BaseIcon class="del" title="删除">
+            <BaseIcon class="del" :title="$t('delete')">
               <DeleteIcon />
             </BaseIcon>
           </PopConfirm>
@@ -314,9 +314,9 @@ onMounted(() => {
               }
             "
           >
-            {{ isMultiple ? '取消' : '管理书籍' }}
+            {{ isMultiple ? $t('cancel') : $t('manage_books') }}
           </div>
-          <div class="color-link cursor-pointer" @click="nav('/book', { isAdd: true })">创建个人书籍</div>
+          <div class="color-link cursor-pointer" @click="nav('/book', { isAdd: true })">{{ $t('create_personal_book') }}</div>
         </div>
       </div>
       <div class="flex gap-4 flex-wrap mt-4">
@@ -337,9 +337,9 @@ onMounted(() => {
 
     <div class="card flex flex-col min-h-50" v-loading="isFetching">
       <div class="flex justify-between">
-        <div class="title">推荐</div>
+        <div class="title">{{ $t('recommend') }}</div>
         <div class="flex gap-4 items-center">
-          <div class="color-link cursor-pointer" @click="router.push('/book-list')">更多</div>
+          <div class="color-link cursor-pointer" @click="router.push('/book-list')">{{ $t('more') }}</div>
         </div>
       </div>
 

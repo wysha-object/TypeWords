@@ -41,6 +41,7 @@ onMounted(() => {
     }, 1000)
   }
 })
+
 </script>
 
 <template>
@@ -56,29 +57,29 @@ onMounted(() => {
         </div>
         <div class="row" @click="router.push('/words')">
           <IconFluentTextUnderlineDouble20Regular />
-          <span>单词</span>
+          <span>{{$t('words')}}</span>
         </div>
         <div id="article" class="row" @click="router.push('/articles')">
           <!--          <IconPhArticleNyTimes/>-->
           <IconFluentBookLetter20Regular />
-          <span>文章</span>
+          <span>{{$t('articles')}}</span>
         </div>
         <div class="row" @click="router.push('/setting')">
           <IconFluentSettings20Regular />
-          <span>设置</span>
+          <span>{{$t('setting')}}</span>
           <div class="red-point" :class="!settingStore.sideExpand && 'top-1 right-0'" v-if="runtimeStore.isNew"></div>
         </div>
         <div class="row" @click="router.push('/feedback')">
           <IconFluentCommentEdit20Regular />
-          <span>反馈</span>
+          <span>{{$t('feedback')}}</span>
         </div>
         <div class="row" @click="router.push('/doc')">
           <IconFluentDocument20Regular />
-          <span>资料</span>
+          <span>{{$t('document')}}</span>
         </div>
         <div class="row" @click="router.push('/qa')">
           <IconFluentQuestionCircle20Regular />
-          <span>帮助</span>
+          <span>{{$t('help')}}</span>
         </div>
         <!--        <div class="row" @click="router.push('/user')">-->
         <!--          <IconFluentPerson20Regular/>-->
@@ -90,9 +91,12 @@ onMounted(() => {
           <IconFluentChevronLeft20Filled v-if="expand" />
           <IconFluentChevronLeft20Filled class="transform-rotate-180" v-else />
         </BaseIcon>
+        <BaseIcon @click="settingStore.sideExpand = !settingStore.sideExpand">
+          <IconFluentTranslate16Regular />
+        </BaseIcon>
         <BaseIcon
           v-if="expand"
-          :title="`切换主题(${settingStore.shortcutKeyMap[ShortcutKey.ToggleTheme]})`"
+          :title="`${$t('toggle_theme')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleTheme]})`"
           @click="toggleTheme"
         >
           <IconFluentWeatherMoon16Regular v-if="getTheme() === 'light'" />

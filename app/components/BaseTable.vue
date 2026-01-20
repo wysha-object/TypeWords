@@ -11,7 +11,7 @@ import Checkbox from '@/components/base/checkbox/Checkbox.vue'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
 import Dialog from '@/components/dialog/Dialog.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import { Host } from '@/config/env.ts'
+import { ENV, Host } from '@/config/env.ts'
 import { Sort } from '@/types/enum.ts'
 
 const props = withDefaults(
@@ -203,11 +203,12 @@ defineRender(() => {
                     size="large"
                   />
                   <span>
-                  {selectIds.length} / {params.total}
-                </span>
+                    {selectIds.length} / {params.total}
+                  </span>
                 </div>
-              ) : <div>{params.total}条</div>}
-
+              ) : (
+                <div>{params.total}条</div>
+              )}
 
               <div class="flex gap-2 relative">
                 {selectIds.length && showCheckbox ? (
@@ -315,7 +316,7 @@ defineRender(() => {
           </div>
           <div>同义词、同根词、词源：请前往官方词典，然后编辑其中某个单词，参考其格式</div>
           <div class="mt-6">
-            模板下载地址：<a href={`https://${Host}/libs/单词导入模板.xlsx`}>单词导入模板</a>
+            模板下载地址：<a href={`${ENV.RESOURCE_URL}/libs/单词导入模板.xlsx`}>单词导入模板</a>
           </div>
           <div class="mt-4">
             <BaseButton

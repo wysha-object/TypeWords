@@ -61,7 +61,7 @@ const showIcon = $computed(() => {
           <IconFluentTextUnderlineDouble20Regular />
           <span>{{ $t('words') }}</span>
         </NuxtLink>
-        <NuxtLink to="/articles" class="row">
+        <NuxtLink id="article" to="/articles" class="row">
           <IconFluentBookLetter20Regular />
           <span>{{ $t('articles') }}</span>
         </NuxtLink>

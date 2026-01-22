@@ -85,7 +85,7 @@ watch(model, async newVal => {
       let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
       // 忽略单词数
       const ignoreCount = ignoreList.filter(word =>
-        store.sdict.words.splice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
+        store.sdict.words.slice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
       ).length
       // 如果lastLearnIndex已经超过可学单词数，则判定完成
       if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {

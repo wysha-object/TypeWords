@@ -324,7 +324,7 @@ const systemPracticeText = $computed(() => {
 
             <div class="text-sm flex justify-between">
               <span>{{ progressTextLeft }}</span>
-              <span> {{ store.sdict?.lastLearnIndex }} / {{ store.sdict.words.length }} 词</span>
+              <span> {{ store.sdict?.lastLearnIndex }} / {{ store.sdict.length }} 词</span>
             </div>
           </div>
           <div class="flex items-center mt-4 gap-4">

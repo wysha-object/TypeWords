@@ -65,31 +65,28 @@ class ChatPanel {
 
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		const websiteUrl = 'https://typewords.cc';
+		const cdnUrl = 'https://type-words-4n6djfw59l.edgeone.cool';
 
 		return `<!DOCTYPE html>
 			<html lang="zh-CN" style="width: 100%!important; height: 100%!important;">
 			<head>
 				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${websiteUrl};">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${websiteUrl}; script-src ${cdnUrl}; style-src ${cdnUrl};">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<style>
-					 html, body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    iframe {
-      width: 100%;
-      height: 100vh;
-      border: none;
-    }
-				</style>
 				<title>单词练习</title>
 			</head>
 			<body>
-				<iframe src="${websiteUrl}" allow="fullscreen"></iframe>
+			<div id="app"></div>
+				  <script type="module" crossorigin src="
+https://type-words-4n6djfw59l.edgeone.cool/vscode/assets/index-C0HjsgId.js"></script>
+  <link rel="modulepreload" crossorigin href="
+https://type-words-4n6djfw59l.edgeone.cool/vscode/assets/icons-DVb7W-0B.js">
+  <link rel="modulepreload" crossorigin href="
+https://type-words-4n6djfw59l.edgeone.cool/vscode/assets/utils-Bkoc15Tl.js">
+  <link rel="stylesheet" crossorigin href="
+https://type-words-4n6djfw59l.edgeone.cool/vscode/assets/utils-pqXEIRJB.css">
+  <link rel="stylesheet" crossorigin href="
+https://type-words-4n6djfw59l.edgeone.cool/vscode/assets/index-D4BRJAZe.css">
 			</body>
 			</html>`;
 	}

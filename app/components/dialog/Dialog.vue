@@ -21,6 +21,7 @@ export interface ModalProps {
   closeOnClickBg?: boolean
   confirm?: any
   beforeClose?: any
+  t?: any
 }
 
 const props = withDefaults(defineProps<ModalProps>(), {
@@ -33,6 +34,12 @@ const props = withDefaults(defineProps<ModalProps>(), {
   confirmButtonText: '',
   cancelButtonText: '',
   keyboard: true,
+})
+
+const localeT = $computed(() => {
+  if (props.t) return props.t
+  const { t: i18nT } = useI18n()
+  return i18nT
 })
 
 const emit = defineEmits(['update:modelValue', 'close', 'ok', 'cancel'])
@@ -141,20 +148,10 @@ async function cancel() {
 <template>
   <Teleport to="body">
     <div class="modal-root" :style="{ 'z-index': zIndex }" v-if="visible">
-      <div
-        class="modal-mask"
-        ref="maskRef"
-        v-if="!fullScreen"
-        @click.stop="closeOnClickBg && close()"
-      ></div>
+      <div class="modal-mask" ref="maskRef" v-if="!fullScreen" @click.stop="closeOnClickBg && close()"></div>
       <div class="modal" ref="modalRef" :class="[fullScreen ? 'full' : 'window']">
-        <Tooltip :title="$t('close')">
-          <IconFluentDismiss20Regular
-            @click="close"
-            v-if="showClose"
-            class="close cursor-pointer"
-            width="24"
-          />
+        <Tooltip :title="localeT('close')">
+          <IconFluentDismiss20Regular @click="close" v-if="showClose" class="close cursor-pointer" width="24" />
         </Tooltip>
         <div class="modal-header" v-if="header">
           <div class="title">{{ props.title }}</div>
@@ -168,9 +165,9 @@ async function cancel() {
             <slot name="footer-left"></slot>
           </div>
           <div class="right">
-            <BaseButton type="info" @click="cancel">{{ cancelButtonText || $t('cancel') }}</BaseButton>
+            <BaseButton type="info" @click="cancel">{{ cancelButtonText || localeT('cancel') }}</BaseButton>
             <BaseButton id="dialog-ok" :loading="confirmButtonLoading" @click="ok"
-              >{{ confirmButtonText || $t('confirm') }}
+              >{{ confirmButtonText || localeT('confirm') }}
             </BaseButton>
           </div>
         </div>

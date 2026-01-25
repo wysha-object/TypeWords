@@ -188,12 +188,12 @@ const sentence = $computed(() => {
                 <div class="text-base  ">{{ Origin }}</div>
                 <div class="text-xs  ">一次敲击，一点进步，开源单词学习工具</div>
               </div>
-              <NuxtImg :src="`/imgs/share/qr.png`" class="w-20 w-20 rounded-md overflow-hidden" alt="" />
+              <img :src="`/imgs/share/qr.png`" class="w-20 w-20 rounded-md overflow-hidden" alt="" />
             </div>
           </div>
         </div>
 
-        <NuxtImg :src="`/imgs/share/bg/${imgIndex}.jpg`" class="w-full object-cover object-center absolute top-0 " alt="" />
+        <img :src="`/imgs/share/bg/${imgIndex}.jpg`" class="w-full object-cover object-center absolute top-0 " alt="" />
       </div>
 
       <!-- 右侧：分享引导区域 -->

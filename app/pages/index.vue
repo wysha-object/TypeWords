@@ -38,7 +38,7 @@ function toggleTheme() {
   setTheme(theme)
 }
 
-const { locales, setLocale } = useI18n()
+const { locales, setLocale, locale } = useI18n()
 </script>
 <template>
   <div class="wrapper bg-primary2 text-lg" :class="theme" id="wrapper">
@@ -58,7 +58,7 @@ const { locales, setLocale } = useI18n()
         </NuxtLink>
       </div>
       <div class="absolute right-6 flex items-center gap-2 color-reverse-black">
-        <NuxtLink to="/app/pages/help" class="color-reverse-black" aria-label="Help page">
+        <NuxtLink to="/help" class="color-reverse-black" aria-label="Help page">
           <BaseIcon>
             <IconFluentQuestionCircle20Regular />
           </BaseIcon>
@@ -113,7 +113,7 @@ const { locales, setLocale } = useI18n()
       <div class="w-70vw mb-4 mt-20">
         <div class="text-4xl font-bold mb-8">{{ $t('home_word_practice') }}</div>
         <div class="flex gap-10">
-          <ul class="p-0 m-0 list-none space-y-2 shrink-0">
+          <ul class="p-0 m-0 list-none space-y-2 max-w-80">
             <li>{{ $t('home_word_practice_desc1') }}</li>
             <li>{{ $t('home_word_practice_desc2') }}</li>
             <li>{{ $t('home_word_practice_desc3') }}</li>
@@ -128,37 +128,15 @@ const { locales, setLocale } = useI18n()
           <div class="flex-1">
             <NuxtImg src="/imgs/articles.png" class="rounded-xl w-full" />
           </div>
-          <ul class="p-0 m-0 list-none space-y-2 shrink-0">
-            <li>{{ $t('home_word_practice_desc1') }}</li>
-            <li>{{ $t('home_word_practice_desc2') }}</li>
-            <li>{{ $t('home_word_practice_desc3') }}</li>
+          <ul class="p-0 m-0 list-none space-y-2 max-w-80">
+            <li>{{ $t('home_article_practice_desc1') }}</li>
+            <li>{{ $t('home_article_practice_desc2') }}</li>
+            <li>{{ $t('home_article_practice_desc3') }}</li>
           </ul>
         </div>
 
         <div class="text-4xl font-bold mb-8 mt-20 text-center">{{ $t('function_desc') }}</div>
         <div class="card-wrap">
-          <div class="card1 hover">
-            <div class="emoji">📚</div>
-            <div class="title">{{ $t('home_word_practice') }}</div>
-            <div class="desc">
-              <ul>
-                <li>{{ $t('home_word_practice_desc1') }}</li>
-                <li>{{ $t('home_word_practice_desc2') }}</li>
-                <li>{{ $t('home_word_practice_desc3') }}</li>
-              </ul>
-            </div>
-          </div>
-          <div class="card1 hover">
-            <div class="emoji">✍️</div>
-            <div class="title">{{ $t('home_article_practice') }}</div>
-            <div class="desc">
-              <ul>
-                <li>{{ $t('home_article_practice_desc1') }}</li>
-                <li>{{ $t('home_article_practice_desc2') }}</li>
-                <li>{{ $t('home_article_practice_desc3') }}</li>
-              </ul>
-            </div>
-          </div>
           <div class="card1 hover">
             <div class="emoji">📕</div>
             <div class="title">{{ $t('home_collection') }}</div>
@@ -175,8 +153,6 @@ const { locales, setLocale } = useI18n()
             <div class="title">{{ $t('home_vocabulary') }}</div>
             <div class="desc">{{ $t('home_vocabulary_desc') }}</div>
           </div>
-        </div>
-        <div class="card-wrap">
           <div class="card1 hover">
             <div class="emoji">🆓</div>
             <div class="title">{{ $t('home_free_opensource') }}</div>
@@ -188,6 +164,8 @@ const { locales, setLocale } = useI18n()
               </ul>
             </div>
           </div>
+        </div>
+        <div class="card-wrap">
           <div class="card1 hover">
             <div class="emoji">⚙️</div>
             <div class="title">{{ $t('home_customization') }}</div>
@@ -228,13 +206,15 @@ const { locales, setLocale } = useI18n()
     <div class="line"></div>
     <div class="w-full center gap-4 h-20">
       <channel-icons type="horizontal" :share="false" />
-      <a
-        href="https://beian.mps.gov.cn/#/query/webSearch?code=51015602001426"
-        target="_blank"
-        class="black-link text-sm"
-        >{{ $t('cn_limit_no1') }}
-      </a>
-      <a href="https://beian.miit.gov.cn/" class="black-link text-sm" target="_blank">{{ $t('cn_limit_no2') }}</a>
+      <template v-if="locale === 'zh'">
+        <a
+          href="https://beian.mps.gov.cn/#/query/webSearch?code=51015602001426"
+          target="_blank"
+          class="black-link text-sm"
+          >{{ $t('cn_limit_no1') }}
+        </a>
+        <a href="https://beian.miit.gov.cn/" class="black-link text-sm" target="_blank">{{ $t('cn_limit_no2') }}</a>
+      </template>
     </div>
   </div>
 </template>

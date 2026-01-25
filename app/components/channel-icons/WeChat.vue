@@ -15,7 +15,7 @@ let showWechatDialog = $ref(false)
         {{ $t('community_desc') }}
       </div>
       <div class="text-center">
-        <NuxtImg src="/imgs/channel/wechat.png" :alt="$t('wechat_qrcode')" class="w-70 rounded-xl shadow-lg" />
+        <img src="/imgs/channel/wechat.png" :alt="$t('wechat_qrcode')" class="w-70 rounded-xl shadow-lg" />
       </div>
     </div>
   </Dialog>

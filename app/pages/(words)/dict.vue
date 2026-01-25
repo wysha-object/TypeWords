@@ -384,7 +384,8 @@ function importData(e) {
               tableRef.value.getData()
               syncDictInMyStudyList()
               Toast.success('导入成功！')
-            }
+            },
+            { t: $t }
           )
         } else {
           tableRef.value.closeImportDialog()
@@ -580,7 +581,9 @@ defineRender(() => {
           </div>
           {dict.description && (
             <>
-              <div class="text-lg  mt-2">{$t('introduction')}：{dict.description}</div>
+              <div class="text-lg  mt-2">
+                {$t('introduction')}：{dict.description}
+              </div>
               <div class="line my-3"></div>
             </>
           )}

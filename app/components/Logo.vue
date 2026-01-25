@@ -17,8 +17,8 @@ function goHome() {
 
 <template>
   <div class="center mb-2" @click="goHome">
-    <NuxtImg v-show="settingStore.theme === 'dark'" src="/imgs/logo/logo-text-white.png" alt="" />
-    <NuxtImg v-show="settingStore.theme !== 'dark'" src="/imgs/logo/logo-text-black.png" alt="" />
+    <img v-show="settingStore.theme === 'dark'" src="/imgs/logo/logo-text-white.png" alt="" />
+    <img v-show="settingStore.theme !== 'dark'" src="/imgs/logo/logo-text-black.png" alt="" />
   </div>
 </template>
 

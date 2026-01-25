@@ -91,7 +91,6 @@ declare module 'vue' {
     IconFluentTextListAbcUppercaseLtr20Regular: typeof import('~icons/fluent/text-list-abc-uppercase-ltr20-regular')['default']
     IconFluentTextPositionThrough20Regular: typeof import('~icons/fluent/text-position-through20-regular')['default']
     IconFluentTextUnderlineDouble20Regular: typeof import('~icons/fluent/text-underline-double20-regular')['default']
-    IconFluentTranslate16Regular: typeof import('~icons/fluent/translate16-regular')['default']
     IconFluentTranslateOff16Regular: typeof import('~icons/fluent/translate-off16-regular')['default']
     IconFluentWeatherMoon16Regular: typeof import('~icons/fluent/weather-moon16-regular')['default']
     IconFluentWeatherSunny16Regular: typeof import('~icons/fluent/weather-sunny16-regular')['default']

@@ -13,7 +13,7 @@ defineEmits<{
 
 <template>
   <div class="empty">
-    <NuxtImg src="@/assets/img/缺省页_空白页-通用.svg" alt="" />
+    <NuxtImg src="/imgs/empty.svg" alt="" />
     <span>{{ text ?? $t('empty_placeholder') }}</span>
     <BaseButton v-if="showAdd" @click="$emit('add')">{{ $t('add') }}</BaseButton>
   </div>

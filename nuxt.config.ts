@@ -114,6 +114,7 @@ export default defineNuxtConfig({
   i18n: {
     locales: [
       { code: 'en', language: 'en-US', file: 'en.json', name: 'English' },
+      { code: 'zh', language: 'zh-CN', file: 'zh.json', name: '中文' },
       { code: 'es', language: 'es-ES', file: 'es.json', name: 'Español' },
       { code: 'fr', language: 'fr-FR', file: 'fr.json', name: 'Français' },
       { code: 'pt', language: 'pt-BR', file: 'pt.json', name: 'Português' },
@@ -126,7 +127,6 @@ export default defineNuxtConfig({
       { code: 'vi', language: 'vi-VN', file: 'vi.json', name: 'Tiếng Việt' },
       { code: 'id', language: 'id-ID', file: 'id.json', name: 'Bahasa Indonesia' },
       { code: 'tw', language: 'zh-TW', file: 'tw.json', name: '繁體中文' },
-      { code: 'zh', language: 'zh-CN', file: 'zh.json', name: '中文' },
     ],
     defaultLocale: 'zh',
     // langDir:'app/i18n/',

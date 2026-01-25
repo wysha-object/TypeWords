@@ -69,7 +69,7 @@ let showQQDialog = $ref(false)
         {{ $t('xiaohongshu_desc') }}
       </div>
       <div class="text-center">
-        <NuxtImg src="/imgs/channel/xhs.png" :alt="$t('xiaohongshu_qrcode')" class="w-70 rounded-xl shadow-lg" />
+        <img src="/imgs/channel/xhs.png" :alt="$t('xiaohongshu_qrcode')" class="w-70 rounded-xl shadow-lg" />
       </div>
     </div>
   </Dialog>
@@ -80,7 +80,7 @@ let showQQDialog = $ref(false)
         <span>{{ $t('community_desc') }}</span>
       </div>
       <div class="text-center">
-        <NuxtImg src="/imgs/channel/qq.jpg" :alt="$t('qq_qrcode')" class="w-70 rounded-xl shadow-lg" />
+        <img src="/imgs/channel/qq.jpg" :alt="$t('qq_qrcode')" class="w-70 rounded-xl shadow-lg" />
       </div>
     </div>
   </Dialog>

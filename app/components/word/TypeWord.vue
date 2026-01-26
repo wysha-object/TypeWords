@@ -174,7 +174,11 @@ async function onTyping(e: KeyboardEvent) {
           return
         }
         showWordResult = inputLock = false
-        emit('complete')
+        if (shouldRepeat()) {
+          repeat()
+        } else {
+          emit('complete')
+        }
       } else {
         if (showWordResult) {
           // 错误时，提示用户按删除键，仅默写需要提示
@@ -313,24 +317,24 @@ async function onTyping(e: KeyboardEvent) {
       }
       if ([WordPracticeType.FollowWrite, WordPracticeType.Spell].includes(settingStore.wordPracticeType)) {
         if (settingStore.autoNextWord) {
-          if (settingStore.repeatCount == 100) {
-            if (settingStore.repeatCustomCount <= wordRepeatCount + 1) {
-              jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
-            } else {
-              repeat()
-            }
+          if (shouldRepeat()) {
+            repeat()
           } else {
-            if (settingStore.repeatCount <= wordRepeatCount + 1) {
-              jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
-            } else {
-              repeat()
-            }
+            jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
           }
         }
       }
     } else {
       inputLock = false
     }
+  }
+}
+
+function shouldRepeat() {
+  if (settingStore.repeatCount == 100) {
+    return settingStore.repeatCustomCount > wordRepeatCount + 1;
+  } else {
+    return settingStore.repeatCount > wordRepeatCount + 1;
   }
 }
 

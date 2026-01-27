@@ -102,11 +102,11 @@ const showIcon = $computed(() => {
           <IconFluentHome20Regular />
           <span>主页</span>
         </div>
-        <div class="nav-item" @click="router.push('/words')" :class="{ active: route.path.includes('/words') }">
+        <div class="nav-item" @click="router.push('/words')" :class="{ active: route.path?.includes('/words') }">
           <IconFluentTextUnderlineDouble20Regular />
           <span>单词</span>
         </div>
-        <div class="nav-item" @click="router.push('/articles')" :class="{ active: route.path.includes('/articles') }">
+        <div class="nav-item" @click="router.push('/articles')" :class="{ active: route.path?.includes('/articles') }">
           <IconFluentBookLetter20Regular />
           <span>文章</span>
         </div>
@@ -128,7 +128,7 @@ const showIcon = $computed(() => {
 
     <div class="flex-1 z-1 relative main-content overflow-x-hidden">
       <slot></slot>
-
+      <router-view></router-view>
       <div class="absolute right-4 top-4 flex z-1 gap-2" v-if="showIcon">
         <div class="relative group">
           <BaseIcon>

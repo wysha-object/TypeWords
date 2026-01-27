@@ -1,6 +1,7 @@
 import { useBaseStore } from '~/stores/base.ts'
 import { useRuntimeStore } from '~/stores/runtime.ts'
 import { useSettingStore } from '~/stores/setting.ts'
+import { useUserStore } from '~/stores/user.ts'
 import { syncSetting } from '~/apis'
 import { get, set } from 'idb-keyval'
 import { AppEnv, DictId } from '~/config/env.ts'

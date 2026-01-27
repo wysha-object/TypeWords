@@ -15,6 +15,9 @@ import AutoImport from 'unplugin-auto-import/vite'
 function pathResolve(dir: string) {
   return resolve(__dirname, '.', dir)
 }
+function pathResolve2(dir: string) {
+  return resolve(__dirname, '.', dir)
+}
 
 const lifecycle = process.env.npm_lifecycle_event
 let isCdnBuild = ['build-oss', 'report-oss'].includes(lifecycle)
@@ -28,10 +31,8 @@ export default defineConfig(() => {
       resolve({
         plugins: [
           AutoImport({
-            imports: [
-              'vue',
-            ],
-            dts: 'src/auto-imports.d.ts'
+            imports: ['vue'],
+            dts: 'src/auto-imports.d.ts',
           }),
           Icons({
             autoInstall: true,
@@ -108,8 +109,10 @@ export default defineConfig(() => {
         base: './',
         resolve: {
           alias: {
-            '@': pathResolve('src'),
-            '~': pathResolve('src'),
+            // '@': pathResolve('src'),
+            // '~': pathResolve('src'),
+            '@': pathResolve2('../app'),
+            '~': pathResolve2('../app'),
           },
           extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
         },

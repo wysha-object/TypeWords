@@ -109,10 +109,10 @@ export default defineConfig(() => {
         base: './',
         resolve: {
           alias: {
-            // '@': pathResolve('src'),
+            '@': pathResolve('src'),
             // '~': pathResolve('src'),
-            '@': pathResolve2('../app'),
-            '~': pathResolve2('../app'),
+            // '@': pathResolve2('../app'),
+            // '~': pathResolve2('../app'),
           },
           extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
         },

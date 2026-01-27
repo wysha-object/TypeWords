@@ -1,0 +1,20 @@
+{
+  "name": "@typewords/nuxt",
+  "private": true,
+  "scripts": {
+    "start": "nuxt dev",
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "test": "",
+    "generate": "nuxt generate && node scripts/do.js",
+    "generate2": "pnpm --filter vscode-web build && node scripts/copy-vscode-web.js && nuxt generate && node scripts/do.js",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "sitemap": "node scripts/do.js",
+    "build-tsc": "vue-tsc && vite build",
+    "report": "vite build",
+    "report-oss": "vite build",
+    "commit": "git-cz",
+    "prepare": "husky install"
+  }
+}

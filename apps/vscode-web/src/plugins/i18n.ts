@@ -21,7 +21,7 @@ export function useI18n() {
 export default {
   install(app: App) {
     // 关键：Vite 的 glob
-    const modules = import.meta.glob('../../../i18n/locales/*.json', {
+    const modules = import.meta.glob('../../../nuxt/i18n/locales/*.json', {
       eager: true,
     })
     const messages: Record<string, any> = {}

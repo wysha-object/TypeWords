@@ -1,0 +1,26 @@
+{
+  "name": "vscode-web",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "test": "",
+    "build": "vite build",
+    "build-tsc": "vue-tsc && vite build",
+    "report": "vite build",
+    "report-oss": "vite build",
+    "preview": "vite preview",
+    "commit": "git-cz",
+    "i18n:write": "gulp i18nwrite",
+    "deploy-oss": "node scripts/deploy-oss.js"
+  },
+  "dependencies": {
+    "@typewords/ui": "workspace:*"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

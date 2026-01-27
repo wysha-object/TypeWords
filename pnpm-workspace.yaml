@@ -1,3 +1,5 @@
 packages:
-  - 'vscode'
-  - 'vscode-web'
+  #  - 'vscode'
+  #  - 'vscode-web'
+  - apps/*
+  - packages/*

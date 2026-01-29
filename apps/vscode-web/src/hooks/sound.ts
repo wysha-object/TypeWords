@@ -1,5 +1,5 @@
-import {onMounted, watchEffect} from "vue"
-import {useSettingStore} from "@/stores/setting";
+import { onMounted, watchEffect } from 'vue'
+import { useSettingStore } from '@/stores/setting'
 
 import { ENV, PronunciationApi, SoundFileOptions } from '@/config/env'
 
@@ -23,7 +23,6 @@ export function useSound(audioSrcList?: string[], audioFileLength?: number) {
   }
 
   function play(volume: number = 100) {
-    console.log('play', audioList)
     index++
     if (audioList.length > 1 && audioList.length !== audioLength) {
       audioList[index % audioList.length].volume = volume / 100
@@ -37,10 +36,9 @@ export function useSound(audioSrcList?: string[], audioFileLength?: number) {
   return { play, setAudio }
 }
 
-
 export function usePlayKeyboardAudio() {
   const settingStore = useSettingStore()
-  const {play, setAudio} = useSound()
+  const { play, setAudio } = useSound()
 
   watchEffect(() => {
     if (!SoundFileOptions.find(v => v.label === settingStore.keyboardSoundFile)) {
@@ -61,7 +59,7 @@ export function usePlayKeyboardAudio() {
 
 export function usePlayBeep() {
   const settingStore = useSettingStore()
-  const {play} = useSound([`/sound/beep.wav`], 1)
+  const { play } = useSound([`/sound/beep.wav`], 1)
 
   function playAudio() {
     if (settingStore.effectSound) {
@@ -74,7 +72,7 @@ export function usePlayBeep() {
 
 export function usePlayCorrect() {
   const settingStore = useSettingStore()
-  const {play} = useSound([`/sound/correct.wav`], 1)
+  const { play } = useSound([`/sound/correct.wav`], 1)
 
   function playAudio() {
     if (settingStore.effectSound) {
@@ -87,7 +85,11 @@ export function usePlayCorrect() {
 
 export function usePlayWordAudio() {
   const settingStore = useSettingStore()
-  const audio = $ref(new Audio())
+  let audio = $ref<HTMLAudioElement>(null)
+
+  onMounted(() => {
+    audio = new Audio()
+  })
 
   function playAudio(word: string) {
     if (!word) return
@@ -99,7 +101,7 @@ export function usePlayWordAudio() {
     audio.volume = settingStore.wordSoundVolume / 100
     audio.playbackRate = settingStore.wordSoundSpeed
     audio.play()
-    audio.onerror = (e) => {
+    audio.onerror = e => {
       const ttsPlay = useTTsPlayAudio()
       ttsPlay(word)
     }
@@ -115,21 +117,21 @@ export function useTTsPlayAudio() {
   function play(text: string) {
     if (isPlay) {
       isPlay = false
-      window.speechSynthesis.pause();
+      window.speechSynthesis.pause()
     }
-    let msg = new SpeechSynthesisUtterance();
+    let msg = new SpeechSynthesisUtterance()
     msg.text = text
-    msg.rate = settingStore.wordSoundSpeed;
+    msg.rate = settingStore.wordSoundSpeed
     msg.volume = settingStore.wordSoundVolume / 100
-    msg.pitch = 1;
-    msg.lang = 'en-US';
-    const voices = speechSynthesis.getVoices();
-    let r = voices.find(v => v.name.includes("Female") || v.lang === "en-US");
+    msg.pitch = 1
+    msg.lang = 'en-US'
+    const voices = speechSynthesis.getVoices()
+    let r = voices.find(v => v.name.includes('Female') || v.lang === 'en-US')
     if (r) {
       msg.voice = r
     }
     isPlay = true
-    window.speechSynthesis.speak(msg);
+    window.speechSynthesis.speak(msg)
     console.log('text', text)
   }
 

@@ -9,18 +9,13 @@ import VueMacros from 'unplugin-vue-macros/vite'
 import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
 import IconsResolver from 'unplugin-icons/resolver'
-import { viteExternalsPlugin } from 'vite-plugin-externals'
 import AutoImport from 'unplugin-auto-import/vite'
 
 function pathResolve(dir: string) {
   return resolve(__dirname, '.', dir)
 }
-function pathResolve2(dir: string) {
-  return resolve(__dirname, '.', dir)
-}
 
 const lifecycle = process.env.npm_lifecycle_event
-let isCdnBuild = ['build-oss', 'report-oss'].includes(lifecycle)
 let isAnalyseBuild = ['report-oss', 'report'].includes(lifecycle)
 
 export default defineConfig(() => {
@@ -61,46 +56,7 @@ export default defineConfig(() => {
                 open: true,
               })
             : null,
-          isCdnBuild
-            ? [
-                {
-                  name: 'inject-cdn-head',
-                  enforce: 'pre',
-                  transformIndexHtml(html) {
-                    const scripts = `
-<script src="./libs/vue.global.prod.min.js" crossorigin="anonymous"></script>
-<script src="./libs/vue-router.global.prod.min.js" crossorigin="anonymous"></script>
-<script src="./libs/axios.min.js" crossorigin="anonymous"></script>
-`
-                    return html.replace('<head>', `<head>${scripts}`)
-                  },
-                },
-                viteExternalsPlugin({
-                  vue: 'Vue',
-                  'vue-router': 'VueRouter',
-                  axios: 'axios',
-                }),
-              ]
-            : null,
         ],
-        build: {
-          rollupOptions: {
-            output: {
-              manualChunks(id) {
-                if (id.includes('node_modules/@iconify') || id.includes('~icons')) {
-                  return 'icons'
-                }
-                if (id.includes('utils') || id.includes('hooks')) {
-                  return 'utils'
-                }
-                if (!isCdnBuild) return
-                if (id.includes('dialog')) {
-                  return 'dialog'
-                }
-              },
-            },
-          },
-        },
         define: {
           LATEST_COMMIT_HASH: JSON.stringify(
             latestCommitHash + (process.env.NODE_ENV === 'production' ? '' : ' (dev)')
@@ -110,10 +66,7 @@ export default defineConfig(() => {
         resolve: {
           alias: {
             '@': pathResolve('src'),
-            '@ui': '@typewords/ui',
-            // '~': pathResolve('src'),
-            // '@': pathResolve2('../app'),
-            // '~': pathResolve2('../app'),
+            '~': pathResolve('src'),
           },
           extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue'],
         },

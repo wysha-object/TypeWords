@@ -1,5 +1,6 @@
-import {createVNode, render} from 'vue'
-import Dialog, {ModalProps} from "@/components/dialog/Dialog.vue";
+import { createVNode, render } from 'vue'
+import Dialog from '@/components/dialog/Dialog.vue'
+import type { ModalProps } from '@/components/dialog/Dialog.vue'
 
 export class MessageBox {
   static confirm(
@@ -12,7 +13,7 @@ export class MessageBox {
   ) {
     let container = document.createElement('div')
     const close = () => {
-      render(null, container);
+      render(null, container)
       container.remove()
       onClose?.()
     }
@@ -24,8 +25,8 @@ export class MessageBox {
       confirm: onOk,
       onClose: close,
       footer: true,
-      ...config
-    });
+      ...config,
+    })
     // const appContext = getCurrentInstance()?.appContext;
     // // 补丁：Component中获取当前组件树的provides
     // if (appContext) {
@@ -33,24 +34,21 @@ export class MessageBox {
     //     Reflect.set(appContext, 'provides', {...appContext.provides, ...currentProvides});
     // }
     // vNode.appContext = appContext;
-    render(vNode, container);
+    render(vNode, container)
     document.body.append(container)
   }
 
-  static notice(
-    content: string,
-    title: string,
-  ) {
+  static notice(content: string, title: string) {
     let container = document.createElement('div')
     let tempOnCancel = () => {
-      render(null, container);
+      render(null, container)
       container.remove()
     }
     const vNode = createVNode(Dialog, {
       title,
       content,
       onCancel: tempOnCancel,
-    });
+    })
     // const appContext = getCurrentInstance()?.appContext;
     // // 补丁：Component中获取当前组件树的provides
     // if (appContext) {
@@ -58,7 +56,7 @@ export class MessageBox {
     //     Reflect.set(appContext, 'provides', {...appContext.provides, ...currentProvides});
     // }
     // vNode.appContext = appContext;
-    render(vNode, container);
+    render(vNode, container)
     document.body.append(container)
   }
 }

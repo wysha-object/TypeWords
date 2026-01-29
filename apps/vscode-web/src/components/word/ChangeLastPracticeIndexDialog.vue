@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
-import BaseTable from "@/components/BaseTable.vue";
-import WordItem from "@/components/WordItem.vue";
+import BaseTable from "~/components/BaseTable.vue";
+import WordItem from "~/components/WordItem.vue";
 import { defineAsyncComponent } from "vue";
-import { useRuntimeStore } from "@/stores/runtime.ts";
-import { AppEnv } from "@/config/env.ts";
+import { useRuntimeStore } from "~/stores/runtime.ts";
+import { AppEnv } from "~/config/env.ts";
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 const model = defineModel()
 const runtimeStore = useRuntimeStore()

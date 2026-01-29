@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import { inject, Ref } from 'vue'
-import { usePracticeStore } from '@/stores/practice.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import type { PracticeData, TaskWords } from '@/types/types.ts'
-import BaseIcon from '@/components/BaseIcon.vue'
-import Tooltip from '@/components/base/Tooltip.vue'
-import SettingDialog from '@/components/setting/SettingDialog.vue'
-import BaseButton from '@/components/BaseButton.vue'
-import { useBaseStore } from '@/stores/base.ts'
-import VolumeSettingMiniDialog from '@/components/word/VolumeSettingMiniDialog.vue'
-import StageProgress from '@/components/StageProgress.vue'
-import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@/types/enum.ts'
-import { WordPracticeModeNameMap, WordPracticeModeStageMap, WordPracticeStageNameMap } from '@/config/env.ts'
+import { usePracticeStore } from '~/stores/practice'
+import { useSettingStore } from '~/stores/setting'
+import type { PracticeData, TaskWords } from '~/types/types'
+import BaseIcon from '~/components/BaseIcon.vue'
+import Tooltip from '~/components/base/Tooltip.vue'
+import SettingDialog from '~/components/setting/SettingDialog.vue'
+import BaseButton from '~/components/BaseButton.vue'
+import { useBaseStore } from '~/stores/base'
+import VolumeSettingMiniDialog from '~/components/word/VolumeSettingMiniDialog.vue'
+import StageProgress from '~/components/StageProgress.vue'
+import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '~/types/enum'
+import { WordPracticeModeNameMap, WordPracticeModeStageMap, WordPracticeStageNameMap } from '~/config/env'
+import { useI18n } from 'vue-i18n'
 
 const statStore = usePracticeStore()
+const { t: $t } = useI18n()
 const store = useBaseStore()
 const settingStore = useSettingStore()
 
@@ -32,16 +33,14 @@ const emit = defineEmits<{
 }>()
 
 let practiceData = inject<PracticeData>('practiceData')
-let isTypingWrongWord = inject<Ref<boolean>>('isTypingWrongWord')
-let practiceTaskWords = inject<TaskWords>('practiceTaskWords')
 
 function format(val: number, suffix: string = '', check: number = -1) {
   return val === check ? '-' : val + suffix
 }
 
 const status = $computed(() => {
-  if (settingStore.wordPracticeMode === WordPracticeMode.Free) return '自由练习'
-  if (isTypingWrongWord.value) return '复习错词'
+  if (settingStore.wordPracticeMode === WordPracticeMode.Free) return $t('free_practice')
+  if (practiceData.isTypingWrongWord) return $t('review_wrong_words')
   return statStore.getStageName
 })
 
@@ -209,7 +208,7 @@ const stages = $computed(() => {
 
 <template>
   <div class="footer">
-    <Tooltip :title="settingStore.showToolbar ? '收起' : '展开'">
+    <Tooltip :title="settingStore.showToolbar ? $t('collapse') : $t('expand')">
       <IconFluentChevronLeft20Filled
         @click="settingStore.showToolbar = !settingStore.showToolbar"
         class="arrow"
@@ -230,19 +229,19 @@ const stages = $computed(() => {
           </div>
           <div class="row">
             <!--            <div class="num">{{ statStore.spend }}分钟</div>-->
-            <div class="num">{{ Math.floor(statStore.spend / 1000 / 60) }}分钟</div>
+            <div class="num">{{ Math.floor(statStore.spend / 1000 / 60) }}{{ $t('minutes') }}</div>
             <div class="line"></div>
-            <div class="name">时间</div>
+            <div class="name">{{ $t('time') }}</div>
           </div>
           <div class="row">
             <div class="num">{{ statStore.total }}</div>
             <div class="line"></div>
-            <div class="name">单词总数</div>
+            <div class="name">{{ $t('total_words') }}</div>
           </div>
           <div class="row">
             <div class="num">{{ format(statStore.wrong, '', 0) }}</div>
             <div class="line"></div>
-            <div class="name">错误数</div>
+            <div class="name">{{ $t('errors') }}</div>
           </div>
         </div>
         <div class="flex gap-2 justify-center items-center" id="toolbar-icons">
@@ -253,7 +252,7 @@ const stages = $computed(() => {
           <BaseIcon
             v-if="settingStore.wordPracticeMode !== WordPracticeMode.Free"
             @click="emit('skipStep')"
-            :title="`跳到下一阶段:${WordPracticeStageNameMap[statStore.nextStage]}`"
+            :title="`${$t('skip_to_next_stage')}:${WordPracticeStageNameMap[statStore.nextStage]}`"
           >
             <IconFluentArrowRight16Regular />
           </BaseIcon>
@@ -268,7 +267,7 @@ const stages = $computed(() => {
                   <IconFluentCheckmarkCircle16Filled v-else />
                   <span>
                     {{
-                      (!isSimple ? '标记已掌握' : '取消已掌握') +
+                      (!isSimple ? $t('mark_mastered') : $t('unmark_mastered')) +
                       `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleSimple]})`
                     }}</span
                   >
@@ -280,7 +279,7 @@ const stages = $computed(() => {
                   <IconFluentStar16Filled v-else />
                   <span>
                     {{
-                      (!isCollect ? '收藏' : '取消收藏') + `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
+                      (!isCollect ? $t('collect') : $t('uncollect')) + `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
                     }}</span
                   >
                 </div>
@@ -288,7 +287,7 @@ const stages = $computed(() => {
               <BaseButton size="normal" type="info" class="w-full" @click="$emit('skip')">
                 <div class="flex items-center gap-2">
                   <IconFluentArrowBounce20Regular class="transform-rotate-180" />
-                  <span> 跳过单词({{ settingStore.shortcutKeyMap[ShortcutKey.Next] }})</span>
+                  <span> {{ $t('skip_word') }}({{ settingStore.shortcutKeyMap[ShortcutKey.Next] }})</span>
                 </div>
               </BaseButton>
             </div>
@@ -300,23 +299,23 @@ const stages = $computed(() => {
 
           <BaseIcon
             @click="settingStore.dictation = !settingStore.dictation"
-            :title="`开关默写模式(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
+            :title="`${$t('toggle_dictation_mode')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleDictation]})`"
           >
             <IconFluentEyeOff16Regular v-if="settingStore.dictation" />
             <IconFluentEye16Regular v-else />
           </BaseIcon>
 
           <BaseIcon
-            :title="`开关释义显示(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
+            :title="`${$t('toggle_translation')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleShowTranslate]})`"
             @click="settingStore.translate = !settingStore.translate"
           >
-            <IconFluentTranslate16Regular v-if="settingStore.translate" />
+            <IconPhTranslate v-if="settingStore.translate" />
             <IconFluentTranslateOff16Regular v-else />
           </BaseIcon>
 
           <BaseIcon
             @click="settingStore.showPanel = !settingStore.showPanel"
-            :title="`单词本(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
+            :title="`${$t('word_list')}(${settingStore.shortcutKeyMap[ShortcutKey.TogglePanel]})`"
           >
             <IconFluentTextListAbcUppercaseLtr20Regular />
           </BaseIcon>
@@ -348,7 +347,7 @@ const stages = $computed(() => {
   }
 
   .bottom {
-    @apply relative w-full box-border rounded-xl bg-second shadow-lg z-10;
+    @apply relative w-full box-border rounded-xl bg-second shadow-lg z-10 mb-3;
     padding: 0.2rem var(--space) calc(0.4rem + env(safe-area-inset-bottom, 0px)) var(--space);
 
     .stat {

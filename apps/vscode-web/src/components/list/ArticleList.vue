@@ -103,7 +103,7 @@ defineExpose({ scrollToBottom, scrollToItem })
             <BaseIcon
               :class="!isArticleCollect(item) ? 'collect' : 'fill'"
               @click.stop="toggleArticleCollect(item)"
-              :title="!isArticleCollect(item) ? '收藏' : '取消收藏'"
+              :title="!isArticleCollect(item) ? $t('collect') : $t('uncollect')"
             >
               <IconFluentStar16Regular v-if="!isArticleCollect(item)" />
               <IconFluentStar16Filled v-else />

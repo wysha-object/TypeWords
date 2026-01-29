@@ -43,8 +43,8 @@ const removeToastContainer = (id: string) => {
     const container = toastContainers[index]
     // 延迟销毁，等待动画完成
     setTimeout(() => {
-      render(null, container.container)
-      container.container.remove()
+      render(null, container!.container)
+      container!.container.remove()
       const currentIndex = toastContainers.findIndex(c => c.id === id)
       if (currentIndex > -1) {
         toastContainers.splice(currentIndex, 1)

@@ -14,6 +14,7 @@ const map = {
   DEV: {
     API: 'http://localhost/',
     // RESOURCE_URL: 'https://dicts.2study.top/',
+    // RESOURCE_URL: '/',
     RESOURCE_URL: 'https://files.2study.top/',
   },
 }
@@ -21,10 +22,15 @@ const map = {
 export const ENV = Object.assign(map['DEV'], common)
 
 export let AppEnv = {
-  TOKEN: localStorage.getItem('token') ?? '',
+  // TOKEN: localStorage.getItem('token') ?? '',
+  TOKEN: '',
   IS_OFFICIAL: false,
   IS_LOGIN: false,
   CAN_REQUEST: false,
+}
+
+if (import.meta.client) {
+  AppEnv.TOKEN = localStorage.getItem('token') ?? ''
 }
 
 AppEnv.IS_LOGIN = !!AppEnv.TOKEN
@@ -42,7 +48,7 @@ export const DICT_LIST = {
   },
   ARTICLE: {
     ALL: `/list/article.json`,
-    RECOMMENDED: `/list/article.json`,
+    RECOMMENDED: `/list/recommend_article.json`,
   },
 }
 
@@ -88,13 +94,10 @@ export const TourConfig = {
 
 export const IS_DEV = import.meta.env.MODE === 'development'
 export const LIB_JS_URL = {
-  SHEPHERD:
-    import.meta.env.MODE === 'development'
-      ? 'https://cdn.jsdelivr.net/npm/shepherd.js@14.5.1/dist/esm/shepherd.mjs'
-      : Origin + '/libs/Shepherd.14.5.1.mjs',
-  SNAPDOM: `${Origin}/libs/snapdom.min.js`,
-  JSZIP: `${Origin}/libs/jszip.min.js`,
-  XLSX: `${Origin}/libs/xlsx.full.min.js`,
+  SHEPHERD: `${ENV.RESOURCE_URL}/libs/Shepherd.14.5.1.mjs.js`,
+  SNAPDOM: `${ENV.RESOURCE_URL}/libs/snapdom.min.js`,
+  JSZIP: `${ENV.RESOURCE_URL}/libs/jszip.min.js`,
+  XLSX: `${ENV.RESOURCE_URL}/libs/xlsx.full.min.js`,
 }
 export const PronunciationApi = 'https://dict.youdao.com/dictvoice?audio='
 export const DefaultShortcutKeyMap = {

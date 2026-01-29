@@ -14,6 +14,7 @@
   --color-scrollbar: #c1c1c1;
 
   --color-sub-gray: #c0bfbf;
+  --aside-width: 4.5rem;
 
   --article-width: 50vw;
   --article-toolbar-width: 50vw;
@@ -37,7 +38,6 @@
   --color-textarea-bg: white;
   --color-article: black;
 
-  --aside-width: 12rem;
 
   --font-family: -apple-system, sans-serif;
   --word-font-family: ui-monospace, sans-serif;
@@ -45,6 +45,7 @@
   --zh-article-family: 'Songti SC', 'SimSun', 'Noto Serif CJK SC', serif;
 
   --color-primary: #e6e8eb;
+  --color-primary2: white;
   --color-second: rgb(247, 247, 247);
   --color-third: rgb(228, 230, 232);
   --color-fourth: rgb(218, 220, 222);
@@ -52,8 +53,6 @@
 
   //--color-card-active: #FED7AA;
   --color-card-active: rgb(253, 246, 236);
-  --color-icon-hightlight: rgb(12, 140, 233);
-  //--color-icon-hightlight: rgb(12, 140, 233);
   --color-sub-text: gray;
   --color-main-text: rgb(91, 91, 91);
   --color-select-bg: rgb(12, 140, 233);
@@ -87,7 +86,6 @@ html.dark {
   --color-fifth: rgb(84, 84, 84);
 
   --color-card-active: rgb(84, 84, 84);
-  --color-icon-hightlight: rgb(147, 173, 227);
   --color-sub-text: #b8b8b8;
   --color-main-text: rgba(249, 250, 251, 0.8);
   --color-select-bg: rgb(147, 173, 227);
@@ -113,6 +111,7 @@ html.dark {
   --color-label-bg: rgb(10, 10, 10);
 
   --color-card-bg: var(--color-second);
+  --color-primary2: var(--color-second);
 
   --bg-card-primary: rgb(30, 31, 34);
   --bg-card-secend: rgb(43, 45, 48);
@@ -238,8 +237,8 @@ a {
   @apply hover:opacity-80;
 }
 
-.cp {
-  @apply cursor-pointer;
+.black-link{
+  @apply color-reverse-black hover:text-blue-600 transition duration-300 ease-in-out ;
 }
 
 @supports selector(::-webkit-scrollbar) {
@@ -411,7 +410,7 @@ a {
 
 .book {
   @extend .anim;
-  @apply p-3 rounded-md relative cursor-pointer hover:bg-fifth flex flex-col justify-between shrink-0;
+  @apply p-3 rounded-md relative cursor-pointer hover:bg-fifth border-item-solid flex flex-col justify-between shrink-0;
   background: var(--bg-book);
   $w: 7rem;
   width: $w;

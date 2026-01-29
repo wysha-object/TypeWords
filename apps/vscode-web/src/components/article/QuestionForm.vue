@@ -1,16 +1,16 @@
 <template>
   <div class="question-form en-article-family">
     <div class="flex items-center justify-between">
-      <div class="font-bold">Multiple choice questions 选择题</div>
+      <div class="font-bold">Multiple choice questions {{ $t('multiple_choice') }}</div>
       <div v-if="false">
         <button
             v-if="!started"
             class="bg-blue-600 text-white px-4 py-1 rounded"
             @click="startExam"
-        >开始
+        >{{ $t('start') }}
         </button>
         <span v-if="started" class="text-red-600 font-semibold font-family">
-          倒计时：{{ timeLeft }} 秒
+          {{ $t('countdown') }}：{{ timeLeft }} {{ $t('seconds') }}
         </span>
       </div>
     </div>
@@ -35,9 +35,9 @@
       <button
           class="bg-green-600 text-white px-6 py-2 rounded"
           @click="submitAll"
-      >提交试卷
+      >{{ $t('submit_exam') }}
       </button>
-      <span class="text-xl">浅红：错误 深红：未选 绿：正确</span>
+      <span class="text-xl">{{ $t('exam_color_hint') }}</span>
     </div>
   </div>
 </template>
@@ -45,7 +45,7 @@
 <script setup lang="ts">
 import {ref, useTemplateRef} from 'vue'
 import QuestionItem from './QuestionItem.vue'
-import Toast from '@/components/base/toast/Toast.ts'
+import Toast from '~/components/base/toast/Toast.ts'
 
 interface IProps {
   questions: Array,

@@ -132,7 +132,7 @@ function next() {
   <div class="pagination" v-if="shouldShow">
     <div class="pagination-container">
       <!-- 总数 -->
-      <span v-if="layout.includes('total')" class="total text-base"> 共{{ total }}条 </span>
+      <span v-if="layout.includes('total')" class="total text-base"> {{ $t('total') }}{{ total }}{{ $t('total_items') }} </span>
       <!-- 上一页 -->
       <button class="btn-prev" :disabled="internalCurrentPage <= 1" @click="prev">
         <IconFluentChevronLeft20Filled />
@@ -155,14 +155,14 @@ function next() {
       <!-- 每页条数选择器 -->
       <div v-if="layout.includes('sizes')" class="sizes">
         <select :value="internalPageSize" @change="handleSizeChange(Number($event.target.value))">
-          <option v-for="item in pageSizes" :key="item" :value="item">{{ item }}条/页</option>
+          <option v-for="item in pageSizes" :key="item" :value="item">{{ item }}{{ $t('items_per_page') }}</option>
         </select>
       </div>
 
       <div class="flex items-center gap-1 ml-2">
-        跳至
+        {{ $t('jump_to') }}
         <div class="w-15">
-          <BaseInput placeholder="页/序号" v-model="jumpTarget" @enter="jumpToTarget" class="text-center" />
+          <BaseInput :placeholder="$t('page_or_index')" v-model="jumpTarget" @enter="jumpToTarget" class="text-center" />
         </div>
       </div>
     </div>

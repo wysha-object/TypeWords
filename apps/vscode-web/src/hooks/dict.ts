@@ -221,28 +221,32 @@ export function getCurrentStudyWord(): TaskWords {
 export function useGetDict() {
   const store = useBaseStore()
   const runtimeStore = useRuntimeStore()
-  let loading = ref(false)
+  let waiting = $ref(false)
+  let fetching = $ref(false)
   const route = useRoute()
   const router = useRouter()
 
   watch(
-    [() => store.load, () => loading],
+    [() => store.load, () => waiting],
     ([a, b]) => {
-      if (a && b.value) loadDict()
+      if (a && b) {
+        loadDict()
+      }
     },
     { immediate: true }
   )
 
   onMounted(() => {
+    // console.log('onMounted')
     if (route.query?.isAdd) {
       runtimeStore.editDict = getDefaultDict()
-    }else {
+    } else {
       if (!runtimeStore.editDict?.id) {
-        let dictId = route.query?.id
+        let dictId = route.params?.id
         if (!dictId) {
           return router.push('/articles')
         }
-        loading.value = true
+        waiting = true
       } else {
         loadDict(runtimeStore.editDict)
       }
@@ -252,10 +256,10 @@ export function useGetDict() {
   async function loadDict(dict?: Dict) {
     if (!dict) {
       dict = getDefaultDict()
-      let dictId = route.query.id
+      let dictId = route.params.id
       //先在自己的词典列表里面找，如果没有再在资源列表里面找
       dict = store.article.bookList.find(v => v.id === dictId)
-      let r = await fetch(resourceWrap(DICT_LIST.WORD.ALL))
+      let r = await fetch(resourceWrap(DICT_LIST.ARTICLE.ALL))
       let dict_list = await r.json()
       if (!dict) dict = dict_list.flat().find(v => v.id === dictId) as Dict
     }
@@ -266,7 +270,7 @@ export function useGetDict() {
         ![DictId.articleCollect].includes(dict.en_name || dict.id) &&
         !dict?.is_default
       ) {
-        loading.value = true
+        fetching = true
         let r = await _getDictDataByUrl(dict, DictType.article)
         runtimeStore.editDict = r
       }
@@ -281,13 +285,15 @@ export function useGetDict() {
           }
         }
       }
-      loading.value = false
     } else {
       router.push('/articles')
     }
+
+    waiting = false
+    fetching = false
   }
 
-  return {
-    loading,
-  }
+  const loading = computed(() => waiting || fetching)
+
+  return { loading }
 }

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 
-import BaseTable from "@/components/BaseTable.vue";
-import WordItem from "@/components/WordItem.vue";
+import BaseTable from "~/components/BaseTable.vue";
+import WordItem from "~/components/WordItem.vue";
 import { defineAsyncComponent } from "vue";
-import type { TaskWords } from "@/types/types.ts";
-import Checkbox from "@/components/base/checkbox/Checkbox.vue";
+import type { TaskWords } from "~/types/types.ts";
+import Checkbox from "~/components/base/checkbox/Checkbox.vue";
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 const model = defineModel()
 defineProps<{

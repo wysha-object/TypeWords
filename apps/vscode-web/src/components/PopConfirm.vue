@@ -124,8 +124,8 @@ export default {
                           ))}
                         </div>
                         <div class="options">
-                          <BaseButton type="info" size="small" onClick={() => this.show = false}>取消</BaseButton>
-                          <BaseButton size="small" onClick={() => this.confirm()}>确认</BaseButton>
+                          <BaseButton type="info" size="small" onClick={() => this.show = false}>{this.$t('cancel')}</BaseButton>
+                          <BaseButton size="small" onClick={() => this.confirm()}>{this.$t('confirm')}</BaseButton>
                         </div>
                       </div>
                   )

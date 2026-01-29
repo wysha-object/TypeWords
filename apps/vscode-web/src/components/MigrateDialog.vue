@@ -92,14 +92,14 @@ async function transfer() {
   <Dialog v-model="model"
           :footer="true"
           @ok="transfer"
-          confirmButtonText="迁移数据"
-          title="迁移数据">
+          :confirmButtonText="$t('migrate_data')"
+          :title="$t('migrate_data')">
     <div class="px-4 flex-col center w-100">
-      <h2 class="text-align-center">
-        本网站已启用新域名 <span class="color-blue">{{ Origin }}</span>
+      <h2 class="text-align-center text-2xl">
+        {{ $t('migrate_new_domain') }} <span class="color-blue">{{ Origin }}</span>
       </h2>
       <h3>
-        老域名即将停用，由于浏览器安全限制，新老网站数据无法互通，需要您手动点击转移数据
+        {{ $t('migrate_old_domain_notice') }}
       </h3>
       <div>
         如果您不想此时迁移，关闭弹窗后，您可随时在“设置” -> “数据管理” 里面再次进行

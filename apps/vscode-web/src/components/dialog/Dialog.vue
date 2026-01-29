@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 import Tooltip from '@/components/base/Tooltip.vue'
 import { useEventListener } from '@/hooks/event'
+import { useI18n } from 'vue-i18n'
 
 import BaseButton from '@/components/BaseButton.vue'
 import { useRuntimeStore } from '@/stores/runtime'
@@ -21,6 +22,7 @@ export interface ModalProps {
   closeOnClickBg?: boolean
   confirm?: any
   beforeClose?: any
+  t?: any
 }
 
 const props = withDefaults(defineProps<ModalProps>(), {
@@ -30,9 +32,15 @@ const props = withDefaults(defineProps<ModalProps>(), {
   fullScreen: false,
   footer: false,
   header: true,
-  confirmButtonText: '确认',
-  cancelButtonText: '取消',
+  confirmButtonText: '',
+  cancelButtonText: '',
   keyboard: true,
+})
+
+const localeT = $computed(() => {
+  if (props.t) return props.t
+  const { t: i18nT } = useI18n()
+  return i18nT
 })
 
 const emit = defineEmits(['update:modelValue', 'close', 'ok', 'cancel'])
@@ -141,20 +149,10 @@ async function cancel() {
 <template>
   <Teleport to="body">
     <div class="modal-root" :style="{ 'z-index': zIndex }" v-if="visible">
-      <div
-        class="modal-mask"
-        ref="maskRef"
-        v-if="!fullScreen"
-        @click.stop="closeOnClickBg && close()"
-      ></div>
+      <div class="modal-mask" ref="maskRef" v-if="!fullScreen" @click.stop="closeOnClickBg && close()"></div>
       <div class="modal" ref="modalRef" :class="[fullScreen ? 'full' : 'window']">
-        <Tooltip title="关闭">
-          <IconFluentDismiss20Regular
-            @click="close"
-            v-if="showClose"
-            class="close cursor-pointer"
-            width="24"
-          />
+        <Tooltip :title="localeT('close')">
+          <IconFluentDismiss20Regular @click="close" v-if="showClose" class="close cursor-pointer" width="24" />
         </Tooltip>
         <div class="modal-header" v-if="header">
           <div class="title">{{ props.title }}</div>
@@ -168,9 +166,9 @@ async function cancel() {
             <slot name="footer-left"></slot>
           </div>
           <div class="right">
-            <BaseButton type="info" @click="cancel">{{ cancelButtonText }}</BaseButton>
+            <BaseButton type="info" @click="cancel">{{ cancelButtonText || localeT('cancel') }}</BaseButton>
             <BaseButton id="dialog-ok" :loading="confirmButtonLoading" @click="ok"
-              >{{ confirmButtonText }}
+              >{{ confirmButtonText || localeT('confirm') }}
             </BaseButton>
           </div>
         </div>

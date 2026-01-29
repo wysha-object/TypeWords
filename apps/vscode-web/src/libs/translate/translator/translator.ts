@@ -1,12 +1,13 @@
-import {
+import type {
   Languages,
   TranslatorEnv,
   TranslatorInit,
   TranslateResult,
   TranslateQueryResult
 } from "./type";
-import {Language} from "../languages";
-import Axios, {AxiosInstance, AxiosRequestConfig, AxiosPromise} from "axios";
+import type { Language } from "../languages";
+import Axios from "axios";
+import type { AxiosInstance, AxiosRequestConfig, AxiosPromise } from "axios";
 
 export abstract class Translator<Config extends {} = {}> {
   axios: AxiosInstance;

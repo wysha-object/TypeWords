@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Article } from '@/types/types.ts'
 import BaseButton from '@/components/BaseButton.vue'
-import { _nextTick, cloneDeep, loadJsLib } from '@/utils'
-import { useBaseStore } from '@/stores/base.ts'
+import { cloneDeep, loadJsLib } from '@/utils'
 
 import List from '@/components/list/List.vue'
 import { useWindowClick } from '@/hooks/event.ts'
@@ -15,10 +14,13 @@ import { getDefaultArticle } from '@/types/func.ts'
 import BackIcon from '@/components/BackIcon.vue'
 import MiniDialog from '@/components/dialog/MiniDialog.vue'
 import { onMounted } from 'vue'
-import { DictId, LIB_JS_URL, Origin } from '@/config/env.ts'
+import { LIB_JS_URL } from '@/config/env.ts'
 import { syncBookInMyStudyList } from '@/hooks/article.ts'
 
-const base = useBaseStore()
+definePageMeta({
+  layout: 'empty',
+})
+
 const runtimeStore = useRuntimeStore()
 
 let article = $ref<Article>(getDefaultArticle())
@@ -283,7 +285,7 @@ function updateList(e) {
                 :loading="exportLoading"
                 :disabled="!article.id"
                 @click="exportData({ type: 'item', data: article })"
-              >当前
+                >当前
               </BaseButton>
             </div>
           </MiniDialog>
@@ -291,6 +293,7 @@ function updateList(e) {
         <BaseButton @click="add">新增</BaseButton>
       </div>
     </div>
+
     <EditArticle ref="editArticleRef" type="batch" @save="saveArticle" @saveAndNext="saveAndNext" :article="article" />
   </div>
 </template>

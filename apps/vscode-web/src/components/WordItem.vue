@@ -61,7 +61,7 @@ const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = use
         v-if="showCollectIcon"
         :class="!isWordCollect(item) ? 'collect' : 'fill'"
         @click.stop="toggleWordCollect(item)"
-        :title="!isWordCollect(item) ? '收藏' : '取消收藏'"
+        :title="!isWordCollect(item) ? $t('collect') : $t('uncollect')"
       >
         <IconFluentStar16Regular v-if="!isWordCollect(item)" />
         <IconFluentStar16Filled v-else />
@@ -71,7 +71,7 @@ const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = use
         v-if="showMarkIcon"
         :class="!isWordSimple(item) ? 'collect' : 'fill'"
         @click.stop="toggleWordSimple(item)"
-        :title="!isWordSimple(item) ? '标记为已掌握' : '取消标记已掌握'"
+        :title="!isWordSimple(item) ? $t('mark_mastered') : $t('unmark_mastered')"
       >
         <IconFluentCheckmarkCircle16Regular v-if="!isWordSimple(item)" />
         <IconFluentCheckmarkCircle16Filled v-else />

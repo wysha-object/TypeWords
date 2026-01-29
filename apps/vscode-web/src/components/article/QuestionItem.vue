@@ -27,14 +27,14 @@
     </div>
 
     <div v-if="explanation && isSubmitted" class="mt-2 text-xl text-gray-600">
-      解析：{{ explanation }}
+      {{ $t('explanation') }}：{{ explanation }}
     </div>
   </div>
 </template>
 
 <script setup>
 import {computed, nextTick, onMounted, ref, watch} from 'vue'
-import {shuffle} from "@/utils";
+import {shuffle} from "~/utils/index.js";
 
 const props = defineProps({
   stem: String,

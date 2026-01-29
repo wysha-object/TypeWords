@@ -1,5 +1,7 @@
 <script setup lang="tsx">
 import { nextTick, onMounted, useSlots } from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 import MiniDialog from '@/components/dialog/MiniDialog.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
 import BaseButton from '@/components/BaseButton.vue'
@@ -11,7 +13,7 @@ import Checkbox from '@/components/base/checkbox/Checkbox.vue'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
 import Dialog from '@/components/dialog/Dialog.vue'
 import BaseInput from '@/components/base/BaseInput.vue'
-import { Host } from '@/config/env.ts'
+import { ENV, Host } from '@/config/env.ts'
 import { Sort } from '@/types/enum.ts'
 
 const props = withDefaults(
@@ -174,7 +176,7 @@ defineRender(() => {
   )
 
   return (
-    <div class="flex flex-col gap-3">
+    <div class="base-table flex flex-col gap-3">
       {props.showToolbar && (
         <div>
           {showSearchInput ? (
@@ -190,7 +192,7 @@ defineRender(() => {
                   subfix: () => <IconFluentSearch24Regular class="text-lg text-gray" />,
                 }}
               </BaseInput>
-              <BaseButton onClick={cancelSearch}>取消</BaseButton>
+              <BaseButton onClick={cancelSearch}>{$t('cancel')}</BaseButton>
             </div>
           ) : (
             <div class="flex justify-between items-center">
@@ -203,35 +205,36 @@ defineRender(() => {
                     size="large"
                   />
                   <span>
-                  {selectIds.length} / {params.total}
-                </span>
+                    {selectIds.length} / {params.total}
+                  </span>
                 </div>
-              ) : <div>{params.total}条</div>}
-
+              ) : (
+                <div>{params.total}{$t('total_items')}</div>
+              )}
 
               <div class="flex gap-2 relative">
                 {selectIds.length && showCheckbox ? (
-                  <PopConfirm title="确认删除所有选中数据？" onConfirm={handleBatchDel}>
-                    <BaseButton type="info">确认</BaseButton>
+                  <PopConfirm title={$t('confirm_delete_selected')} onConfirm={handleBatchDel}>
+                    <BaseButton type="info">{$t('confirm')}</BaseButton>
                   </PopConfirm>
                 ) : null}
 
-                <BaseIcon onClick={() => (showCheckbox = !showCheckbox)} title="批量删除">
+                <BaseIcon onClick={() => (showCheckbox = !showCheckbox)} title={$t('batch_delete')}>
                   <DeleteIcon />
                 </BaseIcon>
 
-                <BaseIcon onClick={() => (showImportDialog = true)} title="导入">
+                <BaseIcon onClick={() => (showImportDialog = true)} title={$t('import')}>
                   <IconSystemUiconsImport />
                 </BaseIcon>
-                <BaseIcon onClick={() => emit('export')} title="导出">
+                <BaseIcon onClick={() => emit('export')} title={$t('export')}>
                   {props.exportLoading ? <IconEosIconsLoading /> : <IconPhExportLight />}
                 </BaseIcon>
-                <BaseIcon onClick={() => emit('add')} title="添加单词">
+                <BaseIcon onClick={() => emit('add')} title={$t('add_word')}>
                   <IconFluentAdd20Regular />
                 </BaseIcon>
                 <BaseIcon
                   disabled={!params.list.length}
-                  title="改变顺序"
+                  title={$t('change_order')}
                   onClick={() => (showSortDialog = !showSortDialog)}
                 >
                   <IconFluentArrowSort20Regular />
@@ -239,7 +242,7 @@ defineRender(() => {
                 <BaseIcon
                   disabled={!params.list.length}
                   onClick={() => (showSearchInput = !showSearchInput)}
-                  title="搜索"
+                  title={$t('search')}
                 >
                   <IconFluentSearch20Regular />
                 </BaseIcon>
@@ -248,13 +251,13 @@ defineRender(() => {
                   onUpdate:modelValue={e => (showSortDialog = e)}
                   style="width: 8rem;"
                 >
-                  <div class="mini-row-title">列表顺序设置</div>
+                  <div class="mini-row-title">{$t('list_order_setting')}</div>
                   <div class="flex flex-col gap2 btn-no-margin">
-                    <BaseButton onClick={() => sort(Sort.reverse)}>翻转当前页</BaseButton>
-                    <BaseButton onClick={() => sort(Sort.reverseAll)}>翻转所有</BaseButton>
+                    <BaseButton onClick={() => sort(Sort.reverse)}>{$t('reverse_current_page')}</BaseButton>
+                    <BaseButton onClick={() => sort(Sort.reverseAll)}>{$t('reverse_all')}</BaseButton>
                     <div class="line"></div>
-                    <BaseButton onClick={() => sort(Sort.random)}>随机当前页</BaseButton>
-                    <BaseButton onClick={() => sort(Sort.randomAll)}>随机所有</BaseButton>
+                    <BaseButton onClick={() => sort(Sort.random)}>{$t('random_current_page')}</BaseButton>
+                    <BaseButton onClick={() => sort(Sort.randomAll)}>{$t('random_all')}</BaseButton>
                   </div>
                 </MiniDialog>
               </div>
@@ -302,20 +305,20 @@ defineRender(() => {
         </div>
       )}
 
-      <Dialog modelValue={showImportDialog} onUpdate:modelValue={closeImportDialog} title="导入教程">
+      <Dialog modelValue={showImportDialog} onUpdate:modelValue={closeImportDialog} title={$t('import_tutorial')}>
         <div className="w-100 p-4 pt-0">
-          <div>请按照模板的格式来填写数据</div>
-          <div class="color-red">单词项为必填，其他项可不填</div>
-          <div>翻译：一行一个翻译，前面词性，后面内容（如n.取消）；多个翻译请换行</div>
+          <div>{$t('import_follow_template')}</div>
+          <div class="color-red">{$t('import_word_required')}</div>
+          <div>{$t('import_translation_hint')}</div>
           <div>
-            例句：一行原文，一行译文；多个请换<span class="color-red">两</span>行
+            {$t('import_example_hint')}<span class="color-red">{$t('two')}</span>{$t('lines')}
           </div>
           <div>
-            短语：一行原文，一行译文；多个请换<span class="color-red">两</span>行
+            {$t('import_phrase_hint')}<span class="color-red">{$t('two')}</span>{$t('lines')}
           </div>
-          <div>同义词、同根词、词源：请前往官方词典，然后编辑其中某个单词，参考其格式</div>
+          <div>{$t('import_other_hint')}</div>
           <div class="mt-6">
-            模板下载地址：<a href={`https://${Host}/libs/单词导入模板.xlsx`}>单词导入模板</a>
+            {$t('template_download')}：<a href={`${ENV.RESOURCE_URL}/libs/单词导入模板.xlsx`}>{$t('word_import_template')}</a>
           </div>
           <div class="mt-4">
             <BaseButton
@@ -325,7 +328,7 @@ defineRender(() => {
               }}
               loading={props.importLoading}
             >
-              导入
+              {$t('import')}
             </BaseButton>
             <input
               id="upload-trigger"

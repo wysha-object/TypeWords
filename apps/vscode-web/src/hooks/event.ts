@@ -1,17 +1,22 @@
-import {onDeactivated, onMounted, onUnmounted, watch} from "vue";
-import {emitter, EventKey} from "@/utils/eventBus.ts";
-import {useRuntimeStore} from "@/stores/runtime.ts";
-import {useSettingStore} from "@/stores/setting.ts";
-import {isMobile} from "@/utils";
+import { onDeactivated, onMounted, onUnmounted, watch } from 'vue'
+import { emitter, EventKey } from '@/utils/eventBus.ts'
+import { useRuntimeStore } from '@/stores/runtime.ts'
+import { useSettingStore } from '@/stores/setting.ts'
+import { isMobile } from '@/utils'
 
 export function useWindowClick(cb: (e: PointerEvent) => void) {
-  onMounted(() => {
+  const add = () => {
     emitter.on(EventKey.closeOther, cb)
     window.addEventListener('click', cb)
-  })
-  onUnmounted(() => {
+  }
+  onMounted(add)
+  // onActivated(add)
+
+  const remove = () => {
     window.removeEventListener('click', cb)
-  })
+  }
+  onUnmounted(remove)
+  onDeactivated(remove)
 }
 
 export function useEventListener(type: string, listener: EventListenerOrEventListenerObject) {
@@ -26,7 +31,7 @@ export function useEventListener(type: string, listener: EventListenerOrEventLis
 
   let cleanup: (() => void) | null = null
 
-  onMounted(() => {
+  const add = () => {
     const cleanupFns: Array<() => void> = []
     const registerCleanup = (fn: () => void) => cleanupFns.push(fn)
 
@@ -92,12 +97,9 @@ export function useEventListener(type: string, listener: EventListenerOrEventLis
           repeat: false,
           isComposing: false,
           type,
-          preventDefault() {
-          },
-          stopPropagation() {
-          },
-          stopImmediatePropagation() {
-          },
+          preventDefault() {},
+          stopPropagation() {},
+          stopImmediatePropagation() {},
         }
         return base as unknown as KeyboardEvent
       }
@@ -134,7 +136,7 @@ export function useEventListener(type: string, listener: EventListenerOrEventLis
         const value = target?.value ?? ''
 
         if (event.inputType === 'deleteContentBackward') {
-          dispatchSyntheticKey({key: 'Backspace', code: 'Backspace', keyCode: 8})
+          dispatchSyntheticKey({ key: 'Backspace', code: 'Backspace', keyCode: 8 })
           if (target) target.value = ''
           return
         }
@@ -212,7 +214,9 @@ export function useEventListener(type: string, listener: EventListenerOrEventLis
       performCleanup()
       cleanup = null
     }
-  })
+  }
+  onMounted(add)
+  // onActivated(add)
 
   const remove = () => {
     if (cleanup) cleanup()
@@ -258,21 +262,20 @@ export function useStartKeyboardEventListener() {
     //解决无法复制、全选的问题
     if ((e.ctrlKey || e.metaKey) && ['KeyC', 'KeyA'].includes(e.code)) return
     if (!runtimeStore.disableEventListener) {
-
       // 检查当前单词是否包含空格，如果包含，则空格键应该被视为输入
       if (e.code === 'Space') {
         // 获取当前正在输入的单词信息
-        const currentWord = window.__CURRENT_WORD_INFO__;
+        const currentWord = window.__CURRENT_WORD_INFO__
 
         // 如果当前单词包含空格，且下一个字符应该是空格，则将空格键视为输入
         // 或者如果当前处于输入锁定状态（等待空格输入），也将空格键视为输入
-        if (currentWord &&
-          ((currentWord.word &&
-              currentWord.word.includes(' ') &&
-              currentWord.word[currentWord.input.length] === ' ') ||
-            currentWord.inputLock === true)) {
-          e.preventDefault();
-          return emitter.emit(EventKey.onTyping, e);
+        if (
+          currentWord &&
+          ((currentWord.word && currentWord.word.includes(' ') && currentWord.word[currentWord.input.length] === ' ') ||
+            currentWord.inputLock === true)
+        ) {
+          e.preventDefault()
+          return emitter.emit(EventKey.onTyping, e)
         }
       }
 
@@ -296,26 +299,29 @@ export function useStartKeyboardEventListener() {
         //非英文模式下，输入区域的 keyCode 均为 229时，
         // 空格键始终应该被转发到onTyping函数，由它来决定是作为输入还是切换单词
         if (e.code === 'Space') {
-          e.preventDefault();
-          return emitter.emit(EventKey.onTyping, e);
+          e.preventDefault()
+          return emitter.emit(EventKey.onTyping, e)
         }
 
-        if (((e.keyCode >= 65 && e.keyCode <= 90)
-          || (e.keyCode >= 48 && e.keyCode <= 57)
-          // 空格键已经在上面处理过了
-          || e.code === 'Slash'
-          || e.code === 'Quote'
-          || e.code === 'Comma'
-          || e.code === 'BracketLeft'
-          || e.code === 'BracketRight'
-          || e.code === 'Period'
-          || e.code === 'Minus'
-          || e.code === 'Equal'
-          || e.code === 'Semicolon'
-          // || e.code === 'Backquote'
-          || e.keyCode === 229
+        if (
+          ((e.keyCode >= 65 && e.keyCode <= 90) ||
+            (e.keyCode >= 48 && e.keyCode <= 57) ||
+            // 空格键已经在上面处理过了
+            e.code === 'Slash' ||
+            e.code === 'Quote' ||
+            e.code === 'Comma' ||
+            e.code === 'BracketLeft' ||
+            e.code === 'BracketRight' ||
+            e.code === 'Period' ||
+            e.code === 'Minus' ||
+            e.code === 'Equal' ||
+            e.code === 'Semicolon' ||
+            // || e.code === 'Backquote'
+            e.keyCode === 229) &&
           //当按下功能键时，不阻止事件传播
-        ) && (!e.ctrlKey && !e.altKey)) {
+          !e.ctrlKey &&
+          !e.altKey
+        ) {
           if (isMobile() && e.keyCode === 229 && e.key === 'Unidentified') {
             // 安卓软键盘在keydown阶段不会提供字符，等待input/composition事件来派发实际输入
             return
@@ -326,7 +332,6 @@ export function useStartKeyboardEventListener() {
           emitter.emit(EventKey.keydown, e)
         }
       }
-
     }
   })
   useEventListener('keyup', (e: KeyboardEvent) => {
@@ -337,14 +342,19 @@ export function useStartKeyboardEventListener() {
 }
 
 export function useOnKeyboardEventListener(onKeyDown: (e: KeyboardEvent) => void, onKeyUp: (e: KeyboardEvent) => void) {
-  onMounted(() => {
+  const add = () => {
     emitter.on(EventKey.keydown, onKeyDown)
     emitter.on(EventKey.keyup, onKeyUp)
-  })
-  onUnmounted(() => {
+  }
+  onMounted(add)
+  // onActivated(add)
+
+  const remove = () => {
     emitter.off(EventKey.keydown, onKeyDown)
     emitter.off(EventKey.keyup, onKeyUp)
-  })
+  }
+  onUnmounted(remove)
+  onDeactivated(remove)
 }
 
 //因为如果用useStartKeyboardEventListener局部变量控制，当出现多个hooks时就不行了，所以用全局变量来控制

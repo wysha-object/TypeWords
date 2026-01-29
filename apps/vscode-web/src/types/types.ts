@@ -142,6 +142,7 @@ export interface PracticeData {
   words: Word[]
   wrongWords: Word[]
   excludeWords: string[]
+  isTypingWrongWord: boolean
 }
 
 export interface TaskWords {

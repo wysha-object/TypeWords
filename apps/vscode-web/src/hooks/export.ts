@@ -5,12 +5,11 @@ import {
   EXPORT_DATA_KEY,
   LIB_JS_URL,
   LOCAL_FILE_KEY,
-  Origin,
   SAVE_DICT_KEY,
   SAVE_SETTING_KEY,
 } from '@/config/env'
 import { get } from 'idb-keyval'
-import { saveAs } from 'file-saver'
+import saveAs from 'file-saver'
 import dayjs from 'dayjs'
 import Toast from '@/components/base/toast/Toast'
 import { useBaseStore } from '@/stores/base'
@@ -81,7 +80,7 @@ export function useExport() {
       saveAs(content, fileName)
       notice && Toast.success(notice)
       return content
-    } catch (e) {
+    } catch (e: any) {
       Toast.error(e?.message || e || '导出失败')
     } finally {
       loading.value = false

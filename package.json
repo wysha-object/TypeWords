@@ -3,8 +3,8 @@
   "private": true,
   "scripts": {
     "generate": "pnpm -F @typewords/nuxt generate",
-    "build:web": "pnpm -F @typewords/web-app build",
-    "build:ui": "pnpm -F @typewords/ui build",
+    "build:vscode-web": "pnpm -F @typewords/vscode-web build",
+    "build-all": "pnpm run generate && pnpm run build:vscode-web",
     "test": ""
   },
   "dependencies": {

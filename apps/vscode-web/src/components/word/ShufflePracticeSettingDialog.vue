@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import Slider from "@/components/base/Slider.vue";
+import Slider from "~/components/base/Slider.vue";
 import {defineAsyncComponent, watch} from "vue";
-import {useBaseStore} from "@/stores/base.ts";
+import {useBaseStore} from "~/stores/base.ts";
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 const store = useBaseStore()
 

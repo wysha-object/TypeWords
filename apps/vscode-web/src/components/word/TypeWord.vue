@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import type { Word } from '@/types/types.ts'
-import VolumeIcon from '@/components/icon/VolumeIcon.vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio } from '@/hooks/sound.ts'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
+import type { Word } from '~/types/types'
+import VolumeIcon from '~/components/icon/VolumeIcon.vue'
+import { useSettingStore } from '~/stores/setting'
+import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio } from '~/hooks/sound'
+import { emitter, EventKey, useEvents } from '~/utils/eventBus'
 import { onMounted, onUnmounted, watch } from 'vue'
-import SentenceHightLightWord from '@/components/word/SentenceHightLightWord.vue'
-import { usePracticeStore } from '@/stores/practice.ts'
-import { getDefaultWord } from '@/types/func.ts'
-import { _nextTick, last } from '@/utils'
-import BaseButton from '@/components/BaseButton.vue'
-import Space from '@/components/article/Space.vue'
-import Toast from '@/components/base/toast/Toast.ts'
-import Tooltip from '@/components/base/Tooltip.vue'
-import { ShortcutKey, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
+import SentenceHightLightWord from '~/components/word/SentenceHightLightWord.vue'
+import { usePracticeStore } from '~/stores/practice'
+import { getDefaultWord } from '~/types/func'
+import { _nextTick, last } from '~/utils'
+import BaseButton from '~/components/BaseButton.vue'
+import Space from '~/components/article/Space.vue'
+import Toast from '~/components/base/toast/Toast'
+import Tooltip from '~/components/base/Tooltip.vue'
+import { ShortcutKey, WordPracticeStage, WordPracticeType } from '~/types/enum'
+import { useI18n } from 'vue-i18n'
+const { t: $t } = useI18n()
 
 interface IProps {
   word: Word
@@ -136,7 +138,7 @@ function know(e) {
       input = props.word.word
       emit('know')
       if (!showNotice) {
-        Toast.info('若误选“我认识”，可按删除键重新选择！', { duration: 5000 })
+        Toast.info($t('know_word_tip'), { duration: 5000 })
         showNotice = true
       }
       return
@@ -172,13 +174,17 @@ async function onTyping(e: KeyboardEvent) {
           return
         }
         showWordResult = inputLock = false
-        emit('complete')
+        if (shouldRepeat()) {
+          repeat()
+        } else {
+          emit('complete')
+        }
       } else {
         if (showWordResult) {
           // 错误时，提示用户按删除键，仅默写需要提示
           pressNumber++
           if (pressNumber >= 3) {
-            Toast.info('请按删除键重新输入', { duration: 2000 })
+            Toast.info($t('press_delete_reinput'), { duration: 2000 })
             pressNumber = 0
           }
         }
@@ -188,7 +194,7 @@ async function onTyping(e: KeyboardEvent) {
       if (right) {
         pressNumber++
         if (pressNumber >= 3) {
-          Toast.info('请按空格键继续', { duration: 2000 })
+          Toast.info($t('press_space_continue'), { duration: 2000 })
           pressNumber = 0
         }
       } else {
@@ -255,26 +261,25 @@ async function onTyping(e: KeyboardEvent) {
       (('！' === word[input.length] && e.code === 'Digit1') ||
         ('￥' === word[input.length] && e.code === 'Digit4') ||
         ('…' === word[input.length] && e.code === 'Digit6') ||
+        ('（' === word[input.length] && e.code === 'Digit9') ||
         ('—' === word[input.length] && e.code === 'Minus') ||
         ('？' === word[input.length] && e.code === 'Slash') ||
         ('》' === word[input.length] && e.code === 'Period') ||
         ('《' === word[input.length] && e.code === 'Comma') ||
         ('“' === word[input.length] && e.code === 'Quote') ||
-        ('”' === word[input.length] && e.code === 'Quote') ||
         ('：' === word[input.length] && e.code === 'Semicolon') ||
-        ('）' === word[input.length] && e.code === 'Digit0') ||
-        ('（' === word[input.length] && e.code === 'Digit9'))
+        ('）' === word[input.length] && e.code === 'Digit0'))
     ) {
       right = true
       letter = word[input.length]
     }
     if (
       !e.shiftKey &&
-      (('、' === word[input.length] && e.code === 'Slash') ||
+      (('【' === word[input.length] && e.code === 'BracketLeft') ||
+        ('、' === word[input.length] && e.code === 'Slash') ||
         ('。' === word[input.length] && e.code === 'Period') ||
         ('，' === word[input.length] && e.code === 'Comma') ||
         ('‘' === word[input.length] && e.code === 'Quote') ||
-        ('’' === word[input.length] && e.code === 'Quote') ||
         ('；' === word[input.length] && e.code === 'Semicolon') ||
         ('【' === word[input.length] && e.code === 'BracketLeft') ||
         ('】' === word[input.length] && e.code === 'BracketRight'))
@@ -282,6 +287,7 @@ async function onTyping(e: KeyboardEvent) {
       right = true
       letter = word[input.length]
     }
+    // console.log('e', e, e.code, e.shiftKey, word[input.length])
 
     if (right) {
       input += letter
@@ -311,24 +317,28 @@ async function onTyping(e: KeyboardEvent) {
       }
       if ([WordPracticeType.FollowWrite, WordPracticeType.Spell].includes(settingStore.wordPracticeType)) {
         if (settingStore.autoNextWord) {
-          if (settingStore.repeatCount == 100) {
-            if (settingStore.repeatCustomCount <= wordRepeatCount + 1) {
-              jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
-            } else {
-              repeat()
-            }
+          if (shouldRepeat()) {
+            repeat()
           } else {
-            if (settingStore.repeatCount <= wordRepeatCount + 1) {
-              jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
-            } else {
-              repeat()
-            }
+            jumpTimer = setTimeout(() => emit('complete'), settingStore.waitTimeForChangeWord)
           }
         }
       }
     } else {
       inputLock = false
     }
+  }
+}
+
+function shouldRepeat() {
+  if (settingStore.wordPracticeType === WordPracticeType.FollowWrite) {
+    if (settingStore.repeatCount == 100) {
+      return settingStore.repeatCustomCount > wordRepeatCount + 1;
+    } else {
+      return settingStore.repeatCount > wordRepeatCount + 1;
+    }
+  } else {
+    return false;
   }
 }
 
@@ -457,7 +467,15 @@ useEvents([
       <div class="flex gap-1 mt-30">
         <div
           class="phonetic"
-          :class="!(!settingStore.dictation || showFullWord || showWordResult) && 'word-shadow'"
+          :class="
+            (settingStore.dictation ||
+              [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
+                settingStore.wordPracticeType
+              )) &&
+            !showFullWord &&
+            !showWordResult &&
+            'word-shadow'
+          "
           v-if="settingStore.soundType === 'uk' && word.phonetic0"
         >
           [{{ word.phonetic0 }}]
@@ -487,7 +505,7 @@ useEvents([
 
       <Tooltip
         :title="
-          settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示正确答案` : ''
+          settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示单词` : ''
         "
       >
         <div
@@ -537,16 +555,16 @@ useEvents([
         v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
       >
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
+          :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
           @click="know"
-          >我认识
+          >{{ $t('i_know') }}
         </BaseButton>
         <BaseButton
-          :keyboard="`快捷键(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
+          :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
           size="large"
           @click="unknown"
-          >不认识
+          >{{ $t('i_dont_know') }}
         </BaseButton>
       </div>
 
@@ -596,7 +614,7 @@ useEvents([
       <template v-if="word?.phrases?.length">
         <div class="line-white my-3"></div>
         <div class="flex">
-          <div class="label">短语</div>
+          <div class="label">{{ $t('phrases') }}</div>
           <div class="flex flex-col">
             <div class="flex items-center gap-4" v-for="item in word.phrases">
               <SentenceHightLightWord
@@ -617,7 +635,7 @@ useEvents([
         <template v-if="word?.synos?.length">
           <div class="line-white my-3"></div>
           <div class="flex">
-            <div class="label">同近义词</div>
+            <div class="label">{{ $t('synonyms') }}</div>
             <div class="flex flex-col gap-3">
               <div class="flex" v-for="item in word.synos">
                 <div class="pos line-height-1.4rem!">{{ item.pos }}</div>
@@ -645,7 +663,7 @@ useEvents([
           <div class="line-white my-3"></div>
 
           <div class="flex">
-            <div class="label">词源</div>
+            <div class="label">{{ $t('etymology') }}</div>
             <div class="text-base">
               <div class="mb-2" v-for="item in word.etymology">
                 <div class="">{{ item.t }}</div>
@@ -658,10 +676,10 @@ useEvents([
 
         <template v-if="word?.relWords?.root && false">
           <div class="flex">
-            <div class="label">同根词</div>
+            <div class="label">{{ $t('related_words') }}</div>
             <div class="flex flex-col gap-3">
               <div v-if="word.relWords.root" class=" ">
-                词根：<span class="en">{{ word.relWords.root }}</span>
+                {{ $t('word_root') }}：<span class="en">{{ word.relWords.root }}</span>
               </div>
               <div class="flex" v-for="item in word.relWords.rels">
                 <div class="pos">{{ item.pos }}</div>

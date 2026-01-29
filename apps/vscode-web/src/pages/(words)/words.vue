@@ -370,7 +370,7 @@ const systemPracticeText = $computed(() => {
               {{ isSaveData ? $t('last_task') : $t('today_task') }}
             </div>
             <span class="color-link cursor-pointer" v-if="store.sdict.id" @click="showPracticeWordListDialog = true"
-            >{{ $t('word_list') }}</span
+              >{{ $t('word_list') }}</span
             >
           </div>
           <div class="flex gap-1 items-center" v-if="store.sdict.id">

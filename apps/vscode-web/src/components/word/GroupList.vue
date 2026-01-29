@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
-import RadioGroup from '@/components/base/radio/RadioGroup.vue'
-import Radio from '@/components/base/radio/Radio.vue'
-import { useBaseStore } from '@/stores/base.ts'
+import RadioGroup from '~/components/base/radio/RadioGroup.vue'
+import Radio from '~/components/base/radio/Radio.vue'
+import { useBaseStore } from '~/stores/base.ts'
 const store = useBaseStore()
 
 const isVisible = ref(false)

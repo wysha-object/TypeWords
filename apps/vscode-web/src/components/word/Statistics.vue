@@ -1,25 +1,27 @@
 <script setup lang="ts">
-import { useBaseStore } from '@/stores/base.ts'
-import BaseButton from '@/components/BaseButton.vue'
-import type { Statistics, TaskWords } from '@/types/types.ts'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
-import { useSettingStore } from '@/stores/setting.ts'
-import { usePracticeStore } from '@/stores/practice.ts'
+import { useBaseStore } from '~/stores/base.ts'
+import BaseButton from '~/components/BaseButton.vue'
+import type { Statistics, TaskWords } from '~/types/types.ts'
+import { emitter, EventKey, useEvents } from '~/utils/eventBus.ts'
+import { useSettingStore } from '~/stores/setting.ts'
+import { usePracticeStore } from '~/stores/practice.ts'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import { defineAsyncComponent, inject, watch } from 'vue'
 import isoWeek from 'dayjs/plugin/isoWeek'
-import { msToHourMinute } from '@/utils'
-import Progress from '@/components/base/Progress.vue'
-import ChannelIcons from '@/components/ChannelIcons/ChannelIcons.vue'
-import { AppEnv } from '@/config/env.ts'
-import { addStat } from '@/apis'
-import Toast from '@/components/base/toast/Toast.ts'
-import { ShortcutKey, WordPracticeMode } from '@/types/enum.ts'
+import { msToHourMinute } from '~/utils'
+import Progress from '~/components/base/Progress.vue'
+import ChannelIcons from '~/components/channel-icons/ChannelIcons.vue'
+import { AppEnv } from '~/config/env.ts'
+import { addStat } from '~/apis'
+import Toast from '~/components/base/toast/Toast.ts'
+import { ShortcutKey, WordPracticeMode } from '~/types/enum.ts'
+import { useI18n } from 'vue-i18n'
 
 dayjs.extend(isoWeek)
+const { t: $t } = useI18n()
 dayjs.extend(isBetween)
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 const store = useBaseStore()
 const settingStore = useSettingStore()
@@ -59,7 +61,8 @@ watch(model, async newVal => {
     dictIsEnd = false
     let data: Statistics = {
       spend: statStore.spend,
-      startDate: statStore.startDate,
+      //修正计时
+      startDate: Date.now() - statStore.spend,
       total: statStore.total,
       wrong: statStore.wrong,
       new: statStore.newWordNumber,
@@ -81,7 +84,9 @@ watch(model, async newVal => {
       // 检查已忽略的单词数量，是否全部完成
       let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
       // 忽略单词数
-      const ignoreCount = ignoreList.filter(word => store.sdict.words.some(w => w.word.toLowerCase() === word)).length
+      const ignoreCount = ignoreList.filter(word =>
+        store.sdict.words.slice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
+      ).length
       // 如果lastLearnIndex已经超过可学单词数，则判定完成
       if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {
         dictIsEnd = true
@@ -137,10 +142,10 @@ const accuracyRate = $computed(() => {
 // 获取鼓励文案
 const encouragementText = $computed(() => {
   const rate = accuracyRate
-  if (rate >= 95) return '🎉 太棒了！继续保持！'
-  if (rate >= 85) return '👍 表现很好，再接再厉！'
-  if (rate >= 70) return '💪 不错的成绩，继续加油！'
-  return '🌟 每次练习都是进步，坚持下去！'
+  if (rate >= 95) return '🎉 ' + $t('encouragement_95')
+  if (rate >= 85) return '👍 ' + $t('encouragement_85')
+  if (rate >= 70) return '💪 ' + $t('encouragement_70')
+  return '🌟 ' + $t('encouragement_default')
 })
 
 // 格式化学习时间
@@ -160,8 +165,8 @@ calcWeekList() // 新增：计算本周学习记录
         <div
           class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent"
         >
-          <template v-if="practiceTaskWords.shuffle.length"> 🎯 复习完成 </template>
-          <template v-else> 🎉 今日任务完成 </template>
+          <template v-if="practiceTaskWords.shuffle.length"> 🎯 {{ $t('review_complete') }} </template>
+          <template v-else> 🎉 {{ $t('daily_task_complete') }} </template>
         </div>
         <p class="font-medium text-lg">{{ encouragementText }}</p>
       </div>
@@ -169,25 +174,25 @@ calcWeekList() // 新增：计算本周学习记录
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="item">
           <IconFluentClock20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">学习时长</div>
+          <div class="text-sm mb-1 font-medium">{{ $t('study_duration') }}</div>
           <div class="text-xl font-bold">{{ formattedStudyTime }}</div>
         </div>
 
         <div class="item">
           <IconFluentTarget20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">正确率</div>
+          <div class="text-sm mb-1 font-medium">{{ $t('accuracy_rate') }}</div>
           <div class="text-xl font-bold">{{ accuracyRate }}%</div>
         </div>
 
         <div class="item">
           <IconFluentSparkle20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">新词</div>
+          <div class="text-sm mb-1 font-medium">{{ $t('new_words') }}</div>
           <div class="text-xl font-bold">{{ statStore.newWordNumber }}</div>
         </div>
 
         <div class="item">
           <IconFluentBook20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">复习</div>
+          <div class="text-sm mb-1 font-medium">{{ $t('review') }}</div>
           <div class="text-xl font-bold">
             {{ statStore.reviewWordNumber + statStore.writeWordNumber }}
           </div>
@@ -199,7 +204,7 @@ calcWeekList() // 新增：计算本周学习记录
           <!-- Weekly Progress -->
           <div class="bg-[--bg-card-secend] rounded-xl p-2">
             <div class="text-center mb-4">
-              <div class="text-xl font-semibold mb-1">本周学习记录</div>
+              <div class="text-xl font-semibold mb-1">{{ $t('weekly_record') }}</div>
             </div>
             <div class="flex justify-between gap-4">
               <div
@@ -220,13 +225,13 @@ calcWeekList() // 新增：计算本周学习记录
           <!-- Progress Overview -->
           <div class="bg-[var(--bg-card-secend)] rounded-xl py-2 px-6">
             <div class="flex justify-between items-center mb-3">
-              <div class="text-xl font-semibold">学习进度</div>
+              <div class="text-xl font-semibold">{{ $t('study_progress') }}</div>
               <div class="text-2xl font-bold text-purple-600">{{ studyProgress }}%</div>
             </div>
             <Progress :percentage="studyProgress" size="large" :show-text="false" />
             <div class="flex justify-between text-sm font-medium mt-4">
-              <span>已学习: {{ store.sdict.lastLearnIndex }}</span>
-              <span>总词数: {{ store.sdict.length }}</span>
+              <span>{{ $t('learned') }}: {{ store.sdict.lastLearnIndex }}</span>
+              <span>{{ $t('total_words') }}: {{ store.sdict.length }}</span>
             </div>
           </div>
         </div>
@@ -240,7 +245,7 @@ calcWeekList() // 新增：计算本周学习记录
         >
           <div class="center gap-2">
             <IconFluentArrowClockwise20Regular />
-            重学一遍
+            {{ $t('relearn') }}
           </div>
         </BaseButton>
         <BaseButton
@@ -250,13 +255,13 @@ calcWeekList() // 新增：计算本周学习记录
         >
           <div class="center gap-2">
             <IconFluentPlay20Regular />
-            {{ dictIsEnd ? '从头开始练习' : '再来一组' }}
+            {{ dictIsEnd ? $t('start_from_beginning') : $t('another_group') }}
           </div>
         </BaseButton>
         <BaseButton @click="$router.back">
           <div class="center gap-2">
             <IconFluentHome20Regular />
-            返回主页
+            {{ $t('back_to_home') }}
           </div>
         </BaseButton>
       </div>

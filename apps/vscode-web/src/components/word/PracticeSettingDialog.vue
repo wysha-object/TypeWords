@@ -1,18 +1,20 @@
 <script setup lang="ts">
-import { _getAccomplishDays } from '@/utils'
-import BaseButton from '@/components/BaseButton.vue'
-import Checkbox from '@/components/base/checkbox/Checkbox.vue'
-import Slider from '@/components/base/Slider.vue'
+import { _getAccomplishDays } from '~/utils'
+import BaseButton from '~/components/BaseButton.vue'
+import Checkbox from '~/components/base/checkbox/Checkbox.vue'
+import Slider from '~/components/base/Slider.vue'
 import { defineAsyncComponent, watch } from 'vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import Toast from '@/components/base/toast/Toast.ts'
-import ChangeLastPracticeIndexDialog from '@/components/word/ChangeLastPracticeIndexDialog.vue'
-import Tooltip from '@/components/base/Tooltip.vue'
-import { useRuntimeStore } from '@/stores/runtime.ts'
-import BaseInput from '@/components/base/BaseInput.vue'
-import InputNumber from '@/components/base/InputNumber.vue'
+import { useI18n } from 'vue-i18n'
+import { useSettingStore } from '~/stores/setting'
+import Toast from '~/components/base/toast/Toast'
+import ChangeLastPracticeIndexDialog from '~/components/word/ChangeLastPracticeIndexDialog.vue'
+import Tooltip from '~/components/base/Tooltip.vue'
+import { useRuntimeStore } from '~/stores/runtime'
+import BaseInput from '~/components/base/BaseInput.vue'
+import InputNumber from '~/components/base/InputNumber.vue'
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
+const { t: $t } = useI18n()
 
 const settings = useSettingStore()
 const runtimeStore = useRuntimeStore()
@@ -34,8 +36,8 @@ let tempLastLearnIndex = $ref(0)
 let tempDisableShowPracticeSettingDialog = $ref(false)
 
 function changePerDayStudyNumber() {
-  runtimeStore.editDict.perDayStudyNumber = tempPerDayStudyNumber
-  runtimeStore.editDict.lastLearnIndex = tempLastLearnIndex
+  runtimeStore.editDict.perDayStudyNumber = Number(tempPerDayStudyNumber)
+  runtimeStore.editDict.lastLearnIndex = Number(tempLastLearnIndex)
   settings.wordReviewRatio = tempWordReviewRatio
   settings.disableShowPracticeSettingDialog = tempDisableShowPracticeSettingDialog
   emit('ok')
@@ -51,7 +53,7 @@ watch(
         tempWordReviewRatio = settings.wordReviewRatio
         tempDisableShowPracticeSettingDialog = settings.disableShowPracticeSettingDialog
       } else {
-        Toast.warning('请先选择一本词典')
+        Toast.warning($t('please_select_dict'))
       }
     }
   }
@@ -59,46 +61,46 @@ watch(
 </script>
 
 <template>
-  <Dialog v-model="model" title="学习设置" padding :footer="true" @ok="changePerDayStudyNumber">
+  <Dialog v-model="model" :title="$t('learning_settings')" padding :footer="true" @ok="changePerDayStudyNumber">
     <div class="target-modal color-main" id="mode">
       <div class="text-center mt-4">
         <span
-          >共<span class="target-number mx-2">{{ runtimeStore.editDict.length }}</span
-          >个单词，</span
+          >{{ $t('total') }}<span class="target-number mx-2">{{ runtimeStore.editDict.length }}</span
+          >{{ $t('words_count') }}，</span
         >
         <span
-          >预计<span class="target-number mx-2">{{
+          >{{ $t('estimated') }}<span class="target-number mx-2">{{
             _getAccomplishDays(
               runtimeStore.editDict.length - tempLastLearnIndex,
               tempPerDayStudyNumber
             )
           }}</span
-          >天完成</span
+          >{{ $t('days_to_complete') }}</span
         >
       </div>
 
       <div class="text-center mt-4 mb-8 flex gap-1 items-end justify-center">
-        <span>从第</span>
+        <span>{{ $t('from_word') }}</span>
         <div class="w-20">
           <BaseInput class="target-number" v-model="tempLastLearnIndex" />
         </div>
-        <span>个开始，每日</span>
+        <span>{{ $t('start_daily') }}</span>
         <div class="w-16">
           <BaseInput class="target-number" v-model="tempPerDayStudyNumber" />
         </div>
-        <span>个新词</span>
-        <span>，复习</span>
+        <span>{{ $t('new_words') }}</span>
+        <span>，{{ $t('review') }}</span>
         <div class="target-number mx-2">
           {{ tempPerDayStudyNumber * tempWordReviewRatio }}
         </div>
-        <span>个</span>
+        <span>{{ $t('words') }}</span>
       </div>
 
       <div class="mb-4 space-y-2">
         <div class="flex items-center gap-space">
-          <Tooltip title="复习词与新词的比例">
+          <Tooltip :title="$t('review_ratio_tooltip')">
             <div class="flex items-center gap-1 w-20 break-keep">
-              <span>复习比</span>
+              <span>{{ $t('review_ratio') }}</span>
               <IconFluentQuestionCircle20Regular />
             </div>
           </Tooltip>
@@ -107,14 +109,14 @@ watch(
         <div class="flex" v-if="!tempWordReviewRatio">
           <div class="w-23 flex-shrink-0"></div>
           <div class="text-sm text-gray-500">
-            <div>未完成学习时，复习数量按照设置的复习比生成，为0则不复习</div>
-            <div>完成学习后，新词数量固定为0，复习数量按照比例生成（若复习比小于1，以 1 计算）</div>
+            <div>{{ $t('review_ratio_notice_1') }}</div>
+            <div>{{ $t('review_ratio_notice_2') }}</div>
           </div>
         </div>
       </div>
 
       <div class="flex mb-4 gap-space">
-        <span class="shrink-0 w-20">每日学习</span>
+        <span class="shrink-0 w-20">{{ $t('daily_learning') }}</span>
         <Slider
           :min="10"
           :step="10"
@@ -125,7 +127,7 @@ watch(
         />
       </div>
       <div class="flex gap-space">
-        <span class="shrink-0 w-20">学习进度</span>
+        <span class="shrink-0 w-20">{{ $t('learning_progress') }}</span>
         <div class="flex-1">
           <Slider
             :min="0"
@@ -135,15 +137,15 @@ watch(
             :max="runtimeStore.editDict.words.length"
             v-model="tempLastLearnIndex"
           />
-          <BaseButton @click="show = true">从词典选起始位置</BaseButton>
+          <BaseButton @click="show = true">{{ $t('select_from_dict') }}</BaseButton>
         </div>
       </div>
     </div>
     <template v-slot:footer-left v-if="showLeftOption">
       <div class="flex items-center">
         <Checkbox v-model="tempDisableShowPracticeSettingDialog" />
-        <Tooltip title="可在设置页面更改">
-          <span class="text-sm">保持默认，不再显示</span>
+        <Tooltip :title="$t('change_in_settings')">
+          <span class="text-sm">{{ $t('keep_default_no_show') }}</span>
         </Tooltip>
       </div>
     </template>

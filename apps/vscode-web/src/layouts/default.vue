@@ -9,7 +9,7 @@ import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
 import { ShortcutKey } from '@/types/enum.ts'
 import { onMounted, watch } from 'vue'
-import { useRouter ,useRoute} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useInit } from '@/composables/useInit.ts'
 
@@ -42,12 +42,17 @@ onMounted(() => {
   }
 })
 
-const { locales, setLocale } = useI18n()
+// const { locales, setLocale } = useI18n()
+const { locales, setLocale } = { locales : [], setLocale : () => void 0 }
 const route = useRoute()
 
 const showIcon = $computed(() => {
   return ['/words', '/articles', '/setting', '/help', '/doc', '/feedback'].includes(route.path)
 })
+
+function $t(val: string) {
+  return val
+}
 </script>
 
 <template>
@@ -122,12 +127,12 @@ const showIcon = $computed(() => {
       </div>
     </div>
 
-    <MigrateDialog v-model="showTransfer" @ok="init" />
+<!--    <MigrateDialog v-model="showTransfer" @ok="init" />-->
 
-    <IeDialog />
+<!--    <IeDialog />-->
 
     <div class="flex-1 z-1 relative main-content overflow-x-hidden">
-<!--      <slot></slot>-->
+      <!--      <slot></slot>-->
       <router-view></router-view>
       <div class="absolute right-4 top-4 flex z-1 gap-2" v-if="showIcon">
         <div class="relative group">

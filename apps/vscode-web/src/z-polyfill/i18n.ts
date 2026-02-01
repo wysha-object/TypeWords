@@ -42,6 +42,6 @@ export default {
     // 全局注入 i18n 实例
     app.provide('i18n', i18n)
     app.use(i18n)
-    ;(window as any).useI18n = useI18n
+    // ;(window as any).useI18n = useI18n
   },
 }

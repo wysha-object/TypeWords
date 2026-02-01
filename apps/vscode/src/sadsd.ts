@@ -60,42 +60,20 @@ class ChatPanel {
 
   private _getHtmlForWebview(webview: vscode.Webview) {
     const websiteUrl = 'https://typewords.cc'
-    // 注意：根据你使用的服务器端口修改
-    // - Nuxt dev server 默认端口是 5567
-    // - Nuxt preview 默认端口是 4173（但可以通过 --port 参数修改）
-    // - 如果使用其他端口（如 3000），请修改下面的端口号
-    // - 生产环境可以使用: 'https://typewords-c3i.pages.dev'
-		const cdnUrl = 'https://typewords-vscode.pages.dev';
-
-    // 生成 nonce 用于 CSP
-    const nonce = Buffer.from(Date.now().toString()).toString('base64')
-
-    // CSP 配置：允许内联脚本（使用 nonce）和外部资源
-    const csp = [
-      "default-src 'none'",
-      `script-src 'nonce-${nonce}' ${cdnUrl} 'unsafe-inline'`,
-      `style-src ${cdnUrl} 'unsafe-inline'`,
-      `connect-src ${cdnUrl} ${websiteUrl}`,
-      "img-src data: https:",
-      "font-src data:"
-    ].join('; ')
-
-  return `<!DOCTYPE html>
+    const cdnUrl = 'https://typewords-vscode.pages.dev'
+    return `<!DOCTYPE html>
 			<html lang="zh-CN" style="width: 100%!important; height: 100%!important;">
 			<head>
 				<meta charset="UTF-8">
 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${websiteUrl}; script-src ${cdnUrl}; style-src ${cdnUrl};">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<title>单词练习</title>
-        
-  <script type="module" crossorigin src="${cdnUrl}/assets/index-CdmOqXCB.js"></script>
-  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/index-AqlCT8UZ.css">
-
 			</head>
 			<body>
 			<div id="app"></div>
-
-			</body></html>`
+  <script type="module" crossorigin src="https://typewords-vscode.pages.dev/assets/index-DJ5kOao2.js"></script>
+  <link rel="stylesheet" crossorigin href="https://typewords-vscode.pages.dev/assets/index-B-papNUg.css">
+			</body>`
   }
 }
 
@@ -115,4 +93,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // This method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {}

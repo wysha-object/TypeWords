@@ -60,20 +60,39 @@ class ChatPanel {
 
   private _getHtmlForWebview(webview: vscode.Webview) {
     const websiteUrl = 'https://typewords.cc'
-    const cdnUrl = 'https://typewords-vscode.pages.dev'
+    const cdnUrl = 'http://tw2.cc'
+
+    // 生成 nonce 用于 CSP
+    const nonce = Buffer.from(Date.now().toString()).toString('base64')
+
+    // CSP 配置：允许内联脚本（使用 nonce）和外部资源
+    const csp = [
+      "default-src 'none'",
+      `script-src 'nonce-${nonce}' ${cdnUrl} 'unsafe-inline'`,
+      `style-src ${cdnUrl} 'unsafe-inline'`,
+      `connect-src ${cdnUrl} ${websiteUrl}`,
+      'img-src data: https:',
+      'font-src data:',
+    ].join('; ')
+
     return `<!DOCTYPE html>
-			<html lang="zh-CN" style="width: 100%!important; height: 100%!important;">
-			<head>
-				<meta charset="UTF-8">
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src ${websiteUrl}; script-src ${cdnUrl}; style-src ${cdnUrl};">
-				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<title>单词练习</title>
-			</head>
-			<body>
-			<div id="app"></div>
-  <script type="module" crossorigin src="https://typewords-vscode.pages.dev/assets/index-CdmOqXCB.js"></script>
-  <link rel="stylesheet" crossorigin href="https://typewords-vscode.pages.dev/assets/index-AqlCT8UZ.css">
-			</body>`
+<html lang="zh-CN" style="width: 100%!important; height: 100%!important;">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="${csp}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词练习</title>
+
+  <script type="module" crossorigin src="${cdnUrl}/assets/index-D3FuVbP-.js"></script>
+  <link rel="modulepreload" crossorigin href="${cdnUrl}/assets/icons-Ah3R2230.js">
+  <link rel="modulepreload" crossorigin href="${cdnUrl}/assets/utils-OjAQa_FL.js">
+  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/utils-CmNt3aT_.css">
+  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/index-CtjmmShG.css">
+</head>
+<body>
+    <div id="app"></div>
+</body>
+</html>`
   }
 }
 

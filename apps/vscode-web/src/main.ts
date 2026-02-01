@@ -15,15 +15,15 @@ import nuxtImgPlugin from './z-polyfill/nuxtImg.ts'
 const pinia = createPinia()
 const app = createApp(App)
 
-;(window as any).useHead = () => {}
-;(window as any).useSeoMeta = () => {}
-;(window as any).useRoute = () => ({})
-;(window as any).useRouter = () => ({ push() {}, replace() {} })
+// ;(window as any).useHead = () => {}
+// ;(window as any).useSeoMeta = () => {}
+// ;(window as any).useRoute = () => ({})
+// ;(window as any).useRouter = () => ({ push() {}, replace() {} })
 
-app.use(i18nPlugin)
+// app.use(i18nPlugin)
 app.use(nuxtLinkPlugin)
 app.use(nuxtImgPlugin)
-app.use(VueVirtualScroller)
+// app.use(VueVirtualScroller)
 app.use(pinia)
 app.use(router)
 

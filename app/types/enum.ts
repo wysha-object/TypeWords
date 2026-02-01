@@ -34,6 +34,9 @@ export enum ShortcutKey {
   RandomWrite = 'RandomWrite',
   KnowWord = 'KnowWord',
   UnknownWord = 'UnknownWord',
+  ChooseA = 'ChooseA',
+  ChooseB = 'ChooseB',
+  ChooseC = 'ChooseC'
 }
 
 export enum TranslateEngine {

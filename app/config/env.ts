@@ -120,6 +120,9 @@ export const DefaultShortcutKeyMap = {
   [ShortcutKey.RandomWrite]: 'Ctrl+R',
   [ShortcutKey.KnowWord]: '1',
   [ShortcutKey.UnknownWord]: '2',
+  [ShortcutKey.ChooseA]: '3',
+  [ShortcutKey.ChooseB]: '4',
+  [ShortcutKey.ChooseC]: '5',
 }
 export const SlideType = {
   HORIZONTAL: 0,

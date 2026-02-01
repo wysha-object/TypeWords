@@ -10,6 +10,10 @@ import {_getDictDataByUrl, shuffle} from '@/utils'
 import {useRuntimeStore} from '@/stores/runtime.ts'
 import {usePlayBeep, usePlayCorrect, usePlayWordAudio} from '@/hooks/sound.ts'
 import Toast from '@/components/base/toast/Toast.ts'
+import { emitter, EventKey, useEvents } from '~/utils/eventBus'
+import { useStartKeyboardEventListener, getShortcutKey } from '@/hooks/event.ts'
+import { ShortcutKey } from '~/types/enum'
+import { useSettingStore } from '@/stores/setting.ts'
 
 type Candidate = { word: string, wordObj?: Word }
 type Question = {
@@ -165,6 +169,8 @@ async function init() {
   const wordList = shuffle(dict.words)
   questions = wordList.map(w => buildQuestion(w, dict.words))
   index = 0
+
+  Toast.info("可以按快捷键进行选择,例如按快捷键[" + aShortcutKey + "]选择A", {duration: 3000})
 }
 
 function select(i: number) {
@@ -192,6 +198,23 @@ function end() {
   router.back()
 }
 
+useStartKeyboardEventListener()
+
+useEvents([
+  [ShortcutKey.ChooseA, () => select(0)],
+  [ShortcutKey.ChooseB, () => select(1)],
+  [ShortcutKey.ChooseC, () => select(2)],
+  [ShortcutKey.Next, () => next()]
+])
+
+const settingStore = useSettingStore()
+
+let aShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseA]
+let bShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseB]
+let cShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseC]
+
+let nextShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.Next]
+
 onMounted(init)
 </script>
 
@@ -209,6 +232,7 @@ onMounted(init)
           <span>题目：{{ questions[index].stem.word }}</span>
           <VolumeIcon :simple="true" :title="'发音'" :cb="() => playWordAudio(questions[index].stem.word)"/>
         </div>
+        <div style="height: 20px;"></div>
         <div class="grid gap-2">
           <div
             v-for="(opt,i) in questions[index].optionTexts"
@@ -220,7 +244,11 @@ onMounted(init)
             }"
             @click="select(i)"
           >
-            <span>(<span class="italic">{{ ['A','B','C'][i] }}</span>) {{ opt }}</span>
+            <span>
+              <span class="italic">{{ ['A','B','C'][i] }}</span>  
+              [<span>{{ [aShortcutKey,bShortcutKey,cShortcutKey][i] }}</span>]
+              {{ opt }}
+            </span>
           </div>
         </div>
 
@@ -235,7 +263,7 @@ onMounted(init)
         </div>
 
         <div class="mt-6 flex">
-          <BaseButton type="primary" @click="next">继续测试</BaseButton>
+          <BaseButton type="primary" @click="next">继续测试[{{ nextShortcutKey }}]</BaseButton>
           <BaseButton type="info" @click="end">结束</BaseButton>
         </div>
       </div>
@@ -245,4 +273,8 @@ onMounted(init)
 
 <style scoped>
 .option:hover { background: var(--color-second); }
+.option {
+  height: 100px;
+  font-size: 20px;
+}
 </style>

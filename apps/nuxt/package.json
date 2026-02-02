@@ -6,8 +6,7 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "test": "",
-    "generate": "nuxt generate && node scripts/do.js && node scripts/copyDist.js",
-    "preview": "nuxt preview",
-    "sitemap": "node scripts/do.js"
+    "generate": "nuxt generate && node scripts/do.js && node ../../scripts/deploy-eo-pages.js --name type-words-deploy",
+    "preview": "nuxt preview"
   }
 }

@@ -6,10 +6,9 @@
     "start": "vite",
     "dev": "vite",
     "test": "",
-    "build": "vite build && node copyDist.js",
+    "build": "vite build && node ../../scripts/deploy-eo-pages.js --name vscode-web-deploy",
     "build-tsc": "vue-tsc && vite build",
     "report": "vite build",
-    "report-oss": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {

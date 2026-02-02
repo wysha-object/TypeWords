@@ -84,8 +84,8 @@ class ChatPanel {
     <title>单词练习</title>
 
 
-  <script type="module" crossorigin src="${cdnUrl}/assets/index-DxiUa1rW.js"></script>
-  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/index-CZLiL5Oc.css">
+  <script type="module" crossorigin src="${cdnUrl}/assets/index-BKse0Hmq.js"></script>
+  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/index-B6wzG-8R.css">
 </head>
 <body>
     <div id="app"></div>

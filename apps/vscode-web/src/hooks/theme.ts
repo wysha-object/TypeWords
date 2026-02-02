@@ -20,7 +20,6 @@ export function swapTheme(theme: Theme): Theme {
 
 // 监听系统主题变化
 export function listenToSystemThemeChange(call: (theme: Theme) => void) {
-  if (import.meta.server) return
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
     if (e.matches) {
       // console.log('系统已切换到深色模式');
@@ -37,9 +36,7 @@ export function listenToSystemThemeChange(call: (theme: Theme) => void) {
 
 export function setTheme(val: string) {
   // auto模式下，则通过查询系统主题来设置主题名称
-  if (import.meta.client) {
     document.documentElement.className = val === 'auto' ? getSystemTheme() : val
-  }
 }
 
 export default function useTheme() {

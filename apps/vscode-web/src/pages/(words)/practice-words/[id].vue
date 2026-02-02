@@ -279,12 +279,6 @@ function initData(initVal: TaskWords, init: boolean = false) {
 const word = $computed<Word>(() => {
   return data.words[data.index] ?? getDefaultWord()
 })
-const prevWord: Word = $computed(() => {
-  return data.words?.[data.index - 1] ?? undefined
-})
-const nextWord: Word = $computed(() => {
-  return data.words?.[data.index + 1] ?? undefined
-})
 
 function watchStage(n: WordPracticeStage) {
   switch (n) {
@@ -736,26 +730,6 @@ useEvents([
   <PracticeLayout v-loading="loading" panelLeft="var(--word-panel-margin-left)">
     <template v-slot:practice>
       <div class="practice-word mb-50">
-        <div
-          class="fixed z-1 top-4 w-full"
-          style="left: calc(50vw + var(--aside-width) / 2 - var(--toolbar-width) / 2); width: var(--toolbar-width)"
-          v-if="settingStore.showNearWord"
-        >
-          <div class="center gap-2 cursor-pointer float-left" @click="prev" v-if="prevWord">
-            <IconFluentArrowLeft16Regular class="arrow" width="22" />
-            <Tooltip :title="`上一个(${settingStore.shortcutKeyMap[ShortcutKey.Previous]})`">
-              <div class="word">{{ prevWord.word }}</div>
-            </Tooltip>
-          </div>
-          <div class="center gap-2 cursor-pointer float-right mr-3" @click="next(false)" v-if="nextWord">
-            <Tooltip :title="`下一个(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`">
-              <div class="word" :class="settingStore.dictation && 'word-shadow'">
-                {{ nextWord.word }}
-              </div>
-            </Tooltip>
-            <IconFluentArrowRight16Regular class="arrow" width="22" />
-          </div>
-        </div>
         <TypeWord ref="typingRef" :word="word" @wrong="onTypeWrong" @complete="next" @know="onWordKnow" />
       </div>
     </template>
@@ -802,14 +776,23 @@ useEvents([
       </Panel>
     </template>
     <template v-slot:footer>
-      <Footer
-        :is-simple="isWordSimple(word)"
-        @toggle-simple="toggleWordSimpleWrapper"
-        :is-collect="isWordCollect(word)"
-        @toggle-collect="toggleWordCollect(word)"
-        @skip="next(false)"
-        @skipStep="skipStep"
-      />
+      <div class="footer-container">
+        <div class="border-item-solid  rounded-md p-2 flex items-center">
+          <input
+            type="text"
+            placeholder="和AI助手对话…"
+            class="input"
+          />
+        </div>
+      </div>
+      <!--      <Footer-->
+      <!--        :is-simple="isWordSimple(word)"-->
+      <!--        @toggle-simple="toggleWordSimpleWrapper"-->
+      <!--        :is-collect="isWordCollect(word)"-->
+      <!--        @toggle-collect="toggleWordCollect(word)"-->
+      <!--        @skip="next(false)"-->
+      <!--        @skipStep="skipStep"-->
+      <!--      />-->
     </template>
   </PracticeLayout>
   <Statistics v-model="showStatDialog" />

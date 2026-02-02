@@ -31,6 +31,7 @@ watch(() => settingStore.sideExpand, toggleExpand)
 //迁移数据
 let showTransfer = $ref(false)
 onMounted(() => {
+  init()
   toggleExpand(settingStore.sideExpand)
   setTheme(settingStore.theme)
 

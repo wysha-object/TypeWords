@@ -2,7 +2,7 @@
 import type { Word } from '~/types/types'
 import VolumeIcon from '~/components/icon/VolumeIcon.vue'
 import { useSettingStore } from '~/stores/setting'
-import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio } from '~/hooks/sound'
+import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio, useTTsPlayAudio } from '~/hooks/sound'
 import { emitter, EventKey, useEvents } from '~/utils/eventBus'
 import { onMounted, onUnmounted, watch } from 'vue'
 import SentenceHightLightWord from '~/components/word/SentenceHightLightWord.vue'
@@ -51,7 +51,7 @@ const playBeep = usePlayBeep()
 const playCorrect = usePlayCorrect()
 const playKeyboardAudio = usePlayKeyboardAudio()
 const playWordAudio = usePlayWordAudio()
-// const ttsPlayAudio = useTTsPlayAudio()
+const ttsPlayAudio = useTTsPlayAudio()
 const volumeIconRef: any = $ref()
 const typingWordRef = $ref<HTMLDivElement>()
 // const volumeTranslateIconRef: any = $ref()
@@ -333,12 +333,12 @@ async function onTyping(e: KeyboardEvent) {
 function shouldRepeat() {
   if (settingStore.wordPracticeType === WordPracticeType.FollowWrite) {
     if (settingStore.repeatCount == 100) {
-      return settingStore.repeatCustomCount > wordRepeatCount + 1;
+      return settingStore.repeatCustomCount > wordRepeatCount + 1
     } else {
-      return settingStore.repeatCount > wordRepeatCount + 1;
+      return settingStore.repeatCount > wordRepeatCount + 1
     }
   } else {
-    return false;
+    return false
   }
 }
 
@@ -558,13 +558,13 @@ useEvents([
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
           @click="know"
-          >{{ $t('i_know') }}
+        >{{ $t('i_know') }}
         </BaseButton>
         <BaseButton
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
           size="large"
           @click="unknown"
-          >{{ $t('i_dont_know') }}
+        >{{ $t('i_dont_know') }}
         </BaseButton>
       </div>
 
@@ -598,12 +598,15 @@ useEvents([
       <template v-if="word?.sentences?.length">
         <div class="flex flex-col gap-3">
           <div class="sentence" v-for="item in word.sentences">
-            <SentenceHightLightWord
-              class="text-xl"
-              :text="item.c"
-              :word="word.word"
-              :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
-            />
+            <div class="flex gap-space">
+              <SentenceHightLightWord
+                class="text-xl"
+                :text="item.c"
+                :word="word.word"
+                :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+              />
+              <VolumeIcon :title="`发音`" :simple="false" @click="ttsPlayAudio(item.c)" />
+            </div>
             <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
               {{ item.cn }}
             </div>

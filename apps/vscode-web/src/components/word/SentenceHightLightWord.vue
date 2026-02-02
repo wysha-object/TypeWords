@@ -42,6 +42,6 @@ function escapeRegExp(string: string): string {
 
 <style scoped lang="scss">
 :deep(.highlight-word) {
-  color: var(--color-icon-hightlight);
+  color: var(--color-select-bg);
 }
 </style>

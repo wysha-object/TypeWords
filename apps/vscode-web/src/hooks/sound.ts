@@ -111,28 +111,20 @@ export function usePlayWordAudio() {
 }
 
 export function useTTsPlayAudio() {
-  let isPlay = $ref(false)
   const settingStore = useSettingStore()
 
   function play(text: string) {
-    if (isPlay) {
-      isPlay = false
-      window.speechSynthesis.pause()
-    }
-    let msg = new SpeechSynthesisUtterance()
-    msg.text = text
+    speechSynthesis.cancel() // 防止 Chrome 队列卡死
+    let msg = new SpeechSynthesisUtterance(text)
     msg.rate = settingStore.wordSoundSpeed
     msg.volume = settingStore.wordSoundVolume / 100
     msg.pitch = 1
     msg.lang = 'en-US'
-    const voices = speechSynthesis.getVoices()
-    let r = voices.find(v => v.name.includes('Female') || v.lang === 'en-US')
-    if (r) {
-      msg.voice = r
+    let voiceList = speechSynthesis.getVoices().filter(v => v.lang === 'en-US')
+    if (voiceList && voiceList.length) {
+      msg.voice = voiceList.find(v => v.name.includes('Emma ')) || voiceList[0]
     }
-    isPlay = true
-    window.speechSynthesis.speak(msg)
-    console.log('text', text)
+    speechSynthesis.speak(msg)
   }
 
   return play

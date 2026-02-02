@@ -8,12 +8,10 @@ import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
 import { getCurrentStudyWord, useWordOptions } from '@/hooks/dict.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from '@/utils'
+import { _getDictDataByUrl, cloneDeep, resourceWrap, shuffle } from '@/utils'
 import { useRoute, useRouter } from 'vue-router'
-import Footer from '~/components/word/Footer.vue'
 import Panel from '@/components/Panel.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
-import Tooltip from '@/components/base/Tooltip.vue'
 import WordList from '@/components/list/WordList.vue'
 import TypeWord from '~/components/word/TypeWord.vue'
 import Empty from '@/components/Empty.vue'
@@ -24,9 +22,8 @@ import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 
-import { AppEnv, DICT_LIST, IS_DEV, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
+import { AppEnv, DICT_LIST, IS_DEV, WordPracticeModeStageMap } from '@/config/env.ts'
 import type { ToastInstance } from '@/components/base/toast/type.ts'
-import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
 import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
@@ -126,53 +123,6 @@ onUnmounted(() => {
   }
   timer && clearInterval(timer)
 })
-
-watchOnce(
-  () => data.words.length,
-  (newVal, oldVal) => {
-    //如果是从无值变有值，代表是开始
-    if (!oldVal && newVal) {
-      _nextTick(async () => {
-        const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
-        const tour = new Shepherd.Tour(TourConfig)
-        tour.on('cancel', () => {
-          localStorage.setItem('tour-guide', '1')
-        })
-        tour.addStep({
-          id: 'step5',
-          text: '这里可以练习拼写单词，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: { element: '#word', on: 'bottom' },
-          buttons: [
-            {
-              text: `下一步（5/${TourConfig.total}）`,
-              action: tour.next,
-            },
-          ],
-        })
-
-        tour.addStep({
-          id: 'step6',
-          text: '这里是文章练习',
-          attachTo: { element: '#article', on: 'top' },
-          buttons: [
-            {
-              text: `下一步（6/${TourConfig.total}）`,
-              action() {
-                tour.next()
-                router.push('/articles')
-              },
-            },
-          ],
-        })
-
-        const r = localStorage.getItem('tour-guide')
-        if (settingStore.first && !r && !isMobile()) {
-          tour.start()
-        }
-      }, 500)
-    }
-  }
-)
 
 useStartKeyboardEventListener()
 useDisableEventListener(() => loading)
@@ -777,12 +727,8 @@ useEvents([
     </template>
     <template v-slot:footer>
       <div class="footer-container">
-        <div class="border-item-solid  rounded-md p-2 flex items-center">
-          <input
-            type="text"
-            placeholder="和AI助手对话…"
-            class="input"
-          />
+        <div class="border-item-solid rounded-md p-2 flex items-center">
+          <input type="text" placeholder="和AI助手对话…" class="input" />
         </div>
       </div>
       <!--      <Footer-->
@@ -806,37 +752,7 @@ useEvents([
 
 .practice-word {
   @apply h-full flex flex-col justify-between items-center relative;
-  width: var(--toolbar-width);
 }
-
-// 移动端适配
-@media (max-width: 768px) {
-  .practice-word {
-    width: 100%;
-
-    .absolute.z-1.top-4 {
-      z-index: 100; // 提高层级，确保不被遮挡
-
-      .center.gap-2.cursor-pointer {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .word {
-          pointer-events: none; // 文字不拦截点击
-        }
-
-        .arrow {
-          pointer-events: none; // 箭头图标不拦截点击
-        }
-      }
-    }
-  }
-}
-
 .word-panel-wrapper {
   position: absolute;
   left: var(--panel-margin-left);

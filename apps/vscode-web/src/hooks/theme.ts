@@ -4,7 +4,6 @@ type Theme = 'light' | 'dark'
 
 // 获取系统主题
 export function getSystemTheme(): Theme {
-  if (import.meta.server) return 'light'
   if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
     return 'dark'
   } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {

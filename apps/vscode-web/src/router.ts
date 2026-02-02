@@ -1,6 +1,6 @@
 import * as VueRouter from 'vue-router'
 import { RouteRecordRaw } from 'vue-router'
-import Layout from '@/layout/default.vue'
+import Layout from '@/z-polyfill/default.vue'
 import words from '@/pages/(words)/words.vue'
 import Dict from '@/pages/(words)/dict.vue'
 import DictList from '@/pages/(words)/dict-list.vue'

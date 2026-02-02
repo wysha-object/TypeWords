@@ -10,28 +10,69 @@ let props = withDefaults(defineProps<IProps>(), {
   modelValue: true,
   width: '180rem'
 })
-let modalRef = $ref(null)
-let style = $ref({top: '2.4rem', bottom: 'unset'})
+const initialStyle = { top: '2.4rem', bottom: 'unset' as string }
+let modalRef = $ref<HTMLElement | null>(null)
+let style = $ref<Record<string, string>>({ ...initialStyle })
+
+function applyPosition() {
+  if (!modalRef) return
+  const modal = modalRef as HTMLElement
+  const rect = modal.getBoundingClientRect()
+  const next: Record<string, string> = { ...initialStyle }
+
+  // 垂直：若底部超出视口则贴底
+  if (rect.bottom > window.innerHeight) {
+    next.top = 'unset'
+    next.bottom = '2.5rem'
+  } else {
+    next.top = initialStyle.top
+    next.bottom = initialStyle.bottom
+  }
+
+  // 水平：若右侧超出则贴右；若左侧超出则贴左
+  if (rect.right > window.innerWidth) {
+    next.left = 'unset'
+    next.right = '1rem'
+    next.transform = 'none'
+  } else if (rect.left < 0) {
+    next.left = '1rem'
+    next.right = 'unset'
+    next.transform = 'none'
+  } else {
+    next.left = '50%'
+    next.right = 'unset'
+    next.transform = 'translateX(-50%)'
+  }
+
+  style = next
+}
+
+function schedulePosition() {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(applyPosition)
+    })
+  })
+}
 
 watch(() => props.modelValue, (n) => {
-  if (n)
-    nextTick(() => {
-      if (modalRef) {
-        const modal = modalRef as HTMLElement
-        if (modal.getBoundingClientRect().bottom > window.innerHeight) {
-          style = {top: 'unset', 'bottom': '2.5rem'}
-        }
-      }
-    })
+  if (n) {
+    style = { ...initialStyle }
+    schedulePosition()
+  } else {
+    style = { ...initialStyle }
+  }
+})
+
+onMounted(() => {
+  if (props.modelValue) schedulePosition()
 })
 </script>
 
 <template>
-  <Transition name="fade">
     <div v-if="modelValue" ref="modalRef" class="mini-modal" :style="{width, ...style}">
       <slot></slot>
     </div>
-  </Transition>
 </template>
 
 <style lang="scss">

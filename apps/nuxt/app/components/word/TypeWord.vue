@@ -455,6 +455,10 @@ function checkCursorPosition() {
   })
 }
 
+function speak(text: string) {
+  speechSynthesis.speak(new SpeechSynthesisUtterance(text))
+}
+
 useEvents([
   [ShortcutKey.KnowWord, know],
   [ShortcutKey.UnknownWord, unknown],
@@ -598,15 +602,15 @@ useEvents([
       <template v-if="word?.sentences?.length">
         <div class="flex flex-col gap-3">
           <div class="sentence" v-for="item in word.sentences">
-            <SentenceHightLightWord
-              class="text-xl"
-              :text="item.c"
-              :word="word.word"
-              :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
-            />
-            <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
-              {{ item.cn }}
-            </div>
+           <span style="display: flex">
+              <VolumeIcon :title="`发音`" :simple="false" :cb="() => speak(item.c)" />
+              <div>
+                <SentenceHightLightWord class="text-xl" :text="item.c" :word="word.word" :dictation="!(!settingStore.dictation || showFullWord || showWordResult)" />
+                <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+                  {{ item.cn }}
+                </div>
+             </div>
+            </span>
           </div>
         </div>
       </template>

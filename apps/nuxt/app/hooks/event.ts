@@ -283,18 +283,17 @@ export function useStartKeyboardEventListener() {
       // console.log('shortcutKey', shortcutKey)
 
       let list = Object.entries(settingStore.shortcutKeyMap)
-      let shortcutEvent = ''
+      let shortcutEvent = []
       for (let i = 0; i < list.length; i++) {
         let [k, v] = list[i]
         if (v === shortcutKey) {
           // console.log('快捷键', k)
-          shortcutEvent = k
-          break
+          shortcutEvent.push(k)
         }
       }
       if (shortcutEvent) {
         e.preventDefault()
-        emitter.emit(shortcutEvent, e)
+        shortcutEvent.map(s => emitter.emit(s, e))
       } else {
         //非英文模式下，输入区域的 keyCode 均为 229时，
         // 空格键始终应该被转发到onTyping函数，由它来决定是作为输入还是切换单词

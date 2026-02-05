@@ -15,11 +15,10 @@ import { useStartKeyboardEventListener } from '@/hooks/event.ts'
 import { ShortcutKey } from '~/types/enum'
 import { useSettingStore } from '@/stores/setting.ts'
 
-type Candidate = { word: string; wordObj?: Word }
+type Candidate = { word: string; wordObj?: Word; label: string }
 type Question = {
   stem: Word
   candidates: Candidate[]
-  optionTexts: string[]
   correctIndex: number
   selectedIndex: number
   submitted: boolean
@@ -60,7 +59,7 @@ function pickRelVariant(w: Word, list: Word[]): Candidate | null {
       let c = rels[i].words[j].c
       let r = getWordByText(c, list)
       if (r && r.word.toLowerCase() !== w.word.toLowerCase()) {
-        return { word: r.word, wordObj: r }
+        return { word: r.word, wordObj: r, label: '' }
       }
     }
   }
@@ -74,7 +73,7 @@ function pickSynonym(w: Word, list: Word[]): Candidate | null {
       let c = synos[i].ws[j]
       let r = getWordByText(c, list)
       if (r && r.word.toLowerCase() !== w.word.toLowerCase()) {
-        return { word: r.word, wordObj: r }
+        return { word: r.word, wordObj: r, label: '' }
       }
     }
   }
@@ -86,16 +85,17 @@ function pickSamePos(w: Word, list: Word[]): Candidate | null {
   let samePos = list.filter(v => v.word.toLowerCase() !== w.word.toLowerCase() && v.trans?.some(t => t.pos === pos))
   if (samePos.length) {
     let r = samePos[Math.floor(Math.random() * samePos.length)]
-    return { word: r.word, wordObj: r }
+    return { word: r.word, wordObj: r, label: '' }
   }
   return null
 }
 
 function buildQuestion(w: Word, list: Word[]): Question {
   let candidates: Candidate[] = []
-  candidates.push({ word: w.word, wordObj: w })
+  candidates.push({ word: w.word, wordObj: w, label: '' })
   let c1 = pickRelVariant(w, list) || pickSynonym(w, list) || pickSamePos(w, list)
   let c2 = null as Candidate | null
+  let c3 = null as Candidate | null
   let tried = new Set<string>([w.word.toLowerCase()])
   if (c1) tried.add(c1.word.toLowerCase())
   let attempts = 0
@@ -104,34 +104,52 @@ function buildQuestion(w: Word, list: Word[]): Question {
     if (c2 && tried.has(c2.word.toLowerCase())) c2 = null
     attempts++
   }
+  if (c2) tried.add(c2.word.toLowerCase())
+  attempts = 0
+  while (!c3 && attempts < 5) {
+    c3 = pickSynonym(w, list) || pickSamePos(w, list) || pickRelVariant(w, list)
+    if (c3 && tried.has(c3.word.toLowerCase())) c3 = null
+    attempts++
+  }
   if (!c1) {
     let rand = list.filter(v => v.word.toLowerCase() !== w.word.toLowerCase())
-    if (rand.length)
-      c1 = {
-        word: rand[Math.floor(Math.random() * rand.length)].word,
-        wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list),
-      }
+    if (rand.length) {
+      const r = rand[Math.floor(Math.random() * rand.length)]
+      c1 = { word: r.word, wordObj: getWordByText(r.word, list), label: '' }
+    }
   }
   if (!c2) {
     let rand = list.filter(
       v => v.word.toLowerCase() !== w.word.toLowerCase() && v.word.toLowerCase() !== c1?.word.toLowerCase()
     )
-    if (rand.length)
-      c2 = {
-        word: rand[Math.floor(Math.random() * rand.length)].word,
-        wordObj: getWordByText(rand[Math.floor(Math.random() * rand.length)].word, list),
-      }
+    if (rand.length) {
+      const r = rand[Math.floor(Math.random() * rand.length)]
+      c2 = { word: r.word, wordObj: getWordByText(r.word, list), label: '' }
+    }
+  }
+  if (!c3) {
+    let rand = list.filter(
+      v =>
+        v.word.toLowerCase() !== w.word.toLowerCase() &&
+        v.word.toLowerCase() !== c1?.word.toLowerCase() &&
+        v.word.toLowerCase() !== c2?.word.toLowerCase()
+    )
+    if (rand.length) {
+      const r = rand[Math.floor(Math.random() * rand.length)]
+      c3 = { word: r.word, wordObj: getWordByText(r.word, list), label: '' }
+    }
   }
   if (c1) candidates.push(c1)
   if (c2) candidates.push(c2)
-  const labels = candidates.map(v => formatCandidateText(v))
-  const order = shuffle([0, 1, 2])
-  const optionTexts = order.map(i => labels[i])
-  const correctIndex = order.indexOf(0)
+  if (c3) candidates.push(c3)
+  candidates = shuffle(candidates)
+  candidates.map(v => {
+    v.label = formatCandidateText(v)
+  })
+  const correctIndex = candidates.findIndex(v => v.word === w.word)
   return {
     stem: w,
     candidates,
-    optionTexts,
     correctIndex,
     selectedIndex: -1,
     submitted: false,
@@ -191,8 +209,9 @@ async function init() {
   } else {
     testWords = shuffle(dict.words)
   }
-    allWords = shuffle(dict.words)
+  allWords = shuffle(dict.words)
   questions = testWords.slice(pageNo * pageSize, (pageNo + 1) * pageSize).map(w => buildQuestion(w, allWords))
+  console.log('questions', questions)
   index = 0
 
   Toast.info('可以按快捷键进行选择,例如按快捷键[' + aShortcutKey + ']选择A', { duration: 3000 })
@@ -239,6 +258,7 @@ useEvents([
   [ShortcutKey.ChooseA, () => select(0)],
   [ShortcutKey.ChooseB, () => select(1)],
   [ShortcutKey.ChooseC, () => select(2)],
+  [ShortcutKey.ChooseD, () => select(3)],
   [ShortcutKey.Next, () => next()],
 ])
 
@@ -247,6 +267,7 @@ const settingStore = useSettingStore()
 let aShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseA]
 let bShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseB]
 let cShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseC]
+let dShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.ChooseD]
 
 let nextShortcutKey = settingStore.shortcutKeyMap[ShortcutKey.Next]
 
@@ -255,7 +276,7 @@ onMounted(init)
 
 <template>
   <BasePage>
-    <div class="card flex flex-col">
+    <div class="card flex flex-col text-xl">
       <div class="flex items-center justify-between">
         <div class="page-title">测试：{{ dict?.name }}</div>
         <div class="text-base">{{ no }} / {{ Math.min(total, testWords.length) }}</div>
@@ -269,7 +290,7 @@ onMounted(init)
         </div>
         <div class="grid gap-2">
           <div
-            v-for="(opt, i) in questions[index].optionTexts"
+            v-for="(opt, i) in questions[index].candidates"
             :key="i"
             class="option border rounded p-2 cursor-pointer"
             :class="{
@@ -281,22 +302,12 @@ onMounted(init)
             }"
             @click="select(i)"
           >
-            <span>
-              <span class="italic">{{ ['A', 'B', 'C'][i] }}</span>
-              [<span>{{ [aShortcutKey, bShortcutKey, cShortcutKey][i] }}</span
-              >]
-              {{ opt }}
+            <span class="">
+              <span class="italic">{{ ['A', 'B', 'C', 'D'][i] }}</span>
+              <span class="mx-2">[{{ [aShortcutKey, bShortcutKey, cShortcutKey, dShortcutKey][i] }}]</span>
+              <span>{{ opt.label }}</span>
             </span>
-          </div>
-        </div>
-
-        <div v-if="questions[index].submitted" class="mt-4">
-          <div class="mb-2 text-base">选项解析：</div>
-          <div class="grid gap-2 grid-cols-1 md:grid-cols-3">
-            <div v-for="(c, i) in questions[index].candidates" :key="i" class="p-2 rounded bg-[--bg-card-secend]">
-              <div class="en-article-family text-lg">{{ c.word }}</div>
-              <div class="mt-1 text-sm">{{ c.wordObj?.trans?.map(v => v.cn).join('；') || '当前词典未收录释义' }}</div>
-            </div>
+            <div class="mt-2" v-opacity="questions[index].submitted">{{ opt.word }}</div>
           </div>
         </div>
 
@@ -315,6 +326,5 @@ onMounted(init)
 }
 .option {
   min-height: 100px;
-  font-size: 20px;
 }
 </style>

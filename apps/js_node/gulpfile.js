@@ -64,9 +64,9 @@ function excel2i18n() {
 
 // 将翻译好的 excel 写入多个语言 JSON 文件
 function i18nWrite() {
-  return src(['../i18n/locales/i18n.xlsx'], { encoding: false })
+  return src(['../nuxt/i18n/locales/i18n.xlsx'], { encoding: false })
     .pipe(excel2i18n())
-    .pipe(dest('../i18n/locales'));
+    .pipe(dest('../nuxt/i18n/locales'));
 }
 
 export { i18nWrite };

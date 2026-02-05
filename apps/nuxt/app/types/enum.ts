@@ -36,7 +36,8 @@ export enum ShortcutKey {
   UnknownWord = 'UnknownWord',
   ChooseA = 'ChooseA',
   ChooseB = 'ChooseB',
-  ChooseC = 'ChooseC'
+  ChooseC = 'ChooseC',
+  ChooseD = 'ChooseD'
 }
 
 export enum TranslateEngine {
@@ -50,6 +51,7 @@ export enum PracticeArticleWordType {
 }
 
 //练习模式
+//新增模式，记得测试正常流程
 export enum WordPracticeMode {
   System = 0,
   Free = 1,

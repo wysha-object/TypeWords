@@ -30,7 +30,7 @@ import { useI18n } from 'vue-i18n'
 import { wordDelete } from '@/apis/words.ts'
 import { copyOfficialDict } from '@/apis/dict.ts'
 import { PRACTICE_WORD_CACHE } from '@/utils/cache.ts'
-import { Sort } from '@/types/enum.ts'
+import { Sort, WordPracticeMode } from '@/types/enum.ts'
 
 const runtimeStore = useRuntimeStore()
 const base = useBaseStore()
@@ -185,11 +185,11 @@ function word2Str(word) {
   res.synos = word.synos.map(v => (v.pos + v.cn + '\n' + v.ws.join('/')).replaceAll('"', '')).join('\n\n')
   res.relWords = word.relWords.root
     ? '词根:' +
-    word.relWords.root +
-    '\n\n' +
-    word.relWords.rels
-      .map(v => (v.pos + '\n' + v.words.map(v => v.c + ':' + v.cn).join('\n')).replaceAll('"', ''))
-      .join('\n\n')
+      word.relWords.root +
+      '\n\n' +
+      word.relWords.rels
+        .map(v => (v.pos + '\n' + v.words.map(v => v.c + ':' + v.cn).join('\n')).replaceAll('"', ''))
+        .join('\n\n')
     : ''
   res.etymology = word.etymology.map(v => (v.t + '\n' + v.d).replaceAll('"', '')).join('\n\n')
   return res
@@ -275,6 +275,10 @@ const { nav } = useNav()
 
 //todo 可以和首页合并
 async function startPractice(query = {}) {
+  //这里重置一下，因为下面切换词典后，导致学习进度为0，而切换前的模式有可能需要有进度才可以用
+  if (![WordPracticeMode.Free, WordPracticeMode.System].includes(settingStore.wordPracticeMode)) {
+    settingStore.wordPracticeMode = WordPracticeMode.System
+  }
   console.log(1)
   localStorage.removeItem(PRACTICE_WORD_CACHE.key)
   studyLoading = true
@@ -305,9 +309,13 @@ async function addMyStudyList() {
 
 async function startTest() {
   loading = true
+  //这里重置一下，因为下面切换词典后，导致学习进度为0，而切换前的模式有可能需要有进度才可以用
+  if (![WordPracticeMode.Free, WordPracticeMode.System].includes(settingStore.wordPracticeMode)) {
+    settingStore.wordPracticeMode = WordPracticeMode.System
+  }
   await base.changeDict(runtimeStore.editDict)
   loading = false
-  nav('words-test/' + store.sdict.id)
+  nav('words-test/' + store.sdict.id, {}, {})
 }
 
 let exportLoading = $ref(false)
@@ -595,7 +603,8 @@ defineRender(() => {
                 {$t('word_list')}
               </div>
               <div class={`tab-item ${activeTab === 'edit' ? 'active' : ''}`} onClick={() => (activeTab = 'edit')}>
-                {wordForm.id ? $t('edit') : $t('add')}{$t('word')}
+                {wordForm.id ? $t('edit') : $t('add')}
+                {$t('word')}
               </div>
             </div>
           )}
@@ -644,7 +653,10 @@ defineRender(() => {
             </div>
             {isOperate ? (
               <div class={`edit-section flex-1 flex flex-col ${isMob && activeTab !== 'edit' ? 'mobile-hidden' : ''}`}>
-                <div class="common-title">{wordForm.id ? $t('edit') : $t('add')}{$t('word')}</div>
+                <div class="common-title">
+                  {wordForm.id ? $t('edit') : $t('add')}
+                  {$t('word')}
+                </div>
                 <Form
                   class="flex-1 overflow-auto pr-2"
                   ref={e => (wordFormRef = e)}

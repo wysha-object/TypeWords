@@ -474,7 +474,7 @@ const systemPracticeText = $computed(() => {
               <BaseButton
                 class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.WordsTest"
-                :disabled="!store.sdict.length"
+                :disabled="store.sdict.lastLearnIndex < 10 && !store.sdict.complete"
                 @click="startWordsTest()"
               >
                 {{ $t('words') }}{{ $t('test') }}

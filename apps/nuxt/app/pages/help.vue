@@ -24,17 +24,25 @@ useSeoMeta({
       <div class="card-white qa w-2/3">
         <div class="font-bold text-2xl mb-6">{{ $t('faq') }}</div>
         <div class="list">
-          <Collapse :q="$t('qa1_a')" :a="[$t('qa1_q1'), $t('qa1_q2')]" />
-
-          <div class="line"></div>
-
           <Collapse :q="$t('qa2_a')">
             <ConflictNoticeText />
           </Collapse>
 
           <div class="line"></div>
 
+          <Collapse :q="$t('qa10_a')" :a="[$t('qa10_q1'), $t('qa10_q2')]"> </Collapse>
+
+          <div class="line"></div>
+
+          <Collapse :q="$t('qa11_a')" :a="$t('qa11_q')"> </Collapse>
+
+          <div class="line"></div>
+
           <Collapse :q="$t('qa3_a')" :a="[$t('qa3_q1'), $t('qa3_q2'), $t('qa3_q3')]"> </Collapse>
+
+          <div class="line"></div>
+
+          <Collapse :q="$t('qa1_a')" :a="[$t('qa1_q1'), $t('qa1_q2')]" />
 
           <div class="line"></div>
 
@@ -59,14 +67,6 @@ useSeoMeta({
           <div class="line"></div>
 
           <Collapse :q="$t('qa9_a')" :a="$t('qa9_q')"> </Collapse>
-
-          <div class="line"></div>
-
-          <Collapse :q="$t('qa10_a')" :a="[$t('qa10_q1'), $t('qa10_q2')]"> </Collapse>
-
-          <div class="line"></div>
-
-          <Collapse :q="$t('qa11_a')" :a="$t('qa11_q')"> </Collapse>
 
           <div class="line"></div>
 

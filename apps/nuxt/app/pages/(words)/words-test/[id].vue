@@ -39,7 +39,8 @@ let questions = $ref<Question[]>([])
 let index = $ref(0)
 let pageNo = $ref(0)
 let pageSize = $ref(100)
-let wordList = []
+let allWords = []
+let testWords = []
 let total = $computed(() => {
   return (pageNo + 1) * pageSize
 })
@@ -172,25 +173,26 @@ function formatCandidateText(c: Candidate): string {
 
 async function init() {
   let dictId: any = route.params.id
-  if (runtimeStore.routeData.taskWords) {
-    wordList = runtimeStore.routeData.taskWords.shuffle
-  } else {
-    let d = base.word.bookList.find(v => v.id === dictId)
-    if (!d) d = base.sdict
-    if (!d?.id) return router.push('/words')
-    dict = d
-    if (!d.words.length && runtimeStore.editDict?.id === d.id) {
-      loading = true
-      let r = await _getDictDataByUrl(runtimeStore.editDict)
-      d = r
-      loading = false
-    }
-    if (!dict.words.length) {
-      return Toast.warning('没有单词可测试！')
-    }
-    wordList = shuffle(dict.words)
+  let d = base.word.bookList.find(v => v.id === dictId)
+  if (!d) d = base.sdict
+  if (!d?.id) return router.push('/words')
+  dict = d
+  if (!d.words.length && runtimeStore.editDict?.id === d.id) {
+    loading = true
+    let r = await _getDictDataByUrl(runtimeStore.editDict)
+    d = r
+    loading = false
   }
-  questions = wordList.slice(pageNo * pageSize, (pageNo + 1) * pageSize).map(w => buildQuestion(w, wordList))
+  if (!dict.words.length) {
+    return Toast.warning('没有单词可测试！')
+  }
+  if (runtimeStore.routeData.taskWords) {
+    testWords = runtimeStore.routeData.taskWords.shuffle
+  } else {
+    testWords = shuffle(dict.words)
+  }
+    allWords = shuffle(dict.words)
+  questions = testWords.slice(pageNo * pageSize, (pageNo + 1) * pageSize).map(w => buildQuestion(w, allWords))
   index = 0
 
   Toast.info('可以按快捷键进行选择,例如按快捷键[' + aShortcutKey + ']选择A', { duration: 3000 })
@@ -216,14 +218,14 @@ function select(i: number) {
 const { nav } = useNav()
 
 function next() {
-  if (no >= wordList.length) {
+  if (no >= testWords.length) {
     nav('/words')
   }
   if (no < total) index++
   else {
     pageNo++
     index = 0
-    questions = wordList.slice(pageNo * pageSize, (pageNo + 1) * pageSize).map(w => buildQuestion(w, wordList))
+    questions = testWords.slice(pageNo * pageSize, (pageNo + 1) * pageSize).map(w => buildQuestion(w, allWords))
   }
 }
 
@@ -256,7 +258,7 @@ onMounted(init)
     <div class="card flex flex-col">
       <div class="flex items-center justify-between">
         <div class="page-title">测试：{{ dict?.name }}</div>
-        <div class="text-base">{{ no }} / {{ Math.min(total, wordList.length) }}</div>
+        <div class="text-base">{{ no }} / {{ Math.min(total, testWords.length) }}</div>
       </div>
       <div class="line my-2"></div>
 

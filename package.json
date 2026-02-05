@@ -2,6 +2,10 @@
   "name": "typewords",
   "private": true,
   "scripts": {
+    "dev": "pnpm -F @typewords/nuxt dev",
+    "start": "pnpm -F @typewords/nuxt dev",
+    "build": "pnpm -F @typewords/nuxt static",
+    "generate": "pnpm -F @typewords/nuxt static",
     "build-web": "pnpm -F @typewords/nuxt generate",
     "build-vscode-web": "pnpm -F @typewords/vscode-web build",
     "build-all": "pnpm run generate && pnpm run build:vscode-web",

@@ -291,7 +291,7 @@ export function useStartKeyboardEventListener() {
           shortcutEvent.push(k)
         }
       }
-      if (shortcutEvent) {
+      if (shortcutEvent.length > 0) {
         e.preventDefault()
         shortcutEvent.map(s => emitter.emit(s, e))
       } else {

@@ -56,7 +56,7 @@ function eventCheck(e) {
 <template>
   <div class="setting" @click="eventCheck">
     <BaseIcon @click="toggle(true)">
-      <IconClarityVolumeUpLine />
+      <IconFluentMoreHorizontal20Regular class="color-gray-600" />
     </BaseIcon>
     <MiniDialog width="14rem" v-model="show">
       <div class="mini-row">

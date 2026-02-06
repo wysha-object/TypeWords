@@ -153,7 +153,7 @@ function buildQuestion(w: Word, list: Word[]): Question {
     correctIndex,
     selectedIndex: -1,
     submitted: false,
-  }
+  } 
 }
 
 function formatCandidateText(c: Candidate): string {

@@ -596,7 +596,6 @@ useEvents([
   //overflow: auto;
   word-break: break-word;
   position: relative;
-  color: var(--color-font-2);
 
   .phonetic,
   .translate {

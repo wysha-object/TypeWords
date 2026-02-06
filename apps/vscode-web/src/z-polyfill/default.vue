@@ -21,13 +21,13 @@ onMounted(() => {
 <template>
   <div class="bg-primary flex flex-col  box-border h-screen anim relative overflow-hidden">
     <div class="flex justify-between p-4">
-      <div class="tab bg-black py-1 px-2 rounded-md">Content Security Policy violations</div>
-      <div class="flex gap-space">
+      <div class="tab bg-[#20232a] color-white py-1 px-2 rounded-md font-bold">Content Security Policy violations</div>
+      <div class="flex gap-space color-gray-500">
         <BaseIcon>
           <IconFluentAdd16Regular />
         </BaseIcon>
         <BaseIcon>
-          <IconFluentAdd16Regular />
+          <IconFluentClock20Regular />
         </BaseIcon>
         <BaseIcon>
           <SettingMiniDialog />

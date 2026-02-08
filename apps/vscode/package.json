@@ -2,9 +2,11 @@
   "name": "typewords",
   "displayName": "TypeWords",
   "description": "TypeWords Vscode Extension",
+  "repository":"https://github.com/zyronon/TypeWords",
+  "publisher":"TypeWords",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.107.1"
+    "vscode": "^1.108.1"
   },
   "categories": [
     "Other"

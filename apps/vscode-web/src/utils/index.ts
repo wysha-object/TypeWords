@@ -494,7 +494,7 @@ export function resourceWrap(resource: string, version?: number) {
     }
     return `${resource}_v${version}.json`
   }
-  if (!resource.includes('http')) resource = 'http://tw.cc/' + resource
+  if (!resource.includes('http')) resource = 'https://vs.typewords.cc/' + resource
   return resource
 }
 

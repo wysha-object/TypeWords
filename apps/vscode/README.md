@@ -1,71 +1,66 @@
-# typewords README
+<h1 align=center>
+  <img src="https://github.com/user-attachments/assets/9d626e0f-0601-4640-8981-ad66d8ac4853" alt="TypeWords" style="width: 500px;"/>
+</h1>
 
-This is the README for your extension "typewords". After writing up a brief description, we recommend including the following sections.
+<p align="center">
+  <b>Learn English, one keystroke at a time; smarter memorization, more efficient learning - an open-source word and article practice tool</b>
+</p>
+
+## Online Access
+
+[https://typewords.cc](https://typewords.cc)
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+### Word Practice
 
-For example if there is an image subfolder under your extension project workspace:
+- Practice modes: Follow-along / Dictation / Self-test / Spelling from memory
+- Smart mode: Automatically calculates learning words based on memory curves, deepening memory through dictation
+- Free mode: No restrictions, plan your own learning
+- Provides phonetics, pronunciation (American/British), example sentences, phrases, synonyms, root words, etymology, error statistics, and more
 
-\!\[feature X\]\(images/feature-x.png\)
+### Article Memorization
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Built-in classic textbooks; you can also add or import articles with one-click translation and bilingual comparison
+- Follow-along + dictation dual modes, sentence-by-sentence input with automatic pronunciation for more efficient memorization
+- Supports listening while writing from memory to reinforce learning
 
-## Requirements
+### Favorites, Wrong Words, Mastered
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- Words typed incorrectly while learning are automatically added to your wrong word book for later review
+- Actively add words to mastered to automatically skip them in future sessions
+- Add words to favorites for consolidation and review
 
-## Extension Settings
+### Highly Customizable
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+- Rich keyboard sound effects
+- Customizable shortcuts
+- Highly configurable settings
 
-For example:
+### Clean and Efficient
 
-This extension contributes the following settings:
+- Clean design, modern UI, ad-free
+- Refreshing interface, simple operation
+- No forced subscription to any platform
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+### Vocabulary Library
 
-## Known Issues
+Built-in commonly used vocabulary including CET-4, CET-6, GMAT, GRE, IELTS, SAT, TOEFL, Graduate English, TEM-4, TEM-8, and more.
+Designed to meet most users' vocabulary learning needs. Community contributions of additional vocabulary are welcome.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Running the Project
 
-## Release Notes
+#### Note: This project can run standalone with data saved locally. Manual backup is required when switching devices; this does not affect normal usage.
+This project is built with `Nuxt` and requires a Node.js environment.
 
-Users appreciate release notes as you update your extension.
+1. Install NodeJS, refer to the [official documentation](https://nodejs.org/en/download)
+2. The project is large. It's recommended to use `git clone --depth 1 https://github.com/zyronon/TypeWords.git` to clone only the latest commit. GitHub's Download ZIP feature will not work properly.
+3. In the project root directory, open a terminal and run `pnpm install` to download dependencies.
+4. Run `pnpm run dev` to start the project. The default address is [`http://localhost:5567`](http://localhost:5567)
+5. Open [`http://localhost:5567`](http://localhost:5567) in your browser to access the project.
+6. Run `pnpm run generate` to build the project files.
 
-### 1.0.0
+## Features and Suggestions
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+The project is currently in early development, with new features being added continuously. If you have any suggestions or feature requests, feel free to open an `Issue`.
+If you like the design philosophy of this software, please submit a `PR`. Thank you for your support!

@@ -73,6 +73,7 @@ class ChatPanel {
       `style-src ${cdnUrl} 'unsafe-inline'`,
       `connect-src ${cdnUrl} ${fileUrl}`,
       'img-src data: https:',
+      'media-src https://dict.youdao.com',
       'font-src data:',
     ].join('; ')
 
@@ -85,7 +86,7 @@ class ChatPanel {
     <title>New Agent</title>
 
 
-  <script type="module" src="${cdnUrl}/assets/index-DIPfW8B4.js"></script>
+  <script type="module" src="${cdnUrl}/assets/index-CY-8-4fj.js"></script>
   <link rel="stylesheet" href="${cdnUrl}/assets/index-BXLuKuw9.css">
 </head>
 <body>

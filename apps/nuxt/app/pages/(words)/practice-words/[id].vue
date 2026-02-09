@@ -371,7 +371,6 @@ function wordLoop() {
   }
 }
 
-let toastInstance: ToastInstance = null
 
 function nextStage(originList: Word[], log: string = '', toast: boolean = false) {
   //每次都判断，因为每次都可能新增已掌握的单词
@@ -379,10 +378,6 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   console.log(log)
   statStore.stage = statStore.nextStage
   if (list.length) {
-    if (toast) {
-      if (toastInstance) toastInstance.close()
-      toastInstance = Toast.info('输入完成后按空格键切换下一个', { duration: 5000 })
-    }
     data.words = list
     data.index = 0
   } else {

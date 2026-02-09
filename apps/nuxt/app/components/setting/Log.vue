@@ -1,6 +1,10 @@
 <script setup lang="ts">
 let logList = [
   {
+    date: '2026/02/10',
+    content: '练习界面添加一些引导提示',
+  },
+  {
     date: '2026/02/09',
     content: '发布 Vscode 插件',
   },

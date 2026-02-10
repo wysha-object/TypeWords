@@ -74,6 +74,6 @@ export default {
 .tip {
   background: var(--color-tooltip-bg);
   max-width: 22rem;
-  @apply fixed z-9999 shadow-xl border-item-solid rounded-md px-2.5 py-1.5;
+  @apply fixed z-9999 text-base shadow-xl border-item-solid rounded-md px-2.5 py-1.5;
 }
 </style>

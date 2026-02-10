@@ -294,6 +294,8 @@ export function useStartKeyboardEventListener() {
       }
       if (shortcutEvent) {
         e.preventDefault()
+        // e.stopPropagation()
+        // e.stopImmediatePropagation()
         emitter.emit(shortcutEvent, e)
       } else {
         //非英文模式下，输入区域的 keyCode 均为 229时，

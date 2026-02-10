@@ -34,7 +34,6 @@ async function getDictDetail(val: DictResource) {
   nav('/dict', {from: 'list'})
 }
 
-
 function groupByDictTags(dictList: DictResource[]) {
   return dictList.reduce<Record<string, DictResource[]>>((result, dict) => {
     dict.tags.forEach((tag) => {
@@ -115,14 +114,14 @@ watch(dict_list, (val) => {
 
 <template>
   <BasePage>
-    <div class="card min-h-200 dict-list-page" v-loading="isFetching">
+    <div class="card min-h-200 dict-list-page text-base" v-loading="isFetching">
       <div class="flex items-center relative gap-2 header-section">
         <BackIcon class="z-2" @click='router.back'/>
         <div class="flex flex-1 gap-4" v-if="showSearchInput">
           <BaseInput clearable placeholder="请输入词典名称/缩写/类别" v-model="searchKey" class="flex-1" autofocus/>
           <BaseButton @click="showSearchInput = false, searchKey = ''">{{ $t('cancel') }}</BaseButton>
         </div>
-        <div class="py-1 flex flex-1 justify-end" v-else>
+        <div class="py-1 flex flex-1 justify-end items-center" v-else>
           <span class="page-title absolute w-full center">{{ $t('dict_list') }}</span>
           <BaseIcon
             :title="$t('search')"
@@ -157,75 +156,4 @@ watch(dict_list, (val) => {
 </template>
 
 <style scoped lang="scss">
-// 移动端适配
-@media (max-width: 768px) {
-  .dict-list-page {
-    padding: 0.8rem;
-    margin-bottom: 1rem;
-
-    .header-section {
-      flex-direction: column;
-      gap: 0.5rem;
-
-      .flex.flex-1.gap-4 {
-        width: 100%;
-
-        .base-input {
-          font-size: 0.9rem;
-        }
-
-        .base-button {
-          padding: 0.5rem 0.8rem;
-          font-size: 0.9rem;
-        }
-      }
-
-      .py-1.flex.flex-1.justify-end {
-        width: 100%;
-
-        .page-title {
-          font-size: 1.2rem;
-        }
-
-        .base-icon {
-          font-size: 1.2rem;
-        }
-      }
-    }
-
-    .mt-4 {
-      margin-top: 0.8rem;
-    }
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .dict-list-page {
-    padding: 0.5rem;
-
-    .header-section {
-      .flex.flex-1.gap-4 {
-        .base-input {
-          font-size: 0.8rem;
-        }
-
-        .base-button {
-          padding: 0.4rem 0.6rem;
-          font-size: 0.8rem;
-        }
-      }
-
-      .py-1.flex.flex-1.justify-end {
-        .page-title {
-          font-size: 1rem;
-        }
-
-        .base-icon {
-          font-size: 1rem;
-        }
-      }
-    }
-  }
-}
 </style>

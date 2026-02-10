@@ -1,38 +1,34 @@
 <script setup lang="ts">
+import BaseIcon from '@/components/BaseIcon.vue'
+import SettingMiniDialog from '@/z-polyfill/SettingMiniDialog.vue'
 
+type IProps = {
+  padding?: boolean
+}
+
+withDefaults(defineProps<IProps>(), {
+  padding: true,
+})
 </script>
 
 <template>
-  <div class="flex justify-center">
-    <div class="page 3xl:w-[50vw] 2xl:w-[60vw] xl:w-[70vw] lg:w-[75vw]">
+  <div class="bg-primary text-base flex flex-col h-screen overflow-hidden box-border anim relative">
+    <div class="flex justify-between p-4">
+      <div class="tab bg-[#20232a] color-white py-1 px-2 rounded-md font-bold">Content Security Policy violations</div>
+      <div class="flex gap-space color-gray-500">
+        <BaseIcon>
+          <IconFluentAdd16Regular />
+        </BaseIcon>
+        <BaseIcon>
+          <IconFluentClock20Regular />
+        </BaseIcon>
+        <SettingMiniDialog />
+      </div>
+    </div>
+    <div class="flex-1 overflow-auto" :class="padding && 'px-4'">
       <slot></slot>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-.page {
-  min-height: calc(100vh - 1.2rem);
-  margin-top: 1.2rem;
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .page {
-    width: 100vw !important;
-    margin-top: 0.5rem;
-    min-height: calc(100vh - 0.5rem);
-    padding: 0 0.5rem;
-    box-sizing: border-box;
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .page {
-    margin-top: 0.3rem;
-    min-height: calc(100vh - 0.3rem);
-    padding: 0 0.3rem;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

@@ -785,7 +785,6 @@ defineRender(() => {
   display: none;
 }
 
-// 移动端适配
 @media (max-width: 768px) {
   .dict-detail-card {
     height: unset;
@@ -814,7 +813,6 @@ defineRender(() => {
   .dict-header .dict-actions {
     width: 100%;
     justify-content: center;
-    gap: 0.75rem;
   }
 
   .tab-navigation {
@@ -859,21 +857,6 @@ defineRender(() => {
 
     .edit-section {
       margin-top: 0;
-    }
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .dict-detail-card {
-    height: unset;
-    min-height: calc(100vh - 1rem);
-  }
-
-  .tab-navigation {
-    .tab-item {
-      padding: 0.6rem 0.5rem;
-      font-size: 0.9rem;
     }
   }
 }

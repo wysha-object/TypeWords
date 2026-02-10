@@ -8,12 +8,10 @@ import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
 import { getCurrentStudyWord, useWordOptions } from '@/hooks/dict.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from '@/utils'
+import { _getDictDataByUrl, cloneDeep, resourceWrap, shuffle } from '@/utils'
 import { useRoute, useRouter } from 'vue-router'
-import Footer from '~/components/word/Footer.vue'
 import Panel from '@/components/Panel.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
-import Tooltip from '@/components/base/Tooltip.vue'
 import WordList from '@/components/list/WordList.vue'
 import TypeWord from '~/components/word/TypeWord.vue'
 import Empty from '@/components/Empty.vue'
@@ -24,13 +22,15 @@ import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import ConflictNotice from '@/components/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 
-import { AppEnv, DICT_LIST, IS_DEV, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
+import { AppEnv, DICT_LIST, IS_DEV, WordPracticeModeStageMap } from '@/config/env.ts'
 import type { ToastInstance } from '@/components/base/toast/type.ts'
-import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
 import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
+import prefixTxt from './template-vue-prefix.txt?raw'
+import suffixTxt from './template-vue-suffix.txt?raw'
+import Footer from '@/components/word/Footer.vue'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -126,53 +126,6 @@ onUnmounted(() => {
   }
   timer && clearInterval(timer)
 })
-
-watchOnce(
-  () => data.words.length,
-  (newVal, oldVal) => {
-    //如果是从无值变有值，代表是开始
-    if (!oldVal && newVal) {
-      _nextTick(async () => {
-        const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
-        const tour = new Shepherd.Tour(TourConfig)
-        tour.on('cancel', () => {
-          localStorage.setItem('tour-guide', '1')
-        })
-        tour.addStep({
-          id: 'step5',
-          text: '这里可以练习拼写单词，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: { element: '#word', on: 'bottom' },
-          buttons: [
-            {
-              text: `下一步（5/${TourConfig.total}）`,
-              action: tour.next,
-            },
-          ],
-        })
-
-        tour.addStep({
-          id: 'step6',
-          text: '这里是文章练习',
-          attachTo: { element: '#article', on: 'top' },
-          buttons: [
-            {
-              text: `下一步（6/${TourConfig.total}）`,
-              action() {
-                tour.next()
-                router.push('/articles')
-              },
-            },
-          ],
-        })
-
-        const r = localStorage.getItem('tour-guide')
-        if (settingStore.first && !r && !isMobile()) {
-          tour.start()
-        }
-      }, 500)
-    }
-  }
-)
 
 useStartKeyboardEventListener()
 useDisableEventListener(() => loading)
@@ -278,12 +231,6 @@ function initData(initVal: TaskWords, init: boolean = false) {
 
 const word = $computed<Word>(() => {
   return data.words[data.index] ?? getDefaultWord()
-})
-const prevWord: Word = $computed(() => {
-  return data.words?.[data.index - 1] ?? undefined
-})
-const nextWord: Word = $computed(() => {
-  return data.words?.[data.index + 1] ?? undefined
 })
 
 function watchStage(n: WordPracticeStage) {
@@ -638,9 +585,8 @@ function toggleDictation() {
   settingStore.dictation = !settingStore.dictation
 }
 
-function toggleConciseMode() {
+function toggleToolbar() {
   settingStore.showToolbar = !settingStore.showToolbar
-  settingStore.showPanel = settingStore.showToolbar
 }
 
 function togglePanel() {
@@ -726,7 +672,7 @@ useEvents([
   [ShortcutKey.ToggleShowTranslate, toggleTranslate],
   [ShortcutKey.ToggleDictation, toggleDictation],
   [ShortcutKey.ToggleTheme, toggleTheme],
-  [ShortcutKey.ToggleConciseMode, toggleConciseMode],
+  [ShortcutKey.ToggleToolbar, toggleToolbar],
   [ShortcutKey.TogglePanel, togglePanel],
   [ShortcutKey.RandomWrite, randomWrite],
 ])
@@ -735,28 +681,12 @@ useEvents([
 <template>
   <PracticeLayout v-loading="loading" panelLeft="var(--word-panel-margin-left)">
     <template v-slot:practice>
-      <div class="practice-word mb-50">
-        <div
-          class="fixed z-1 top-4 w-full"
-          style="left: calc(50vw + var(--aside-width) / 2 - var(--toolbar-width) / 2); width: var(--toolbar-width)"
-          v-if="settingStore.showNearWord"
-        >
-          <div class="center gap-2 cursor-pointer float-left" @click="prev" v-if="prevWord">
-            <IconFluentArrowLeft16Regular class="arrow" width="22" />
-            <Tooltip :title="`上一个(${settingStore.shortcutKeyMap[ShortcutKey.Previous]})`">
-              <div class="word">{{ prevWord.word }}</div>
-            </Tooltip>
-          </div>
-          <div class="center gap-2 cursor-pointer float-right mr-3" @click="next(false)" v-if="nextWord">
-            <Tooltip :title="`下一个(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`">
-              <div class="word" :class="settingStore.dictation && 'word-shadow'">
-                {{ nextWord.word }}
-              </div>
-            </Tooltip>
-            <IconFluentArrowRight16Regular class="arrow" width="22" />
-          </div>
+      <div class="mb-20 color-[var(--color-practice-font2)] monaco-workbench text-base">
+        <div v-html="prefixTxt"></div>
+        <div class="px-4 mb-3">
+          <TypeWord ref="typingRef" :word="word" @wrong="onTypeWrong" @complete="next" @know="onWordKnow" />
         </div>
-        <TypeWord ref="typingRef" :word="word" @wrong="onTypeWrong" @complete="next" @know="onWordKnow" />
+        <div v-html="suffixTxt"></div>
       </div>
     </template>
     <template v-slot:panel>
@@ -802,7 +732,52 @@ useEvents([
       </Panel>
     </template>
     <template v-slot:footer>
+      <div class="footer-container p-4">
+        <div
+          class="flex justify-between p-1 items-center border-item-solid border-green-700/20 rounded-t-xl mx-2 text-gray-600 text-sm"
+        >
+          <div>
+            <IconFluentChevronLeft20Filled class="transform-rotate-180 font-size-2.5 mr-2" />
+            <span>4 File</span>
+          </div>
+          <div class="gap-4 flex items-center">
+            <span>Undo</span>
+            <span>Keep</span>
+            <span class="bg-[#434c5e] color-white rounded-md px-2 py-0.5">Review</span>
+          </div>
+        </div>
+        <div class="border-item-solid rounded-lg p-2 items-center bg-[var(--bg-bottom)]">
+          <textarea
+            type="text"
+            placeholder="Plan @ for contexts, / for commands"
+            class="w-full resize-none outline-none bg-transparent border-none h-5 font-family font-bold placeholder-gray-600"
+          ></textarea>
+          <div class="flex justify-between mt-2">
+            <div class="flex gap-space color-gray-500">
+              <div class="flex items-center gap-1 rounded-full bg-[var(--bg-bottom2)] px-2">
+                <IconPhInfinityLight class="font-size-4" />
+                <span class="text-sm color-gray-400">Agent</span>
+                <IconFluentChevronLeft20Filled class="-transform-rotate-90 font-size-2.5" />
+              </div>
+              <div class="flex items-center gap-1">
+                <span class="text-sm color-gray-400">Auto</span>
+                <IconFluentChevronLeft20Filled class="-transform-rotate-90 font-size-2.5" />
+              </div>
+            </div>
+            <div class="flex items-center gap-3 color-gray-600">
+              <div class="relative scale-80 flex items-center">
+                <IconMdiLightCircle class="scale-130 color-gray-700/40" />
+                <IconAntDesignLoadingOutlined class="absolute left-0 top-0 color-gray-500" />
+              </div>
+              <IconFluentGlobe20Regular />
+              <IconF7Photo />
+              <IconFamiconsMicCircleSharp class="text-2xl" />
+            </div>
+          </div>
+        </div>
+      </div>
       <Footer
+        v-if="settingStore.showToolbar"
         :is-simple="isWordSimple(word)"
         @toggle-simple="toggleWordSimpleWrapper"
         :is-collect="isWordCollect(word)"
@@ -819,39 +794,6 @@ useEvents([
 <style scoped lang="scss">
 .practice-wrapper {
   @apply w-full h-full flex justify-center overflow-hidden;
-}
-
-.practice-word {
-  @apply h-full flex flex-col justify-between items-center relative;
-  width: var(--toolbar-width);
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .practice-word {
-    width: 100%;
-
-    .absolute.z-1.top-4 {
-      z-index: 100; // 提高层级，确保不被遮挡
-
-      .center.gap-2.cursor-pointer {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-
-        .word {
-          pointer-events: none; // 文字不拦截点击
-        }
-
-        .arrow {
-          pointer-events: none; // 箭头图标不拦截点击
-        }
-      }
-    }
-  }
 }
 
 .word-panel-wrapper {

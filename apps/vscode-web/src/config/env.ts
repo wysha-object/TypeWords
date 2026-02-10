@@ -115,7 +115,7 @@ export const DefaultShortcutKeyMap = {
   [ShortcutKey.ToggleShowTranslate]: 'Ctrl+Z',
   [ShortcutKey.ToggleDictation]: 'Ctrl+I',
   [ShortcutKey.ToggleTheme]: 'Ctrl+Q',
-  [ShortcutKey.ToggleConciseMode]: 'Ctrl+M',
+  [ShortcutKey.ToggleToolbar]: 'Ctrl+M',
   [ShortcutKey.TogglePanel]: 'Ctrl+L',
   [ShortcutKey.RandomWrite]: 'Ctrl+R',
   [ShortcutKey.KnowWord]: '1',

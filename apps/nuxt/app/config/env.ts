@@ -89,7 +89,7 @@ export const TourConfig = {
       middleware: [offset({ mainAxis: 30 })],
     },
   },
-  total: 7,
+  total: 4,
 }
 
 export const IS_DEV = import.meta.env.MODE === 'development'

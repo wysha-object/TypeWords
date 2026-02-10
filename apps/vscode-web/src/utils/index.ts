@@ -488,13 +488,13 @@ export function total(arr, key) {
 export function resourceWrap(resource: string, version?: number) {
   if (AppEnv.IS_OFFICIAL) {
     if (resource.includes('.json')) resource = resource.replace('.json', '')
-    if (!resource.includes('http')) resource = RESOURCE_PATH + resource
     if (version === undefined) {
       const store = useBaseStore()
       return `${resource}_v${store.dictListVersion}.json`
     }
     return `${resource}_v${version}.json`
   }
+  if (!resource.includes('http')) resource = 'https://vs.typewords.cc/' + resource
   return resource
 }
 

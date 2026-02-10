@@ -46,6 +46,7 @@ let cursor = $ref({
 })
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
+const store = useBaseStore()
 
 const playBeep = usePlayBeep()
 const playCorrect = usePlayCorrect()
@@ -459,6 +460,25 @@ useEvents([
   [ShortcutKey.KnowWord, know],
   [ShortcutKey.UnknownWord, unknown],
 ])
+
+const notice = $computed(() => {
+  let text =
+    settingStore.wordPracticeType === WordPracticeType.Identify
+      ? '选择后/输入后，按空格键切换下一个'
+      : settingStore.wordPracticeType === WordPracticeType.Listen
+        ? '输入完成后按空格键切换下一个'
+        : showWordResult
+          ? right
+            ? '按空格键切换下一个'
+            : $t('press_delete_reinput')
+          : '按空格键完成输入'
+  return {
+    show: [WordPracticeType.Listen, WordPracticeType.Identify, WordPracticeType.Dictation].includes(
+      settingStore.wordPracticeType
+    ),
+    text,
+  }
+})
 </script>
 
 <template>
@@ -504,9 +524,7 @@ useEvents([
       </div>
 
       <Tooltip
-        :title="
-          settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示单词` : ''
-        "
+        :title="settingStore.dictation ? `快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示单词` : ''"
       >
         <div
           id="word"
@@ -568,6 +586,17 @@ useEvents([
         </BaseButton>
       </div>
 
+      <div class="center my-5" v-if="notice.show && settingStore.showUsageTips">
+        <ToastComponent
+          :duration="0"
+          confirm
+          :shadow="false"
+          :showClose="store.sdict.statistics.length > 2"
+          :message="notice.text"
+          @close="settingStore.showUsageTips = false"
+        />
+      </div>
+
       <div
         class="translate flex flex-col gap-2 my-3"
         v-opacity="settingStore.translate || showWordResult || showFullWord"
@@ -584,6 +613,7 @@ useEvents([
         </div>
       </div>
     </div>
+
     <div
       class="other anim"
       v-opacity="
@@ -594,8 +624,8 @@ useEvents([
         showWordResult
       "
     >
-      <div class="line-white my-3"></div>
       <template v-if="word?.sentences?.length">
+        <div class="line-white my-3"></div>
         <div class="flex flex-col gap-3">
           <div class="sentence" v-for="item in word.sentences">
             <div class="flex gap-space">
@@ -664,7 +694,6 @@ useEvents([
       >
         <template v-if="word?.etymology?.length">
           <div class="line-white my-3"></div>
-
           <div class="flex">
             <div class="label">{{ $t('etymology') }}</div>
             <div class="text-base">

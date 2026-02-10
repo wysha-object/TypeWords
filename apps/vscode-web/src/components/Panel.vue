@@ -31,53 +31,9 @@ provide('tabIndex', computed(() => tabIndex))
   </Transition>
 </template>
 <style scoped lang="scss">
-
 .panel {
   width: var(--panel-width);
   background: var(--color-second);
   @apply shadow-lg flex flex-col h-full rounded-xl;
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .panel {
-    width: 90vw;
-    max-width: 400px;
-    max-height: 90vh;
-    height: auto;
-    border-radius: 0.4rem;
-  }
-
-  .panel > div.flex-1 {
-    max-height: calc(90vh - 3.2rem);
-  }
-
-  .panel header {
-    padding: 0.5rem 0.5rem;
-
-    .color-main {
-      font-size: 0.9rem;
-    }
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .panel {
-    width: 95vw;
-    max-height: 94vh;
-  }
-
-  .panel > div.flex-1 {
-    max-height: calc(94vh - 3rem);
-  }
-
-  .panel header {
-    padding: 0.3rem 0.3rem;
-
-    .color-main {
-      font-size: 0.8rem;
-    }
-  }
 }
 </style>

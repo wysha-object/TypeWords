@@ -54,9 +54,6 @@ const runtimeStore = useRuntimeStore()
 let loading = $ref(true)
 let isSaveData = $ref(false)
 
-useHead({
-  title: APP_NAME + ' 单词',
-})
 let currentStudy = $ref({
   new: [],
   review: [],
@@ -278,11 +275,6 @@ async function saveLastPracticeIndex(e) {
 
 const { data: recommendDictList, isFetching } = useFetch(resourceWrap(DICT_LIST.WORD.RECOMMENDED)).json()
 
-let isNewHost = $ref(true)
-onMounted(() => {
-  isNewHost = window.location.host === Host
-})
-
 const systemPracticeText = $computed(() => {
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     return '开始学习'
@@ -296,12 +288,6 @@ const systemPracticeText = $computed(() => {
 
 <template>
   <BasePage>
-    <div class="mb-4" v-if="!isNewHost">
-      新域名已启用，后续请访问
-      <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
-      >当前 2study.top 域名将在不久后停止使用
-    </div>
-
     <div class="card flex flex-col md:flex-row gap-4">
       <div class="flex-1 w-full flex flex-col justify-between">
         <div class="flex gap-3">

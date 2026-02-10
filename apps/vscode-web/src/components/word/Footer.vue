@@ -1,21 +1,19 @@
 <script setup lang="ts">
 import { usePracticeStore } from '~/stores/practice'
 import { useSettingStore } from '~/stores/setting'
-import type { PracticeData, TaskWords } from '~/types/types'
+import type { PracticeData } from '~/types/types'
 import BaseIcon from '~/components/BaseIcon.vue'
-import Tooltip from '~/components/base/Tooltip.vue'
 import SettingDialog from '~/components/setting/SettingDialog.vue'
 import BaseButton from '~/components/BaseButton.vue'
-import { useBaseStore } from '~/stores/base'
 import VolumeSettingMiniDialog from '~/components/word/VolumeSettingMiniDialog.vue'
 import StageProgress from '~/components/StageProgress.vue'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '~/types/enum'
-import { WordPracticeModeNameMap, WordPracticeModeStageMap, WordPracticeStageNameMap } from '~/config/env'
+import { WordPracticeModeNameMap, WordPracticeStageNameMap } from '~/config/env'
 import { useI18n } from 'vue-i18n'
 
-const statStore = usePracticeStore()
 const { t: $t } = useI18n()
-const store = useBaseStore()
+
+const statStore = usePracticeStore()
 const settingStore = useSettingStore()
 
 defineProps<{
@@ -42,11 +40,6 @@ const status = $computed(() => {
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) return $t('free_practice')
   if (practiceData.isTypingWrongWord) return $t('review_wrong_words')
   return statStore.getStageName
-})
-
-const progress = $computed(() => {
-  if (!practiceData.words.length) return 0
-  return (practiceData.index / practiceData.words.length) * 100
 })
 
 const stages = $computed(() => {
@@ -208,15 +201,6 @@ const stages = $computed(() => {
 
 <template>
   <div class="footer">
-    <Tooltip :title="settingStore.showToolbar ? $t('collapse') : $t('expand')">
-      <IconFluentChevronLeft20Filled
-        @click="settingStore.showToolbar = !settingStore.showToolbar"
-        class="arrow"
-        :class="!settingStore.showToolbar && 'down'"
-        color="#999"
-      />
-    </Tooltip>
-
     <div class="bottom">
       <StageProgress :stages="stages" />
 
@@ -279,7 +263,8 @@ const stages = $computed(() => {
                   <IconFluentStar16Filled v-else />
                   <span>
                     {{
-                      (!isCollect ? $t('collect') : $t('uncollect')) + `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
+                      (!isCollect ? $t('collect') : $t('uncollect')) +
+                      `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
                     }}</span
                   >
                 </div>
@@ -322,11 +307,6 @@ const stages = $computed(() => {
         </div>
       </div>
     </div>
-    <div class="progress-wrap flex gap-3 items-center color-gray">
-      <span class="shrink-0">{{ status }}</span>
-      <StageProgress :stages="stages" />
-      <div class="num">{{ `${practiceData.index + 1}/${practiceData.words.length}` }}</div>
-    </div>
   </div>
 </template>
 
@@ -334,7 +314,9 @@ const stages = $computed(() => {
 .footer {
   flex-shrink: 0;
   width: var(--toolbar-width);
-  position: relative;
+  position: absolute;
+  bottom: 0;
+  left: 0;
   z-index: 20; // 提高z-index确保在最上方
 
   &.hide {
@@ -347,7 +329,7 @@ const stages = $computed(() => {
   }
 
   .bottom {
-    @apply relative w-full box-border rounded-xl bg-second shadow-lg z-10 mb-3;
+    @apply relative w-full box-border rounded-lg bg-second shadow-lg z-10 mb-3;
     padding: 0.2rem var(--space) calc(0.4rem + env(safe-area-inset-bottom, 0px)) var(--space);
 
     .stat {
@@ -388,114 +370,6 @@ const stages = $computed(() => {
     &.down {
       top: -90%;
       transform: rotate(90deg);
-    }
-  }
-}
-
-// 移动端适配
-@media (max-width: 768px) {
-  .footer {
-    width: 100%;
-
-    .bottom {
-      padding: 0.3rem 0.5rem 0.5rem 0.5rem;
-      border-radius: 0.4rem;
-
-      .stat {
-        margin-top: 0.3rem;
-        gap: 0.2rem;
-        flex-direction: row;
-        overflow-x: auto;
-
-        .row {
-          min-width: 3.5rem;
-          gap: 0.2rem;
-
-          .num {
-            font-size: 0.8rem;
-            font-weight: bold;
-          }
-
-          .name {
-            font-size: 0.7rem;
-          }
-        }
-      }
-
-      // 移动端按钮组调整 - 改为网格布局
-      .flex.gap-2 {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0.4rem;
-        justify-content: center;
-
-        .base-icon {
-          padding: 0.3rem;
-          font-size: 1rem;
-          min-height: 44px;
-          min-width: 44px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-      }
-    }
-
-    .progress-wrap {
-      width: 100%;
-      padding: 0 0.5rem;
-      bottom: 0.5rem;
-    }
-
-    .arrow {
-      font-size: 1rem;
-      padding: 0.3rem;
-    }
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .footer {
-    .bottom {
-      padding: 0.2rem 0.3rem 0.3rem 0.3rem;
-
-      .stat {
-        margin-top: 0.2rem;
-        gap: 0.1rem;
-
-        .row {
-          min-width: 3rem;
-          gap: 0.1rem;
-
-          .num {
-            font-size: 0.7rem;
-          }
-
-          .name {
-            font-size: 0.6rem;
-          }
-
-          // 隐藏部分统计信息，只保留关键数据
-          &:nth-child(n + 3) {
-            display: none;
-          }
-        }
-      }
-
-      .flex.gap-2 {
-        gap: 0.2rem;
-
-        .base-icon {
-          padding: 0.2rem;
-          font-size: 0.9rem;
-        }
-      }
-    }
-
-    .progress-wrap {
-      padding: 0 0.3rem;
-      bottom: 0.3rem;
     }
   }
 }

@@ -17,7 +17,12 @@ import About from '@/components/About.vue'
 import CommonSetting from '@/components/setting/CommonSetting.vue'
 import ArticleSetting from '@/components/setting/ArticleSetting.vue'
 import WordSetting from '@/components/setting/WordSetting.vue'
-import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache'
+import {
+  PRACTICE_ARTICLE_CACHE,
+  PRACTICE_WORD_CACHE,
+  setPracticeArticleCache,
+  setPracticeWordCache,
+} from '@/utils/cache'
 
 let route = useRoute()
 let title = APP_NAME + ' 设置'
@@ -154,7 +159,7 @@ function getShortcutKeyName(key: string): string {
     ToggleShowTranslate: '切换显示翻译',
     ToggleDictation: '切换默写模式',
     ToggleTheme: '切换主题',
-    ToggleConciseMode: '切换简洁模式',
+    ToggleToolbar: '切换底部工具栏',
     TogglePanel: '切换面板',
     RandomWrite: '随机默写',
     NextRandomWrite: '继续随机默写',
@@ -196,6 +201,8 @@ function importJson(str: string, notice: boolean = true) {
     let baseState = checkAndUpgradeSaveDict(data.dict)
     baseState.load = true
     store.setState(baseState)
+    setPracticeWordCache(null)
+    setPracticeArticleCache(null)
     if (obj.version >= 4) {
       try {
         let save: any = obj.val[PRACTICE_WORD_CACHE.key] || {}
@@ -316,24 +323,24 @@ function transferOk() {
         <div class="left">
           <div class="tabs">
             <div class="tab" :class="tabIndex === 0 && 'active'" @click="tabIndex = 0">
-              <IconFluentSettings20Regular/>
+              <IconFluentSettings20Regular />
               <span>{{ $t('general_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
-              <IconFluentTextUnderlineDouble20Regular/>
+              <IconFluentTextUnderlineDouble20Regular />
               <span>{{ $t('word_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
-              <IconFluentBookLetter20Regular/>
+              <IconFluentBookLetter20Regular />
               <span>{{ $t('article_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
-              <IconFluentDatabasePerson20Regular/>
+              <IconFluentDatabasePerson20Regular />
               <span>{{ $t('data_management') }}</span>
             </div>
 
             <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
-              <IconFluentKeyboardLayoutFloat20Regular/>
+              <IconFluentKeyboardLayoutFloat20Regular />
               <span>{{ $t('shortcut_settings') }}</span>
             </div>
 
@@ -569,5 +576,4 @@ function transferOk() {
     }
   }
 }
-
 </style>

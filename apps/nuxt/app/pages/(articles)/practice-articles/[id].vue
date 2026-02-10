@@ -153,45 +153,6 @@ watch(
 )
 
 watch(
-  () => articleData?.article?.id,
-  id => {
-    if (id) {
-      _nextTick(async () => {
-        const Shepherd = await loadJsLib('Shepherd', LIB_JS_URL.SHEPHERD)
-        const tour = new Shepherd.Tour(TourConfig)
-        tour.on('cancel', () => {
-          localStorage.setItem('tour-guide', '1')
-        })
-        tour.addStep({
-          id: 'step8',
-          text: '这里可以练习文章，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: {
-            element: '#article-content',
-            on: 'auto',
-          },
-          buttons: [
-            {
-              text: `关闭`,
-              action() {
-                settingStore.first = false
-                tour.next()
-                setTimeout(() => {
-                  showConflictNotice = true
-                }, 1500)
-              },
-            },
-          ],
-        })
-        const r = localStorage.getItem('tour-guide')
-        if (settingStore.first && !r && !isMobile()) {
-          tour.start()
-        }
-      }, 500)
-    }
-  }
-)
-
-watch(
   () => settingStore.$state,
   n => {
     initAudio()

@@ -3,11 +3,13 @@ import { defineAsyncComponent, watch } from 'vue'
 import { useSettingStore } from '@/stores/setting.ts'
 import { useDisableEventListener } from '@/hooks/event.ts'
 import ConflictNoticeText from '@/components/ConflictNoticeText.vue'
+import BaseButton from '~/components/BaseButton.vue'
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
 let settingStore = useSettingStore()
 let show = $ref(false)
+let countDown = $ref(5)
 
 watch(
   () => settingStore.load,
@@ -16,6 +18,12 @@ watch(
       setTimeout(() => {
         show = true
       }, 300)
+      let t = setInterval(() => {
+        countDown--
+        if (countDown === 0) {
+          clearInterval(t)
+        }
+      }, 1000)
     }
   },
   { immediate: true }
@@ -28,15 +36,19 @@ useDisableEventListener(() => show)
   <Dialog
     v-model="show"
     :title="$t('important_notice')"
-    footer
     padding
+    :showClose="false"
     :closeOnClickBg="false"
-    :cancel-button-text="$t('dont_remind')"
-    :confirm-button-text="$t('close')"
-    @cancel="settingStore.conflictNotice = false"
   >
     <div class="w-150 center flex-col color-main">
       <ConflictNoticeText />
+
+      <div class="flex justify-end w-full mb-4">
+        <BaseButton id="dialog-ok" :disabled="countDown>0"
+                    @click="show = settingStore.conflictNotice = false"
+        >{{ $t('close') }} <span v-if="countDown">{{countDown}}</span>
+        </BaseButton>
+      </div>
     </div>
   </Dialog>
 </template>

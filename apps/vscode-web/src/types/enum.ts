@@ -29,7 +29,7 @@ export enum ShortcutKey {
   ToggleShowTranslate = 'ToggleShowTranslate',
   ToggleDictation = 'ToggleDictation',
   ToggleTheme = 'ToggleTheme',
-  ToggleConciseMode = 'ToggleConciseMode',
+  ToggleToolbar = 'ToggleToolbar',
   TogglePanel = 'TogglePanel',
   RandomWrite = 'RandomWrite',
   KnowWord = 'KnowWord',

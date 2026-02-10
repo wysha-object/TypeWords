@@ -277,7 +277,7 @@ importers:
         specifier: 22.x
         version: 22.19.7
       '@types/vscode':
-        specifier: ^1.108.1
+        specifier: ^1.105.0
         version: 1.108.1
       '@vscode/test-cli':
         specifier: ^0.0.12
@@ -300,6 +300,25 @@ importers:
       '@typewords/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+    devDependencies:
+      '@iconify-json/ant-design':
+        specifier: ^1.2.5
+        version: 1.2.5
+      '@iconify-json/f7':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/famicons':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/mdi-light':
+        specifier: ^1.2.2
+        version: 1.2.2
+      '@iconify-json/mingcute':
+        specifier: ^1.2.7
+        version: 1.2.7
+      '@iconify-json/pepicons-pencil':
+        specifier: ^1.2.3
+        version: 1.2.3
 
   packages/ui: {}
 
@@ -1245,6 +1264,9 @@ packages:
     resolution: {integrity: sha512-bV0Tgo9K4hfPCek+aMAn81RppFKv2ySDQeMoSZuvTASywNTnVJCArCZE2FWqpvIatKu7VMRLWlR1EazvVhDyhQ==}
     engines: {node: '>=18.18'}
 
+  '@iconify-json/ant-design@1.2.5':
+    resolution: {integrity: sha512-SYxhrx1AFq2MBcXk77AERYz2mPhLQes1F0vtvG64+dJZWyge9studXo7MiR8PPeLjRjZdWRrReRbxiwdRMf70Q==}
+
   '@iconify-json/bx@1.2.2':
     resolution: {integrity: sha512-hZVx6LMEkYckScdRdUuQWcmv8Lm2au6Cnf799TLoR6YgiAfFvaJ4M5ElwcnExvCu8ntsS7jW89r0W5LwBAfZXQ==}
 
@@ -1256,6 +1278,12 @@ packages:
 
   '@iconify-json/eos-icons@1.2.4':
     resolution: {integrity: sha512-gp2BCSF3+aRgMqE7LRAVxT5nXJLOtfcvGnOYwJz4gc4zxcEqAaOByxFVLZej15jXPRJmUv2TSzMNrQ2gDtw4VA==}
+
+  '@iconify-json/f7@1.2.2':
+    resolution: {integrity: sha512-7+RhvnncD+LRu0smuHOun4emOUu48XUGG6G0tYYbrXS7n4Io2xntx6nxa09/iI41t9hnH2oHHU3Dg7Ee60Ovow==}
+
+  '@iconify-json/famicons@1.2.2':
+    resolution: {integrity: sha512-mFgrUk2CYKeFe9EHh6XWdtVDkX344OTb3E6X7RaOp6iwW9saJH/kknNFZRZ2UFQCcFl3RNSTN6IRpCRsRppFxw==}
 
   '@iconify-json/fluent@1.2.37':
     resolution: {integrity: sha512-wNm8JXU1eV+M3ONGIG0pwb4X8PoEfYDdLRt0xCUcOofoy0WxXRldB0dkmILnXhLZmCNVWRzt9z/3I6xS+8YNGQ==}
@@ -1272,11 +1300,20 @@ packages:
   '@iconify-json/material-symbols@1.2.53':
     resolution: {integrity: sha512-2jXBKFdNzL9zy6chnJqubykL9WZno7rEP6/isSzpp6fKJJMXXhRtVkaGw1Clle0RlXGWzVkd/eiYUH8f9/ILrQ==}
 
+  '@iconify-json/mdi-light@1.2.2':
+    resolution: {integrity: sha512-86UV9uyNve8zRFWiPrOrrDp9GDzsZM7plYV/on4VjgLLqXlyriuy541eHZB7LIOzTUyIPVli7QiUpBbTtBhsFw==}
+
   '@iconify-json/mdi@1.2.3':
     resolution: {integrity: sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg==}
 
+  '@iconify-json/mingcute@1.2.7':
+    resolution: {integrity: sha512-bp4z6F53KAQp99aSL7qPCHL7HWUNGMNKIhfo/dx9pwVHiad/WusUbTOFXEZfpA44syJPzSOxa3O6Pwiq7qZz1g==}
+
   '@iconify-json/oui@1.2.6':
     resolution: {integrity: sha512-dBqxbLKztTtb0Cq3kEyLeYAdyJT2un+FzIZB0ei3busps/OwNIHjqowsVqPwRtHXiXTjiwOHUPbxgcVB0SCIsQ==}
+
+  '@iconify-json/pepicons-pencil@1.2.3':
+    resolution: {integrity: sha512-Lxc9sCCy03AQwxowg8uHmPku9qCecf6fgAMqJGmjbCINYHbrKBgbDDJSTGtxtfqkYSPr4w56DwlHqpBMGahizg==}
 
   '@iconify-json/ph@1.2.2':
     resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
@@ -10191,6 +10228,10 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.3': {}
 
+  '@iconify-json/ant-design@1.2.5':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/bx@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
@@ -10204,6 +10245,14 @@ snapshots:
       '@iconify/types': 2.0.0
 
   '@iconify-json/eos-icons@1.2.4':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/f7@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/famicons@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
@@ -10227,11 +10276,23 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/mdi-light@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/mdi@1.2.3':
     dependencies:
       '@iconify/types': 2.0.0
 
+  '@iconify-json/mingcute@1.2.7':
+    dependencies:
+      '@iconify/types': 2.0.0
+
   '@iconify-json/oui@1.2.6':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/pepicons-pencil@1.2.3':
     dependencies:
       '@iconify/types': 2.0.0
 

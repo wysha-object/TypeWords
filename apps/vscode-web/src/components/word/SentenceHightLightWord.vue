@@ -37,11 +37,11 @@ function escapeRegExp(string: string): string {
 </script>
 
 <template>
-  <div v-html="highlightedText"></div>
+  <span v-html="highlightedText"></span>
 </template>
 
 <style scoped lang="scss">
 :deep(.highlight-word) {
-  color: var(--color-select-bg);
+  //color: var(--color-select-bg);
 }
 </style>

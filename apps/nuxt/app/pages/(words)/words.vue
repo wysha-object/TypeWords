@@ -141,7 +141,7 @@ function startPractice(practiceMode: WordPracticeMode, resetCache: boolean = fal
     showShufflePracticeSettingDialog = true
     return
   }
-  
+
   if (store.sdict.id) {
     if (!store.sdict.words.length) {
       Toast.warning('没有单词可学习！')

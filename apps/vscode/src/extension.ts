@@ -19,7 +19,7 @@ class ChatPanel {
     }
 
     // 创建新面板，放在右侧（使用 ViewColumn.Beside 确保在右侧）
-    const panel = vscode.window.createWebviewPanel(ChatPanel.viewType, '单词练习', vscode.ViewColumn.Beside, {
+    const panel = vscode.window.createWebviewPanel(ChatPanel.viewType, 'New Agent', vscode.ViewColumn.Beside, {
       enableScripts: true,
       localResourceRoots: [],
       retainContextWhenHidden: true,
@@ -59,8 +59,9 @@ class ChatPanel {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    const websiteUrl = 'https://typewords.cc'
-    const cdnUrl = 'http://tw.cc'
+    const cdnUrl = 'https://vs.typewords.cc'
+    // const cdnUrl = 'http://tw.cc'
+    const fileUrl = 'https://files.2study.top'
 
     // 生成 nonce 用于 CSP
     const nonce = Buffer.from(Date.now().toString()).toString('base64')
@@ -70,8 +71,9 @@ class ChatPanel {
       "default-src 'none'",
       `script-src 'nonce-${nonce}' ${cdnUrl} 'unsafe-inline'`,
       `style-src ${cdnUrl} 'unsafe-inline'`,
-      `connect-src ${cdnUrl} ${websiteUrl}`,
+      `connect-src ${cdnUrl} ${fileUrl}`,
       'img-src data: https:',
+      'media-src https://dict.youdao.com',
       'font-src data:',
     ].join('; ')
 
@@ -81,11 +83,11 @@ class ChatPanel {
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="${csp}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>单词练习</title>
+    <title>New Agent</title>
 
 
-  <script type="module" crossorigin src="${cdnUrl}/assets/index-BKse0Hmq.js"></script>
-  <link rel="stylesheet" crossorigin href="${cdnUrl}/assets/index-B6wzG-8R.css">
+  <script type="module" src="${cdnUrl}/assets/index-CY-8-4fj.js"></script>
+  <link rel="stylesheet" href="${cdnUrl}/assets/index-BXLuKuw9.css">
 </head>
 <body>
     <div id="app"></div>

@@ -154,7 +154,7 @@ function getShortcutKeyName(key: string): string {
     ToggleShowTranslate: '切换显示翻译',
     ToggleDictation: '切换默写模式',
     ToggleTheme: '切换主题',
-    ToggleConciseMode: '切换简洁模式',
+    ToggleToolbar: '切换底部工具栏',
     TogglePanel: '切换面板',
     RandomWrite: '随机默写',
     NextRandomWrite: '继续随机默写',
@@ -382,7 +382,7 @@ function transferOk() {
                       @blur="handleInputBlur"
                     />
                     <span @click.stop="editShortcutKey = ''"
-                      >{{ $t('press_key_to_set') }}，<span class="text-red!">{{
+                    >{{ $t('press_key_to_set') }}，<span class="text-red!">{{
                         $t('click_here_when_done')
                       }}</span></span
                     >
@@ -408,20 +408,20 @@ function transferOk() {
               您需要手动进行数据导出和导入
             </div>
             <BaseButton :loading="exportLoading" size="large" class="mt-3" @click="exportData()">{{
-              $t('export_data_backup')
-            }}</BaseButton>
+                $t('export_data_backup')
+              }}</BaseButton>
             <div class="text-gray text-sm mt-2">💾 导出的ZIP文件包含所有学习数据，可在其他设备上导入恢复</div>
 
             <div class="line mt-15 mb-3"></div>
 
             <div>
               请注意，导入数据将<b class="text-red"> 完全覆盖 </b
-              >当前所有数据，请谨慎操作。执行导入操作时，会先自动备份当前数据到您的电脑中，供您随时恢复
+            >当前所有数据，请谨慎操作。执行导入操作时，会先自动备份当前数据到您的电脑中，供您随时恢复
             </div>
             <div class="flex gap-space mt-3">
               <BaseButton size="large" @click="beforeImport" :loading="importLoading">{{
-                $t('import_data_restore')
-              }}</BaseButton>
+                  $t('import_data_restore')
+                }}</BaseButton>
               <input
                 type="file"
                 id="import"
@@ -435,7 +435,7 @@ function transferOk() {
               <div class="line my-3"></div>
               <div>
                 请注意，如果本地已有使用记录，请先备份当前数据，迁移数据后将<b class="text-red"> 完全覆盖 </b
-                >当前所有数据，请谨慎操作。
+              >当前所有数据，请谨慎操作。
               </div>
               <div class="flex gap-space mt-3">
                 <BaseButton @click="showTransfer = true">迁移 2study.top 网站数据</BaseButton>
@@ -478,9 +478,8 @@ function transferOk() {
 
       .tab {
         @apply cursor-pointer flex items-center relative;
-        padding: 0.6rem 0.9rem;
         border-radius: 0.5rem;
-        width: 10rem;
+        @apply w-auto p-1 lg:w-40 lg:p-2;
         gap: 0.6rem;
         transition: all 0.5s;
 
@@ -571,95 +570,4 @@ function transferOk() {
   }
 }
 
-// 移动端适配
-@media (max-width: 768px) {
-  .setting {
-    flex-direction: column;
-
-    .left {
-      width: 100%;
-      border-right: none;
-      border-bottom: 2px solid gainsboro;
-
-      .tabs {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 0.5rem;
-        gap: 0.3rem;
-
-        .tab {
-          white-space: nowrap;
-          padding: 0.4rem 0.6rem;
-          font-size: 0.9rem;
-
-          span {
-            display: none;
-          }
-        }
-      }
-    }
-
-    .content {
-      padding: 0 1rem;
-
-      .row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        min-height: auto;
-        padding: 0.5rem 0;
-
-        .wrapper {
-          width: 100%;
-          justify-content: flex-start;
-
-          .set-key {
-            width: 100%;
-
-            input {
-              width: 100%;
-              max-width: 200px;
-            }
-          }
-
-          // 补充：选择器和输入框优化
-          .base-select,
-          .base-input {
-            width: 100% !important;
-            max-width: none;
-          }
-
-          // 单选按钮组优化
-          .radio-group {
-            flex-direction: column;
-            gap: 0.5rem;
-
-            .radio {
-              min-height: 44px;
-              width: 100%;
-            }
-          }
-
-          // 滑块优化
-          .slider {
-            width: 100%;
-          }
-        }
-
-        .main-title {
-          font-size: 1rem;
-        }
-
-        .item-title {
-          font-size: 0.9rem;
-        }
-      }
-
-      .body {
-        height: auto;
-        max-height: 60vh;
-      }
-    }
-  }
-}
 </style>

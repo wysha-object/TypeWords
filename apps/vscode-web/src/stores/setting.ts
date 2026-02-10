@@ -95,7 +95,7 @@ export const getDefaultSettingState = (): SettingState => ({
     showToolbar: true,
     showPanel: true,
     sideExpand: false,
-    theme: 'auto',
+    theme: 'dark',
     shortcutKeyMap: cloneDeep(DefaultShortcutKeyMap),
     first: true,
     firstTime: Date.now(),

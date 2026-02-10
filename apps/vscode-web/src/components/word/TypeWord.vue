@@ -8,14 +8,12 @@ import { onMounted, onUnmounted, watch } from 'vue'
 import SentenceHightLightWord from '~/components/word/SentenceHightLightWord.vue'
 import { usePracticeStore } from '~/stores/practice'
 import { getDefaultWord } from '~/types/func'
-import { _nextTick, last } from '~/utils'
 import BaseButton from '~/components/BaseButton.vue'
 import Space from '~/components/article/Space.vue'
 import Toast from '~/components/base/toast/Toast'
 import Tooltip from '~/components/base/Tooltip.vue'
 import { ShortcutKey, WordPracticeStage, WordPracticeType } from '~/types/enum'
-import { useI18n } from 'vue-i18n'
-const { t: $t } = useI18n()
+import HoverReveal from '@/components/word/HoverReveal.vue'
 
 interface IProps {
   word: Word
@@ -40,10 +38,7 @@ let wordRepeatCount = 0
 // 记录单词完成的时间戳，用于防止同时按下最后一个字母和空格键时跳过单词
 let wordCompletedTime = 0
 let jumpTimer = -1
-let cursor = $ref({
-  top: 0,
-  left: 0,
-})
+
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
 
@@ -84,7 +79,6 @@ function reset() {
   }
   // 更新当前单词信息
   updateCurrentWordInfo()
-  checkCursorPosition()
 }
 
 // 监听输入变化，更新当前单词信息
@@ -421,40 +415,6 @@ function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-watch([() => input, () => showFullWord, () => settingStore.dictation], checkCursorPosition)
-
-//检测光标位置
-function checkCursorPosition() {
-  _nextTick(() => {
-    // 选中目标元素
-    const cursorEl = document.querySelector(`.cursor`)
-    const inputList = document.querySelectorAll(`.l`)
-    if (!typingWordRef) return
-    const typingWordRect = typingWordRef.getBoundingClientRect()
-
-    if (inputList.length) {
-      let inputRect = last(Array.from(inputList)).getBoundingClientRect()
-      cursor = {
-        top: inputRect.top + inputRect.height - cursorEl.clientHeight - typingWordRect.top,
-        left: inputRect.right - typingWordRect.left - 3,
-      }
-    } else {
-      const dictation = document.querySelector(`.dictation`)
-      let elRect
-      if (dictation) {
-        elRect = dictation.getBoundingClientRect()
-      } else {
-        const letter = document.querySelector(`.letter`)
-        elRect = letter.getBoundingClientRect()
-      }
-      cursor = {
-        top: elRect.top + elRect.height - cursorEl.clientHeight - typingWordRect.top,
-        left: elRect.left - typingWordRect.left - 3,
-      }
-    }
-  })
-}
-
 useEvents([
   [ShortcutKey.KnowWord, know],
   [ShortcutKey.UnknownWord, unknown],
@@ -463,92 +423,84 @@ useEvents([
 
 <template>
   <div class="typing-word" ref="typingWordRef" v-if="word.word.length">
-    <div class="flex flex-col items-center">
-      <div class="flex gap-1 mt-30">
-        <div
-          class="phonetic"
-          :class="
-            (settingStore.dictation ||
-              [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
-                settingStore.wordPracticeType
-              )) &&
-            !showFullWord &&
-            !showWordResult &&
-            'word-shadow'
+    <div class="flex flex-col">
+      <div class="flex gap-space items-center">
+        <Tooltip
+          :title="
+            settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示单词` : ''
           "
-          v-if="settingStore.soundType === 'uk' && word.phonetic0"
         >
-          [{{ word.phonetic0 }}]
-        </div>
-        <div
-          class="phonetic"
-          :class="
-            (settingStore.dictation ||
-              [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
-                settingStore.wordPracticeType
-              )) &&
-            !showFullWord &&
-            !showWordResult &&
-            'word-shadow'
-          "
-          v-if="settingStore.soundType === 'us' && word.phonetic1"
-        >
-          [{{ word.phonetic1 }}]
-        </div>
-        <VolumeIcon
-          :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
-          ref="volumeIconRef"
-          :simple="true"
-          :cb="() => playWordAudio(word.word)"
-        />
-      </div>
-
-      <Tooltip
-        :title="
-          settingStore.dictation ? `可以按快捷键 ${settingStore.shortcutKeyMap[ShortcutKey.ShowWord]} 显示单词` : ''
-        "
-      >
-        <div
-          id="word"
-          class="word my-1"
-          :class="wrong && 'is-wrong'"
-          :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
-          @mouseenter="showWord"
-          @mouseleave="mouseleave"
-        >
-          <div v-if="settingStore.wordPracticeType === WordPracticeType.Dictation">
-            <div
-              class="letter text-align-center w-full inline-block"
-              v-opacity="!settingStore.dictation || showWordResult || showFullWord"
-            >
-              {{ word.word }}
+          <div id="word" class="word" :class="wrong && 'is-wrong'" @mouseenter="showWord" @mouseleave="mouseleave">
+            <div v-if="settingStore.wordPracticeType === WordPracticeType.Dictation">
+              <div
+                class="letter text-align-center w-full inline-block"
+                v-opacity="!settingStore.dictation || showWordResult || showFullWord"
+              >
+                {{ word.word }}
+              </div>
+              <div class="mt-2 w-120 dictation" :class="showWordResult ? (right ? 'right' : 'wrong') : ''">
+                <template v-for="i in input">
+                  <span class="l" v-if="i !== ' '">{{ i }}</span>
+                  <Space class="l" v-else :is-wrong="showWordResult ? !right : false" :is-wait="!showWordResult" />
+                </template>
+              </div>
             </div>
-            <div
-              class="mt-2 w-120 dictation"
-              :style="{ minHeight: settingStore.fontSize.wordForeignFontSize + 'px' }"
-              :class="showWordResult ? (right ? 'right' : 'wrong') : ''"
-            >
-              <template v-for="i in input">
-                <span class="l" v-if="i !== ' '">{{ i }}</span>
-                <Space class="l" v-else :is-wrong="showWordResult ? !right : false" :is-wait="!showWordResult" />
-              </template>
-            </div>
+            <template v-else>
+              <span class="input" v-if="input">{{ input }}</span>
+              <span class="wrong" v-if="wrong">{{ wrong }}</span>
+              <span class="letter" v-if="settingStore.dictation && !showFullWord">
+                {{
+                  displayWord
+                    .split('')
+                    .map(v => (v === ' ' ? '&nbsp;' : '_'))
+                    .join('')
+                }}
+              </span>
+              <span class="letter" v-else>{{ displayWord }}</span>
+            </template>
           </div>
-          <template v-else>
-            <span class="input" v-if="input">{{ input }}</span>
-            <span class="wrong" v-if="wrong">{{ wrong }}</span>
-            <span class="letter" v-if="settingStore.dictation && !showFullWord">
-              {{
-                displayWord
-                  .split('')
-                  .map(v => (v === ' ' ? '&nbsp;' : '_'))
-                  .join('')
-              }}
-            </span>
-            <span class="letter" v-else>{{ displayWord }}</span>
+        </Tooltip>
+        <HoverReveal class="flex gap-1">
+          <div
+            class="phonetic"
+            :class="
+              (settingStore.dictation ||
+                [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
+                  settingStore.wordPracticeType
+                )) &&
+              !showFullWord &&
+              !showWordResult &&
+              'word-shadow'
+            "
+            v-if="settingStore.soundType === 'uk' && word.phonetic0"
+          >
+            | {{ word.phonetic0 }}
+          </div>
+          <div
+            class="phonetic"
+            :class="
+              (settingStore.dictation ||
+                [WordPracticeType.Spell, WordPracticeType.Listen, WordPracticeType.Dictation].includes(
+                  settingStore.wordPracticeType
+                )) &&
+              !showFullWord &&
+              !showWordResult &&
+              'word-shadow'
+            "
+            v-if="settingStore.soundType === 'us' && word.phonetic1"
+          >
+            | {{ word.phonetic1 }}
+          </div>
+          <template v-slot:hover>
+            <VolumeIcon
+              :title="`发音(${settingStore.shortcutKeyMap[ShortcutKey.PlayWordPronunciation]})`"
+              ref="volumeIconRef"
+              :simple="true"
+              :cb="() => playWordAudio(word.word)"
+            />
           </template>
-        </div>
-      </Tooltip>
+        </HoverReveal>
+      </div>
 
       <div
         class="mt-4 flex gap-4"
@@ -558,27 +510,21 @@ useEvents([
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
           @click="know"
-        >{{ $t('i_know') }}
+          >{{ $t('i_know') }}
         </BaseButton>
         <BaseButton
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.UnknownWord]})`"
           size="large"
           @click="unknown"
-        >{{ $t('i_dont_know') }}
+          >{{ $t('i_dont_know') }}
         </BaseButton>
       </div>
 
-      <div
-        class="translate flex flex-col gap-2 my-3"
-        v-opacity="settingStore.translate || showWordResult || showFullWord"
-        :style="{
-          fontSize: settingStore.fontSize.wordTranslateFontSize + 'px',
-        }"
-      >
+      <div class="translate text-sm" v-opacity="settingStore.translate || showWordResult || showFullWord">
         <div class="flex" v-for="v in word.trans">
-          <div class="shrink-0" :class="v.pos ? 'w-12 en-article-family' : '-ml-3'">
+          <span class="shrink-0 mr-1" :class="v.pos ? 'en-article-family' : ''">
             {{ v.pos }}
-          </div>
+          </span>
           <span v-if="!settingStore.dictation || showWordResult || showFullWord">{{ v.cn }}</span>
           <span v-else v-html="hideWordInTranslation(v.cn, word.word)"></span>
         </div>
@@ -594,20 +540,21 @@ useEvents([
         showWordResult
       "
     >
-      <div class="line-white my-3"></div>
       <template v-if="word?.sentences?.length">
-        <div class="flex flex-col gap-3">
+<!--        <div class="line-white my-1"></div>-->
+        <div class="flex flex-col gap-2 mt-2">
           <div class="sentence" v-for="item in word.sentences">
-            <div class="flex gap-space">
+            <HoverReveal class="text-sm flex gap-1">
               <SentenceHightLightWord
-                class="text-xl"
                 :text="item.c"
                 :word="word.word"
                 :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
               />
-              <VolumeIcon :title="`发音`" :simple="false" @click="ttsPlayAudio(item.c)" />
-            </div>
-            <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
+              <template v-slot:hover>
+                <VolumeIcon :title="`发音`" :simple="false" @click="ttsPlayAudio(item.c)" />
+              </template>
+            </HoverReveal>
+            <div class="anim text-sm" v-opacity="settingStore.translate || showFullWord || showWordResult">
               {{ item.cn }}
             </div>
           </div>
@@ -615,97 +562,22 @@ useEvents([
       </template>
 
       <template v-if="word?.phrases?.length">
-        <div class="line-white my-3"></div>
-        <div class="flex">
-          <div class="label">{{ $t('phrases') }}</div>
-          <div class="flex flex-col">
-            <div class="flex items-center gap-4" v-for="item in word.phrases">
-              <SentenceHightLightWord
-                class="en"
-                :text="item.c"
-                :word="word.word"
-                :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
-              />
-              <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
-                {{ item.cn }}
-              </div>
-            </div>
+        <div class="line-white my-1"></div>
+        <div class="flex-wrap">
+          <div class="flex items-center gap-2 mr-2" v-for="item in word.phrases">
+            <SentenceHightLightWord
+              class="shrink-0"
+              :text="item.c"
+              :word="word.word"
+              :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+            />
+            <span class="anim shrink-0 text-sm" v-opacity="settingStore.translate || showFullWord || showWordResult">
+              {{ item.cn }}
+            </span>
           </div>
         </div>
       </template>
-
-      <template v-if="settingStore.translate || !settingStore.dictation">
-        <template v-if="word?.synos?.length">
-          <div class="line-white my-3"></div>
-          <div class="flex">
-            <div class="label">{{ $t('synonyms') }}</div>
-            <div class="flex flex-col gap-3">
-              <div class="flex" v-for="item in word.synos">
-                <div class="pos line-height-1.4rem!">{{ item.pos }}</div>
-                <div>
-                  <div class="cn anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
-                    {{ item.cn }}
-                  </div>
-                  <div class="anim" v-opacity="!settingStore.dictation || showFullWord || showWordResult">
-                    <span class="en" v-for="(i, j) in item.ws">
-                      {{ i }} {{ j !== item.ws.length - 1 ? ' / ' : '' }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </template>
-
-      <div
-        class="anim"
-        v-opacity="(settingStore.translate && !settingStore.dictation) || showFullWord || showWordResult"
-      >
-        <template v-if="word?.etymology?.length">
-          <div class="line-white my-3"></div>
-
-          <div class="flex">
-            <div class="label">{{ $t('etymology') }}</div>
-            <div class="text-base">
-              <div class="mb-2" v-for="item in word.etymology">
-                <div class="">{{ item.t }}</div>
-                <div class="">{{ item.d }}</div>
-              </div>
-            </div>
-          </div>
-          <!--        <div class="line-white my-2"></div>-->
-        </template>
-
-        <template v-if="word?.relWords?.root && false">
-          <div class="flex">
-            <div class="label">{{ $t('related_words') }}</div>
-            <div class="flex flex-col gap-3">
-              <div v-if="word.relWords.root" class=" ">
-                {{ $t('word_root') }}：<span class="en">{{ word.relWords.root }}</span>
-              </div>
-              <div class="flex" v-for="item in word.relWords.rels">
-                <div class="pos">{{ item.pos }}</div>
-                <div>
-                  <div class="flex items-center gap-4" v-for="itemj in item.words">
-                    <div class="en">{{ itemj.c }}</div>
-                    <div class="cn">{{ itemj.cn }}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
     </div>
-    <div
-      class="cursor"
-      :style="{
-        top: cursor.top + 'px',
-        left: cursor.left + 'px',
-        height: settingStore.fontSize.wordForeignFontSize + 'px',
-      }"
-    ></div>
   </div>
 </template>
 
@@ -717,14 +589,12 @@ useEvents([
 .typing-word {
   width: 100%;
   flex: 1;
-  //overflow: auto;
   word-break: break-word;
   position: relative;
-  color: var(--color-font-2);
 
   .phonetic,
   .translate {
-    font-size: 1.2rem;
+    //font-size: 1.2rem;
   }
 
   .phonetic {
@@ -733,11 +603,6 @@ useEvents([
   }
 
   .word {
-    font-size: 3rem;
-    line-height: 1;
-    font-family: var(--en-article-family);
-    letter-spacing: 0.3rem;
-
     .input,
     .right {
       color: rgb(22, 163, 74);
@@ -750,26 +615,6 @@ useEvents([
     &.is-wrong {
       animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
     }
-  }
-
-  .tabs {
-    @apply: text-lg font-medium;
-    display: flex;
-    gap: 2rem;
-
-    .tab {
-      cursor: pointer;
-
-      &.active {
-        border-bottom: 2px solid var(--color-font-2);
-      }
-    }
-  }
-
-  .label {
-    width: 6rem;
-    padding-top: 0.2rem;
-    flex-shrink: 0;
   }
 
   .cn {
@@ -786,121 +631,7 @@ useEvents([
   }
 }
 
-// 移动端适配
-@media (max-width: 768px) {
-  .typing-word {
-    padding: 0 0.5rem 12rem;
-
-    .word {
-      font-size: 2rem !important;
-      letter-spacing: 0.1rem;
-      margin: 0.5rem 0;
-    }
-
-    .phonetic,
-    .translate {
-      font-size: 1rem;
-    }
-
-    .label {
-      width: 4rem;
-      font-size: 0.9rem;
-    }
-
-    .cn {
-      font-size: 0.9rem;
-    }
-
-    .en {
-      font-size: 1rem;
-    }
-
-    .pos {
-      font-size: 0.9rem;
-      width: 3rem;
-    }
-
-    // 移动端按钮组调整
-    .flex.gap-4 {
-      flex-direction: column;
-      width: 100%;
-      gap: 0.5rem;
-      position: relative;
-      z-index: 10; // 确保按钮不被其他元素遮挡
-
-      .base-button {
-        width: 100%;
-        min-height: 48px;
-        padding: 0.8rem;
-        font-size: 1.1rem;
-        font-weight: 500;
-        cursor: pointer;
-      }
-    }
-
-    // 确保短语和例句区域保持默认层级
-    .phrase-section,
-    .sentence {
-      position: relative;
-      z-index: auto;
-    }
-
-    // 移动端例句和短语调整
-    .sentence,
-    .phrase {
-      font-size: 0.9rem;
-      line-height: 1.4;
-      margin-bottom: 0.5rem;
-      pointer-events: auto; // 允许点击但不调起输入法
-    }
-
-    // 移动端短语调整
-    .flex.items-center.gap-4 {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.2rem;
-    }
-  }
-}
-
-// 超小屏幕适配
-@media (max-width: 480px) {
-  .typing-word {
-    padding: 0 0.3rem 12rem;
-
-    .word {
-      font-size: 1.5rem !important;
-      letter-spacing: 0.05rem;
-      margin: 0.3rem 0;
-    }
-
-    .phonetic,
-    .translate {
-      font-size: 0.9rem;
-    }
-
-    .label {
-      width: 3rem;
-      font-size: 0.8rem;
-    }
-
-    .cn {
-      font-size: 0.8rem;
-    }
-
-    .en {
-      font-size: 0.9rem;
-    }
-
-    .pos {
-      font-size: 0.8rem;
-      width: 2.5rem;
-    }
-
-    .sentence {
-      font-size: 0.8rem;
-      line-height: 1.3;
-    }
-  }
+.line-white {
+  border-bottom: 0.5px solid #433f3f;
 }
 </style>

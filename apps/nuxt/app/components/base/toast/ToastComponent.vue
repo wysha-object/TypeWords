@@ -1,42 +1,48 @@
 <template>
   <Transition name="message-fade" appear>
-    <div v-if="visible" class="message" :class="type" :style="style" @mouseenter="handleMouseEnter"
-         @mouseleave="handleMouseLeave">
+    <div
+      v-if="visible"
+      class="message"
+      :class="{ [type]: true, shadow }"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+    >
       <div class="message-content">
-        <IconFluentCheckmarkCircle20Filled v-if="props.type === 'success'" class="message-icon"/>
-        <IconFluentErrorCircle20Filled v-if="props.type === 'warning'" class="message-icon"/>
-        <IconFluentErrorCircle20Filled v-if="props.type === 'info'" class="message-icon"/>
-        <IconFluentDismissCircle20Filled v-if="props.type === 'error'" class="message-icon"/>
+        <IconFluentCheckmarkCircle20Filled v-if="props.type === 'success'" class="message-icon" />
+        <IconFluentErrorCircle20Filled v-if="props.type === 'warning'" class="message-icon" />
+        <IconFluentErrorCircle20Filled v-if="props.type === 'info'" class="message-icon" />
+        <IconFluentDismissCircle20Filled v-if="props.type === 'error'" class="message-icon" />
         <span class="message-text">{{ message }}</span>
-        <Close v-if="showClose" class="message-close" @click="close"/>
+
+        <Close v-if="showClose" class="message-close" @click="close" />
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 interface Props {
   message: string
   type?: 'success' | 'warning' | 'info' | 'error'
   duration?: number
   showClose?: boolean
+  shadow?: boolean
+  confirm?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'info',
   duration: 3000,
-  showClose: false
+  showClose: false,
+  shadow: true,
+  confirm: false,
 })
 
 const emit = defineEmits(['close'])
 const visible = ref(false)
 let timer = null
-
-const style = computed(() => ({
-  // 移除offset，现在由容器管理位置
-}))
 
 const startTimer = () => {
   if (props.duration > 0) {
@@ -82,21 +88,20 @@ defineExpose({
   show: () => {
     visible.value = true
     startTimer()
-  }
+  },
 })
 </script>
 
 <style scoped lang="scss">
 .message {
-  position: relative;
-  min-width: 16rem;
-  padding: 0.8rem 1rem;
-  border-radius: 0.2rem;
-  box-shadow: 0 0.2rem 0.9rem rgba(0, 0, 0, 0.15);
-  background: white;
   border: 1px solid #ebeef5;
   transition: all 0.3s ease;
   pointer-events: auto;
+  @apply rounded-md py-3 px-5 relative min-w-50;
+
+  &.shadow {
+    @apply shadow-xl;
+  }
 
   &.success {
     background: #f0f9ff;
@@ -112,7 +117,7 @@ defineExpose({
 
   &.info {
     background: #f4f4f5;
-    border-color: #909399;
+    border-color: #c1c1c1;
     color: #909399;
   }
 
@@ -157,28 +162,15 @@ html.dark {
 }
 
 .message-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.message-icon {
-  font-size: 1.2rem;
+  @apply flex items-center gap-2;
 }
 
 .message-text {
-  flex: 1;
-  font-size: 14px;
+  @apply flex-1 lh-none;
 }
 
 .message-close {
-  cursor: pointer;
-  font-size: 1.2rem;
-  opacity: 0.7;
-
-  &:hover {
-    opacity: 1;
-  }
+  @apply w-10 flex justify-end cp opacity-70 hover:opacity-100;
 }
 
 .message-fade-enter-active,

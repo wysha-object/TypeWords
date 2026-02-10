@@ -31,6 +31,7 @@ import { setUserDictProp } from '@/apis'
 import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
+import ConflictNotice2 from '~/components/ConflictNotice2.vue'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -42,12 +43,12 @@ const store = useBaseStore()
 const statStore = usePracticeStore()
 const typingRef: any = $ref()
 let showConflictNotice = $ref(false)
+let showConflictNotice2 = $ref(false)
 let allWrongWords = new Set()
 let showStatDialog = $ref(false)
 let loading = $ref(false)
 let timer = $ref(0)
 let isFocus = true
-let isRestore = false
 let taskWords = $ref<TaskWords>({
   new: [],
   review: [],
@@ -144,22 +145,13 @@ watchOnce(
           attachTo: { element: '#word', on: 'bottom' },
           buttons: [
             {
-              text: `下一步（5/${TourConfig.total}）`,
-              action: tour.next,
-            },
-          ],
-        })
-
-        tour.addStep({
-          id: 'step6',
-          text: '这里是文章练习',
-          attachTo: { element: '#article', on: 'top' },
-          buttons: [
-            {
-              text: `下一步（6/${TourConfig.total}）`,
+              text: `关闭`,
               action() {
+                settingStore.first = false
                 tour.next()
-                router.push('/articles')
+                setTimeout(() => {
+                  showConflictNotice = true
+                }, 1500)
               },
             },
           ],
@@ -371,7 +363,6 @@ function wordLoop() {
   }
 }
 
-let toastInstance: ToastInstance = null
 
 function nextStage(originList: Word[], log: string = '', toast: boolean = false) {
   //每次都判断，因为每次都可能新增已掌握的单词
@@ -379,10 +370,6 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   console.log(log)
   statStore.stage = statStore.nextStage
   if (list.length) {
-    if (toast) {
-      if (toastInstance) toastInstance.close()
-      toastInstance = Toast.info('输入完成后按空格键切换下一个', { duration: 5000 })
-    }
     data.words = list
     data.index = 0
   } else {
@@ -741,13 +728,21 @@ useEvents([
           style="left: calc(50vw + var(--aside-width) / 2 - var(--toolbar-width) / 2); width: var(--toolbar-width)"
           v-if="settingStore.showNearWord"
         >
-          <div class="center gap-2 cursor-pointer float-left" @click="prev" v-if="prevWord">
+          <div class="relative z-2 center gap-2 cp float-left" @click="prev" v-if="prevWord">
             <IconFluentArrowLeft16Regular class="arrow" width="22" />
             <Tooltip :title="`上一个(${settingStore.shortcutKeyMap[ShortcutKey.Previous]})`">
               <div class="word">{{ prevWord.word }}</div>
             </Tooltip>
           </div>
-          <div class="center gap-2 cursor-pointer float-right mr-3" @click="next(false)" v-if="nextWord">
+
+          <div class="center gap-1 absolute w-full cp"
+               v-if="settingStore.showConflictNotice2"
+               @click="showConflictNotice2 = true">
+            <IconFluentQuestionCircle20Regular/>
+            <span class="">无法输入？</span>
+          </div>
+
+          <div class="relative center gap-2 cp float-right mr-3" @click="next(false)" v-if="nextWord">
             <Tooltip :title="`下一个(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`">
               <div class="word" :class="settingStore.dictation && 'word-shadow'">
                 {{ nextWord.word }}
@@ -814,6 +809,7 @@ useEvents([
   </PracticeLayout>
   <Statistics v-model="showStatDialog" />
   <ConflictNotice v-if="showConflictNotice" />
+  <ConflictNotice2 v-model="showConflictNotice2" />
 </template>
 
 <style scoped lang="scss">

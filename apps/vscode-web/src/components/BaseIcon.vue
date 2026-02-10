@@ -27,12 +27,12 @@ const emit = defineEmits(['click'])
 
 <style scoped lang="scss">
 
-$w: 1.4rem;
+$w: 1.2rem;
 .icon-wrapper {
   cursor: pointer;
   //padding: 2rem;
-  width: 2rem;
-  height: 2rem;
+  width: 1.4rem;
+  height: 1.4rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;

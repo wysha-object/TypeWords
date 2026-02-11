@@ -438,7 +438,7 @@ useEvents([
               >
                 {{ word.word }}
               </div>
-              <div class="mt-2 w-120 dictation" :class="showWordResult ? (right ? 'right' : 'wrong') : ''">
+              <div class="mt-2 w-50 dictation" :class="showWordResult ? (right ? 'right' : 'wrong') : ''">
                 <template v-for="i in input">
                   <span class="l" v-if="i !== ' '">{{ i }}</span>
                   <Space class="l" v-else :is-wrong="showWordResult ? !right : false" :is-wait="!showWordResult" />
@@ -583,7 +583,7 @@ useEvents([
 
 <style scoped lang="scss">
 .dictation {
-  border-bottom: 2px solid gray;
+  border-bottom: 1px solid gray;
 }
 
 .typing-word {

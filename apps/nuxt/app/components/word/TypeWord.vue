@@ -362,14 +362,11 @@ function del() {
 
 function showWord() {
   if (settingStore.allowWordTip) {
-    if (settingStore.wordPracticeType === WordPracticeType.Dictation || settingStore.dictation) {
+    //如果不是跟写模式，查看单词一律标记为错词
+    if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite || settingStore.dictation) {
       emit('wrong')
     }
     showFullWord = true
-    //系统设定的默认模式情况下，如果看了单词统计到错词里面去
-    if (statStore.stage !== WordPracticeStage.FollowWriteNewWord) {
-      emit('wrong')
-    }
   }
 }
 

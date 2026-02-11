@@ -363,7 +363,6 @@ function wordLoop() {
   }
 }
 
-
 function nextStage(originList: Word[], log: string = '', toast: boolean = false) {
   //每次都判断，因为每次都可能新增已掌握的单词
   let list = originList.filter(v => !data.excludeWords.includes(v.word))
@@ -591,7 +590,6 @@ function skip(e: KeyboardEvent) {
 }
 
 function show(e: KeyboardEvent) {
-  if (![WordPracticeType.FollowWrite].includes(settingStore.wordPracticeType)) onTypeWrong()
   typingRef.showWord()
 }
 
@@ -701,12 +699,12 @@ function randomWrite() {
 useEvents([
   [EventKey.repeatStudy, repeat],
   [EventKey.continueStudy, continueStudy],
-  [ShortcutKey.ShowWord, show],
+  [ShortcutKey.ShowWord, throttle(show, 300)],
   [ShortcutKey.Previous, prev],
   [ShortcutKey.Next, skip],
   [ShortcutKey.ToggleCollect, collect],
   [ShortcutKey.ToggleSimple, toggleWordSimpleWrapper],
-  [ShortcutKey.PlayWordPronunciation, play],
+  [ShortcutKey.PlayWordPronunciation, throttle(play, 300)],
 
   [ShortcutKey.RepeatChapter, repeat],
   [ShortcutKey.NextChapter, continueStudy],
@@ -715,7 +713,7 @@ useEvents([
   [ShortcutKey.ToggleTheme, toggleTheme],
   [ShortcutKey.ToggleConciseMode, toggleConciseMode],
   [ShortcutKey.TogglePanel, togglePanel],
-  [ShortcutKey.RandomWrite, randomWrite],
+  [ShortcutKey.RandomWrite, throttle(randomWrite, 300)],
 ])
 </script>
 
@@ -735,10 +733,12 @@ useEvents([
             </Tooltip>
           </div>
 
-          <div class="center gap-1 absolute w-full cp"
-               v-if="settingStore.showConflictNotice2"
-               @click="showConflictNotice2 = true">
-            <IconFluentQuestionCircle20Regular/>
+          <div
+            class="center gap-1 absolute w-full cp"
+            v-if="settingStore.showConflictNotice2"
+            @click="showConflictNotice2 = true"
+          >
+            <IconFluentQuestionCircle20Regular />
             <span class="">无法输入？</span>
           </div>
 

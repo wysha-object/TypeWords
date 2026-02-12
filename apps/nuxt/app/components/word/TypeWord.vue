@@ -662,9 +662,9 @@ const notice = $computed(() => {
       <template v-if="word?.sentences?.length">
         <div class="line-white my-3"></div>
         <div class="flex flex-col gap-3">
-          <div 
-            class="sentence" 
-            :class="(wrong && currentPracticeSentenceIndex === index) ? 'is-wrong' : ''" 
+          <div
+            class="sentence"
+            :class="(wrong && currentPracticeSentenceIndex === index) ? 'is-wrong' : ''"
             v-for="(item, index) in word.sentences"
           >
             <div class="flex gap-space text-xl">
@@ -680,8 +680,8 @@ const notice = $computed(() => {
                 <span class="wrong" v-if="wrong">{{ wrong }}</span>
                 <span class="letter">{{ displaySentence }}</span>
               </div>
+              <VolumeIcon :title="`发音`" :simple="false" :cb="() => ttsPlayAudio(item.c)" ref="sentenceVolumeIconsRefs" />
             </div>
-            <VolumeIcon :title="`发音`" :simple="false" :cb="() => ttsPlayAudio(item.c)" ref="sentenceVolumeIconsRefs" />
             <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
               {{ item.cn }}
             </div>
@@ -813,7 +813,7 @@ const notice = $computed(() => {
     letter-spacing: 0.3rem;
 
   }
-  
+
   .is-wrong {
     animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   }

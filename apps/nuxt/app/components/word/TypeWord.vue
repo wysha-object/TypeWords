@@ -129,10 +129,10 @@ let pressNumber = 0
 
 const right = $computed(() => {
   let target
-  if (currentPracticeSentenceIndex === -1) {
-    target = props.word.word
-  } else {
+  if (isTypingSentence()) {
     target = props.word.sentences[currentPracticeSentenceIndex].c
+  } else {
+    target = props.word.word
   }
   if (settingStore.ignoreCase) {
     return input.toLowerCase() === target.toLowerCase()
@@ -177,12 +177,12 @@ async function onTyping(e: KeyboardEvent) {
   debugger
   let target
   let targetVolumeIcon
-  if (currentPracticeSentenceIndex == -1) {
-    target = props.word.word
-    targetVolumeIcon = volumeIconRef
-  } else {
+  if (isTypingSentence()) {
     target = props.word.sentences[currentPracticeSentenceIndex].c
     targetVolumeIcon = sentenceVolumeIconsRefs[currentPracticeSentenceIndex]
+  } else {
+    target = props.word.word
+    targetVolumeIcon = volumeIconRef
   }
   // 输入完成会锁死不能再输入
   if (inputLock) {
@@ -317,7 +317,7 @@ async function onTyping(e: KeyboardEvent) {
       playBeep()
       if (settingStore.wordSound) targetVolumeIcon?.play()
       setTimeout(() => {
-        if (settingStore.inputWrongClear) input = ''
+        if (settingStore.inputWrongClear && !isTypingSentence()) input = ''
         wrong = ''
       }, 500)
     }
@@ -354,6 +354,10 @@ function shouldRepeat() {
   } else {
     return false
   }
+}
+
+function isTypingSentence() {
+  return currentPracticeSentenceIndex !== -1
 }
 
 function completeTypeWord(delay: boolean) {
@@ -457,6 +461,12 @@ watch([() => input, () => showFullWord, () => settingStore.dictation], checkCurs
 //检测光标位置
 function checkCursorPosition() {
   _nextTick(() => {
+    let cursorOffset
+    if (isTypingSentence()) {
+      cursorOffset = { top: 0, left: 0 }
+    } else {
+      cursorOffset = { top: 0, left: -3 }
+    }
     // 选中目标元素
     const cursorEl = document.querySelector(`.cursor`)
     const inputList = document.querySelectorAll(`.l`)
@@ -466,8 +476,8 @@ function checkCursorPosition() {
     if (inputList.length) {
       let inputRect = last(Array.from(inputList)).getBoundingClientRect()
       cursor = {
-        top: inputRect.top + inputRect.height - cursorEl.clientHeight - typingWordRect.top,
-        left: inputRect.right - typingWordRect.left - 3,
+        top: inputRect.top + inputRect.height - cursorEl.clientHeight - typingWordRect.top + cursorOffset.top,
+        left: inputRect.right - typingWordRect.left + cursorOffset.left,
       }
     } else {
       const dictation = document.querySelector(`.dictation`)
@@ -479,8 +489,8 @@ function checkCursorPosition() {
         elRect = letter.getBoundingClientRect()
       }
       cursor = {
-        top: elRect.top + elRect.height - cursorEl.clientHeight - typingWordRect.top,
-        left: elRect.left - typingWordRect.left - 3,
+        top: elRect.top + elRect.height - cursorEl.clientHeight - typingWordRect.top + cursorOffset.top,
+        left: elRect.left - typingWordRect.left + cursorOffset.left,
       }
     }
   })
@@ -559,7 +569,7 @@ const notice = $computed(() => {
         <div
           id="word"
           class="word my-1"
-          :class="(wrong && currentPracticeSentenceIndex === -1) ? 'is-wrong' : ''"
+          :class="(wrong && !isTypingSentence()) ? 'is-wrong' : ''"
           :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
           @mouseenter="showWord"
           @mouseleave="mouseleave"
@@ -777,7 +787,7 @@ const notice = $computed(() => {
       :style="{
         top: cursor.top + 'px',
         left: cursor.left + 'px',
-        height: currentPracticeSentenceIndex === -1 ? settingStore.fontSize.wordForeignFontSize + 'px' : '20px',
+        height: isTypingSentence() ? '20px' : settingStore.fontSize.wordForeignFontSize + 'px' ,
       }"
     ></div>
   </div>

@@ -62,9 +62,7 @@ useHead({
 })
 let currentStudy = $ref({
   new: [],
-  review: [],
-  write: [],
-  shuffle: [],
+  review: []
 })
 
 watch(
@@ -120,7 +118,7 @@ async function init() {
     if (d) {
       currentStudy = d.taskWords
       isSaveData = true
-      if(!currentStudy.new.length && !currentStudy.review.length&& !currentStudy.write.length) {
+      if(!currentStudy.new.length && !currentStudy.review.length) {
         isSaveData = false
         setPracticeWordCache(null)
         init()
@@ -263,7 +261,7 @@ async function onShufflePracticeSettingOk(total) {
   setPracticeWordCache(null)
   settingStore.wordPracticeMode = editingWordPracticeMode
   let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
-  currentStudy.shuffle = shuffle(
+  currentStudy.review = shuffle(
     store.sdict.words.slice(0, store.sdict.lastLearnIndex).filter(v => !ignoreList.includes(v.word))
   ).slice(0, total)
   nav(
@@ -411,11 +409,7 @@ const systemPracticeText = $computed(() => {
           </div>
           <div class="stat">
             <div class="num">{{ currentStudy.review.length }}</div>
-            <div class="txt">{{ $t('review_last') }}</div>
-          </div>
-          <div class="stat">
-            <div class="num">{{ currentStudy.write.length }}</div>
-            <div class="txt">{{ $t('review_previous') }}</div>
+            <div class="txt">{{ $t('review') }}</div>
           </div>
         </div>
         <div class="flex items-end mt-4 gap-4 btn-no-margin">
@@ -449,7 +443,7 @@ const systemPracticeText = $computed(() => {
               <BaseButton
                 class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
-                :disabled="!currentStudy.review.length && !currentStudy.write.length"
+                :disabled="!currentStudy.review.length && !currentStudy.review.length"
                 @click="startPractice(WordPracticeMode.Review, true)"
               >
                 {{ $t('review') }}
@@ -594,7 +588,7 @@ const systemPracticeText = $computed(() => {
 
 <style scoped lang="scss">
 .stat {
-  @apply w-31% box-border flex flex-col items-center justify-center rounded-xl p-2 bg-[var(--bg-history)];
+  @apply w-49% box-border flex flex-col items-center justify-center rounded-xl p-2 bg-[var(--bg-history)];
   border: 1px solid gainsboro;
 
   .num {

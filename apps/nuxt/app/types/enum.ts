@@ -102,11 +102,6 @@ export enum WordPracticeStage {
   ListenReview = 6,
   DictationReview = 7,
 
-  FollowWriteReviewAll = 8,
-  IdentifyReviewAll = 9,
-  ListenReviewAll = 10,
-  DictationReviewAll = 11,
-
   Shuffle = 12,
   Complete = 13,
 }

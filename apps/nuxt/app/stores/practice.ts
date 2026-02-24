@@ -10,7 +10,6 @@ export interface PracticeState {
     total: number
     newWordNumber: number
     reviewWordNumber: number
-    writeWordNumber: number
     inputWordNumber: number //当前总输入了多少个单词（不包含跳过）
     wrong: number
 }
@@ -24,7 +23,6 @@ export const usePracticeStore = defineStore('practice', {
             total: 0,
             newWordNumber: 0,
             reviewWordNumber: 0,
-            writeWordNumber: 0,
             inputWordNumber: 0,
             wrong: 0,
         }

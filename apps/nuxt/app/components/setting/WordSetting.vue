@@ -35,6 +35,12 @@ const settingStore = useSettingStore()
       <Switch v-model="settingStore.practiceSentence"/>
     </SettingItem>
 
+    <SettingItem :title="$t('enable_fsrs')"
+                 :desc="$t('enable_fsrs_desc')"
+    >
+      <Switch v-model="settingStore.enableFSRS"/>
+    </SettingItem>
+
     <SettingItem :title="$t('word_repeat_setting')" class="gap-0!">
       <RadioGroup v-model="settingStore.repeatCount">
         <Radio :value="1" size="default">1</Radio>

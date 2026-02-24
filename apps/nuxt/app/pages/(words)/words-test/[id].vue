@@ -5,7 +5,7 @@ import BaseButton from '@/components/BaseButton.vue'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBaseStore } from '@/stores/base.ts'
-import type { Dict, Word } from '@/types/types.ts'
+import type { Dict, TaskWords, Word } from '@/types/types.ts'
 import { _getDictDataByUrl, shuffle } from '@/utils'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import { usePlayBeep, usePlayCorrect, usePlayWordAudio } from '@/hooks/sound.ts'
@@ -205,12 +205,9 @@ async function init() {
     return Toast.warning('没有单词可测试！')
   }
   if (runtimeStore.routeData.taskWords) {
-    let currentStudy = runtimeStore.routeData.taskWords
-    if (currentStudy.shuffle.length ) {
-      testWords = runtimeStore.routeData.taskWords.shuffle
-    } else if (currentStudy.review.length || currentStudy.write.length) {
-      testWords = runtimeStore.routeData.taskWords.write
-      testWords.push(...currentStudy.review)
+    let currentStudy: TaskWords = runtimeStore.routeData.taskWords
+    if (currentStudy.review.length ) {
+      testWords = runtimeStore.routeData.taskWords.review
     }
   }
   if (!testWords.length) {

@@ -32,6 +32,7 @@ import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
 import ConflictNotice2 from '~/components/ConflictNotice2.vue'
+import { FSRS } from 'ts-fsrs'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -52,8 +53,6 @@ let isFocus = true
 let taskWords = $ref<TaskWords>({
   new: [],
   review: [],
-  write: [],
-  shuffle: [],
 })
 
 let data = $ref<PracticeData>({
@@ -106,7 +105,7 @@ watch(
 onMounted(() => {
   //如果是从单词学习主页过来的，就直接使用；否则等待加载
   if (runtimeStore.routeData) {
-    initData(runtimeStore.routeData.taskWords, true, runtimeStore.routeData.practiceMode)
+    initData(runtimeStore.routeData.taskWords, true)
   } else {
     loading = true
   }
@@ -176,6 +175,7 @@ function initData(initVal: TaskWords, init: boolean = false) {
     taskWords = Object.assign(taskWords, d.taskWords)
     //这里直接赋值的话，provide后的inject获取不到最新值
     data = Object.assign(data, d.practiceData)
+    wrongTimesMap = Object.assign(wrongTimesMap, d.wrongTimesMap)
     statStore.$patch(d.statStoreData)
   } else {
     // taskWords = initVal
@@ -184,24 +184,19 @@ function initData(initVal: TaskWords, init: boolean = false) {
 
     if (settingStore.wordPracticeMode === WordPracticeMode.Shuffle) {
       settingStore.wordPracticeType = WordPracticeType.Dictation
-      data.words = taskWords.shuffle
+      data.words = taskWords.review
       statStore.stage = WordPracticeStage.Shuffle
-      statStore.total = taskWords.shuffle.length
+      statStore.total = taskWords.review.length
       statStore.newWordNumber = 0
       statStore.reviewWordNumber = 0
-      statStore.writeWordNumber = statStore.total
     } else if (settingStore.wordPracticeMode === WordPracticeMode.Review) {
       if (taskWords.review.length) {
         data.words = taskWords.review
         statStore.stage = WordPracticeStage.IdentifyReview
-      } else if (taskWords.write.length) {
-        data.words = taskWords.write
-        statStore.stage = WordPracticeStage.IdentifyReviewAll
       }
-      statStore.total = taskWords.review.length + taskWords.write.length
+      statStore.total = taskWords.review.length
       statStore.newWordNumber = 0
       statStore.reviewWordNumber = taskWords.review.length
-      statStore.writeWordNumber = taskWords.write.length
     } else {
       if (taskWords.new.length === 0) {
         if (taskWords.review.length) {
@@ -218,32 +213,16 @@ function initData(initVal: TaskWords, init: boolean = false) {
             statStore.stage = WordPracticeStage.ListenReview
           }
         } else {
-          if (taskWords.write.length) {
-            data.words = taskWords.write
-            if (settingStore.wordPracticeMode === WordPracticeMode.System) {
-              statStore.stage = WordPracticeStage.IdentifyReviewAll
-            } else if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
-              statStore.stage = WordPracticeModeStageMap[settingStore.wordPracticeMode][0]
-            } else if (settingStore.wordPracticeMode === WordPracticeMode.IdentifyOnly) {
-              statStore.stage = WordPracticeStage.IdentifyReviewAll
-            } else if (settingStore.wordPracticeMode === WordPracticeMode.DictationOnly) {
-              statStore.stage = WordPracticeStage.DictationReviewAll
-            } else if (settingStore.wordPracticeMode === WordPracticeMode.ListenOnly) {
-              statStore.stage = WordPracticeStage.ListenReviewAll
-            }
-          } else {
-            Toast.warning('没有可学习的单词！')
-            router.push('/words')
-          }
+          Toast.warning('没有可学习的单词！')
+          router.push('/words')
         }
       } else {
         data.words = taskWords.new
         statStore.stage = WordPracticeModeStageMap[settingStore.wordPracticeMode][0]
       }
-      statStore.total = taskWords.review.length + taskWords.new.length + taskWords.write.length
+      statStore.total = taskWords.review.length + taskWords.new.length
       statStore.newWordNumber = taskWords.new.length
       statStore.reviewWordNumber = taskWords.review.length
-      statStore.writeWordNumber = taskWords.write.length
     }
 
     data.index = 0
@@ -282,23 +261,19 @@ function watchStage(n: WordPracticeStage) {
   switch (n) {
     case WordPracticeStage.DictationNewWord:
     case WordPracticeStage.DictationReview:
-    case WordPracticeStage.DictationReviewAll:
     case WordPracticeStage.Shuffle:
       settingStore.wordPracticeType = WordPracticeType.Dictation
       break
     case WordPracticeStage.ListenNewWord:
     case WordPracticeStage.ListenReview:
-    case WordPracticeStage.ListenReviewAll:
       settingStore.wordPracticeType = WordPracticeType.Listen
       break
     case WordPracticeStage.FollowWriteNewWord:
     case WordPracticeStage.FollowWriteReview:
-    case WordPracticeStage.FollowWriteReviewAll:
       settingStore.wordPracticeType = WordPracticeType.FollowWrite
       break
     case WordPracticeStage.IdentifyNewWord:
     case WordPracticeStage.IdentifyReview:
-    case WordPracticeStage.IdentifyReviewAll:
       settingStore.wordPracticeType = WordPracticeType.Identify
       break
   }
@@ -377,15 +352,66 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   }
 }
 
-async function next(isTyping: boolean = true) {
-  debugger
-  const complete = () => {
-    console.log('全完学完了')
-    showStatDialog = true
-    clearInterval(timer)
-    setTimeout(() => setPracticeWordCache(null), 300)
+let completeLock = false
+
+function complete() {
+  if (completeLock) return
+  completeLock = true
+
+  console.log('全完学完了')
+
+  //如果 shuffle 数组不为空，就说明是复习，不用修改 lastLearnIndex
+  if (settingStore.wordPracticeMode !== WordPracticeMode.Shuffle) {
+    store.sdict.lastLearnIndex = store.sdict.lastLearnIndex + statStore.newWordNumber
+    // 检查已忽略的单词数量，是否全部完成
+    let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
+    // 忽略单词数
+    const ignoreCount = ignoreList.filter(word =>
+      store.sdict.words.slice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
+    ).length
+    // 如果lastLearnIndex已经超过可学单词数，则判定完成
+    if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {
+      store.sdict.complete = true
+      store.sdict.lastLearnIndex = store.sdict.length
+    }
   }
 
+  wrongTimesMap.forEach((value, key) => {
+    let grade = getGradeByWrongTimes(value)
+    let fsrs = new FSRS({});
+    
+    let card = store.fsrsData.cardMap[key]
+    card = fsrs.next(card, Date.now(), grade).card
+    store.fsrsData.cardMap.set(key, card)
+  })
+  
+  showStatDialog = true
+  clearInterval(timer)
+  setTimeout(() => setPracticeWordCache(null), 300)
+}
+
+// word -> wrongTimes 用以评级
+let wrongTimesMap: Map<string, number> = new Map()
+
+async function next(isTyping: boolean = true) {
+  debugger
+  savePracticeData()
+  let temp = word.word.toLowerCase()
+  wrongTimesMap[temp] = wrongTimesMap[temp] + wrongTimes
+  if (wrongTimes > 0) {
+    if (!allWrongWords.has(word.word.toLowerCase())) {
+      allWrongWords.add(word.word.toLowerCase())
+      statStore.wrong++
+    }
+    if (!store.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
+      store.wrong.words.push(word)
+      store.wrong.length = store.wrong.words.length
+    }
+    if (!data.wrongWords.find((v: Word) => v.word.toLowerCase() === temp)) {
+      data.wrongWords.push(word)
+    }
+  }
+  wrongTimes = 0
   if (isTyping) statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     if (data.index === data.words.length - 1) {
@@ -439,38 +465,26 @@ async function next(isTyping: boolean = true) {
           } else if (statStore.stage === WordPracticeStage.ListenNewWord) {
             nextStage(shuffle(taskWords.new), '开始默写新词')
           } else if (statStore.stage === WordPracticeStage.DictationNewWord) {
-            nextStage(taskWords.review, '开始自测昨日')
+            nextStage(taskWords.review, '开始自测新词')
           } else if (statStore.stage === WordPracticeStage.IdentifyReview) {
-            nextStage(shuffle(taskWords.review), '开始听写上次', true)
+            nextStage(shuffle(taskWords.review), '开始听写旧词', true)
           } else if (statStore.stage === WordPracticeStage.ListenReview) {
-            nextStage(shuffle(taskWords.review), '开始默写上次')
+            nextStage(shuffle(taskWords.review), '开始默写旧词')
           } else if (statStore.stage === WordPracticeStage.DictationReview) {
-            nextStage(taskWords.write, '开始自测之前')
-          } else if (statStore.stage === WordPracticeStage.IdentifyReviewAll) {
-            nextStage(shuffle(taskWords.write), '开始听写之前', true)
-          } else if (statStore.stage === WordPracticeStage.ListenReviewAll) {
-            nextStage(shuffle(taskWords.write), '开始默写之前')
-          } else if (statStore.stage === WordPracticeStage.DictationReviewAll) {
             complete()
           }
         } else if (settingStore.wordPracticeMode === WordPracticeMode.ListenOnly) {
           if (statStore.stage === WordPracticeStage.ListenNewWord) {
-            nextStage(taskWords.review, '开始听写昨日', true)
-          } else if (statStore.stage === WordPracticeStage.ListenReview) {
-            nextStage(taskWords.write, '开始听写之前')
-          } else if (statStore.stage === WordPracticeStage.ListenReviewAll) complete()
+            nextStage(taskWords.review, '开始听写', true)
+          } else if (statStore.stage === WordPracticeStage.ListenReview) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.DictationOnly) {
           if (statStore.stage === WordPracticeStage.DictationNewWord) {
-            nextStage(taskWords.review, '开始默写昨日', true)
-          } else if (statStore.stage === WordPracticeStage.DictationReview) {
-            nextStage(taskWords.write, '开始默写之前')
-          } else if (statStore.stage === WordPracticeStage.DictationReviewAll) complete()
+            nextStage(taskWords.review, '开始默写旧词', true)
+          } else if (statStore.stage === WordPracticeStage.DictationReview)  complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.IdentifyOnly) {
           if (statStore.stage === WordPracticeStage.IdentifyNewWord) {
-            nextStage(taskWords.review, '开始自测昨日')
-          } else if (statStore.stage === WordPracticeStage.IdentifyReview) {
-            nextStage(taskWords.write, '开始自测之前')
-          } else if (statStore.stage === WordPracticeStage.IdentifyReviewAll) complete()
+            nextStage(taskWords.review, '开始自测旧词')
+          } else if (statStore.stage === WordPracticeStage.IdentifyReview) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.Shuffle) {
           if (statStore.stage === WordPracticeStage.Shuffle) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.Review) {
@@ -478,13 +492,7 @@ async function next(isTyping: boolean = true) {
             nextStage(shuffle(taskWords.review), '开始听写昨日', true)
           } else if (statStore.stage === WordPracticeStage.ListenReview) {
             nextStage(shuffle(taskWords.review), '开始默写昨日')
-          } else if (statStore.stage === WordPracticeStage.DictationReview) {
-            nextStage(taskWords.write, '开始自测之前')
-          } else if (statStore.stage === WordPracticeStage.IdentifyReviewAll) {
-            nextStage(shuffle(taskWords.write), '开始听写之前', true)
-          } else if (statStore.stage === WordPracticeStage.ListenReviewAll) {
-            nextStage(shuffle(taskWords.write), '开始默写之前')
-          } else if (statStore.stage === WordPracticeStage.DictationReviewAll) complete()
+          } else if (statStore.stage === WordPracticeStage.DictationReview) complete()
         }
       }
     } else {
@@ -514,28 +522,21 @@ function onWordKnow() {
   }
 }
 
+let wrongTimes = 0
 function onTypeWrong() {
-  let temp = word.word.toLowerCase()
-  if (!allWrongWords.has(word.word.toLowerCase())) {
-    allWrongWords.add(word.word.toLowerCase())
-    statStore.wrong++
-  }
-  if (!store.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
-    store.wrong.words.push(word)
-    store.wrong.length = store.wrong.words.length
-  }
-  if (!data.wrongWords.find((v: Word) => v.word.toLowerCase() === temp)) {
-    data.wrongWords.push(word)
-  }
-  savePracticeData()
+  wrongTimes++
 }
 
 function savePracticeData() {
-  setPracticeWordCache({
-    taskWords,
-    practiceData: data,
-    statStoreData: statStore.$state,
-  })
+  throttle(() => {
+    setPracticeWordCache({
+      taskWords,
+      practiceData: data,
+      statStoreData: statStore.$state,
+      wrongTimesMap: wrongTimesMap,
+    })
+  }, 300)
+  
 }
 
 watch(() => data.index, savePracticeData)
@@ -563,14 +564,14 @@ function repeat() {
   let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
   //随机练习单独处理
   if (settingStore.wordPracticeMode === WordPracticeMode.Shuffle) {
-    temp.shuffle = shuffle(temp.shuffle.filter(v => !ignoreList.includes(v.word)))
+    temp.review = shuffle(temp.review.filter(v => !ignoreList.includes(v.word)))
   } else {
     //将学习进度减回去
     store.sdict.lastLearnIndex = store.sdict.lastLearnIndex - statStore.newWordNumber
     //排除已掌握单词
     temp.new = temp.new.filter(v => !ignoreList.includes(v.word))
     temp.review = temp.review.filter(v => !ignoreList.includes(v.word))
-    temp.write = temp.write.filter(v => !ignoreList.includes(v.word))
+    temp.review = temp.review.filter(v => !ignoreList.includes(v.word))
   }
   emitter.emit(EventKey.resetWord)
   initData(temp)
@@ -639,9 +640,9 @@ async function continueStudy() {
 
   //随机练习单独处理
   if (settingStore.wordPracticeMode === WordPracticeMode.Shuffle) {
-    temp.shuffle = shuffle(store.sdict.words.filter(v => !ignoreList.includes(v.word))).slice(
+    temp.review = shuffle(store.sdict.words.filter(v => !ignoreList.includes(v.word))).slice(
       0,
-      runtimeStore.routeData.total ?? temp.shuffle.length
+      runtimeStore.routeData.total ?? temp.review.length
     )
     if (showStatDialog) showStatDialog = false
   } else {
@@ -699,12 +700,12 @@ function randomWrite() {
 useEvents([
   [EventKey.repeatStudy, repeat],
   [EventKey.continueStudy, continueStudy],
-  [ShortcutKey.ShowWord, throttle(show, 300)],
+  [ShortcutKey.ShowWord, show],
   [ShortcutKey.Previous, prev],
   [ShortcutKey.Next, skip],
   [ShortcutKey.ToggleCollect, collect],
   [ShortcutKey.ToggleSimple, toggleWordSimpleWrapper],
-  [ShortcutKey.PlayWordPronunciation, throttle(play, 300)],
+  [ShortcutKey.PlayWordPronunciation, play],
 
   [ShortcutKey.RepeatChapter, repeat],
   [ShortcutKey.NextChapter, continueStudy],
@@ -713,7 +714,7 @@ useEvents([
   [ShortcutKey.ToggleTheme, toggleTheme],
   [ShortcutKey.ToggleConciseMode, toggleConciseMode],
   [ShortcutKey.TogglePanel, togglePanel],
-  [ShortcutKey.RandomWrite, throttle(randomWrite, 300)],
+  [ShortcutKey.RandomWrite, randomWrite],
 ])
 </script>
 

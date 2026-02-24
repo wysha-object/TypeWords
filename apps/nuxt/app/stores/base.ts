@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type { Dict, Word } from '@/types/types'
+import type { Dict, FSRSData, Word } from '@/types/types'
 import { _getStudyProgress, checkAndUpgradeSaveDict, shakeCommonDict } from '@/utils'
 import { shallowReactive } from 'vue'
 import { getDefaultDict } from '@/types/func'
@@ -20,6 +20,7 @@ export interface BaseState {
     studyIndex: number
   }
   dictListVersion: number
+  fsrsData: FSRSData
 }
 
 export const getDefaultBaseState = (): BaseState => ({
@@ -86,6 +87,9 @@ export const getDefaultBaseState = (): BaseState => ({
     studyIndex: -1,
   },
   dictListVersion: 1,
+  fsrsData: {
+    cardMap: new Map()
+  }
 })
 
 export const useBaseStore = defineStore('base', {

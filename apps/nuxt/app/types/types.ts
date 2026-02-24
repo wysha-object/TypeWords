@@ -1,4 +1,5 @@
 import { DictType, PracticeArticleWordType } from '@/types/enum'
+import type { Card, RecordLogItem, ReviewLog } from 'ts-fsrs'
 
 export type Word = {
   id?: string
@@ -148,6 +149,8 @@ export interface PracticeData {
 export interface TaskWords {
   new: Word[]
   review: Word[]
-  write: Word[]
-  shuffle: Word[]
+}
+
+export interface FSRSData {
+  cardMap: Map<string, Card>
 }

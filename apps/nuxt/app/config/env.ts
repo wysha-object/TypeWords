@@ -1,5 +1,6 @@
 import { offset } from '@floating-ui/dom'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@/types/enum'
+import { Rating } from 'ts-fsrs'
 
 export const GITHUB = 'https://github.com/zyronon/TypeWords'
 export const Host = 'typewords.cc'
@@ -134,19 +135,16 @@ export const WordPracticeModeStageMap: Record<WordPracticeMode, WordPracticeStag
   [WordPracticeMode.IdentifyOnly]: [
     WordPracticeStage.IdentifyNewWord,
     WordPracticeStage.IdentifyReview,
-    WordPracticeStage.IdentifyReviewAll,
     WordPracticeStage.Complete,
   ],
   [WordPracticeMode.DictationOnly]: [
     WordPracticeStage.DictationNewWord,
     WordPracticeStage.DictationReview,
-    WordPracticeStage.DictationReviewAll,
     WordPracticeStage.Complete,
   ],
   [WordPracticeMode.ListenOnly]: [
     WordPracticeStage.ListenNewWord,
     WordPracticeStage.ListenReview,
-    WordPracticeStage.ListenReviewAll,
     WordPracticeStage.Complete,
   ],
   [WordPracticeMode.System]: [
@@ -156,9 +154,6 @@ export const WordPracticeModeStageMap: Record<WordPracticeMode, WordPracticeStag
     WordPracticeStage.IdentifyReview,
     WordPracticeStage.ListenReview,
     WordPracticeStage.DictationReview,
-    WordPracticeStage.IdentifyReviewAll,
-    WordPracticeStage.ListenReviewAll,
-    WordPracticeStage.DictationReviewAll,
     WordPracticeStage.Complete,
   ],
   [WordPracticeMode.Shuffle]: [WordPracticeStage.Shuffle, WordPracticeStage.Complete],
@@ -166,25 +161,20 @@ export const WordPracticeModeStageMap: Record<WordPracticeMode, WordPracticeStag
     WordPracticeStage.IdentifyReview,
     WordPracticeStage.ListenReview,
     WordPracticeStage.DictationReview,
-    WordPracticeStage.IdentifyReviewAll,
-    WordPracticeStage.ListenReviewAll,
-    WordPracticeStage.DictationReviewAll,
     WordPracticeStage.Complete,
   ],
+  [WordPracticeMode.ShuffleWordsTest]: null,
+  [WordPracticeMode.ReviewWordsTest]: null
 }
 export const WordPracticeStageNameMap: Record<WordPracticeStage, string> = {
   [WordPracticeStage.FollowWriteNewWord]: '跟写新词',
   [WordPracticeStage.IdentifyNewWord]: '自测新词',
   [WordPracticeStage.ListenNewWord]: '听写新词',
   [WordPracticeStage.DictationNewWord]: '默写新词',
-  [WordPracticeStage.FollowWriteReview]: '跟写上次学习',
-  [WordPracticeStage.IdentifyReview]: '自测上次学习',
-  [WordPracticeStage.ListenReview]: '听写上次学习',
-  [WordPracticeStage.DictationReview]: '默写上次学习',
-  [WordPracticeStage.FollowWriteReviewAll]: '跟写之前学习',
-  [WordPracticeStage.IdentifyReviewAll]: '自测之前学习',
-  [WordPracticeStage.ListenReviewAll]: '听写之前学习',
-  [WordPracticeStage.DictationReviewAll]: '默写之前学习',
+  [WordPracticeStage.FollowWriteReview]: '跟写学习旧词',
+  [WordPracticeStage.IdentifyReview]: '自测学习旧词',
+  [WordPracticeStage.ListenReview]: '听写学习旧词',
+  [WordPracticeStage.DictationReview]: '默写学习旧词',
   [WordPracticeStage.Complete]: '完成学习',
   [WordPracticeStage.Shuffle]: '随机复习',
 }
@@ -209,6 +199,13 @@ export const WordPracticeModeUrlMap: Record<WordPracticeMode, string> = {
   [WordPracticeMode.Review]: '/practice-words',
   [WordPracticeMode.ShuffleWordsTest]: '/words-test',
   [WordPracticeMode.ReviewWordsTest]: '/words-test'
+}
+/// wrongTime -> grade
+export const WordCardGradeMap: Record<number, Rating> = {
+  0: Rating.Easy,
+  1: Rating.Good,
+  2: Rating.Hard,
+  3: Rating.Again
 }
 export class DictId {
   static wordCollect = 'wordCollect'

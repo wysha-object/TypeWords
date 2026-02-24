@@ -96,7 +96,7 @@
 docker pull zyronon/typewords:latest
 
 # 运行容器
-docker run -d -p 3000:3000 --name typewords zyronon/typewords:latest
+docker run -d -p 3000:80 --name typewords zyronon/typewords:latest
 ```
 
 然后在浏览器中打开 [`http://localhost:3000`](http://localhost:3000) 来访问项目。
@@ -118,7 +118,7 @@ docker-compose down
 docker build -t typewords .
 
 # 运行容器
-docker run -d -p 3000:3000 --name typewords typewords
+docker run -d -p 3000:80 --name typewords typewords
 ```
 
 ### 方式二：从源码运行

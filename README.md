@@ -81,7 +81,7 @@ The easiest way to run TypeWords is using Docker:
 docker pull zyronon/typewords:latest
 
 # Run the container
-docker run -d -p 3000:3000 --name typewords zyronon/typewords:latest
+docker run -d -p 3000:80 --name typewords zyronon/typewords:latest
 ```
 
 Then open [`http://localhost:3000`](http://localhost:3000) in your browser to access the project.
@@ -103,7 +103,7 @@ Or build and run locally:
 docker build -t typewords .
 
 # Run the container
-docker run -d -p 3000:3000 --name typewords typewords
+docker run -d -p 3000:80 --name typewords typewords
 ```
 
 ### Option 2: Running from Source

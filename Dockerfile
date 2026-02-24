@@ -6,36 +6,23 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY apps/nuxt/package.json ./apps/nuxt/
-COPY packages ./packages
+# Copy source code
+COPY . .
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
-COPY . .
-
 # Build the application
-WORKDIR /app/apps/nuxt
-RUN pnpm run build
+RUN pnpm run docker-build
 
 # Production stage
-FROM node:20-alpine
-
-WORKDIR /app
+FROM nginx:alpine
 
 # Copy built application from builder
-COPY --from=builder /app/apps/nuxt/.output /app/.output
+COPY --from=builder /app/apps/nuxt/.output/public /usr/share/nginx/html
 
 # Expose port
-EXPOSE 3000
-
-# Set environment variables
-ENV NUXT_HOST=0.0.0.0
-ENV NUXT_PORT=3000
-ENV NODE_ENV=production
+EXPOSE 80
 
 # Start the application
-CMD ["node", ".output/server/index.mjs"]
+CMD ["nginx", "-g", "daemon off;"]

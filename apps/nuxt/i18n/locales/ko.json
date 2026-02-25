@@ -276,7 +276,8 @@
 	"days_to_complete": "일 완료 예정",
 	"from_word": "단어부터 시작",
 	"start_daily": ", 매일",
-	"new_words": "새 단어",
+	"new_words": "new words",
+	"new_words_count2": "새 단어",
 	"review_ratio_tooltip": "복습 단어와 새 단어의 비율",
 	"review_ratio_notice_1": "학습이 완료되지 않았을 때, 복습 수는 설정된 복습 비율에 따라 생성됩니다. 0이면 복습 없음",
 	"review_ratio_notice_2": "학습 완료 후, 새 단어 수는 0으로 고정되고, 복습 수는 비율에 따라 생성됩니다(비율이 1 미만이면 1로 계산)",
@@ -508,5 +509,9 @@
 	"qa13_q1": "공식 WeChat 그룹에 가입하여 원하는 기능을 자세히 설명할 수 있습니다",
 	"qa13_q2": "애플리케이션에서 버그를 발견하면 문제를 재현하는 단계와 함께 자세한 설명을 제공해 주세요",
 	"qa13_q3": "지원 티켓을 제출할 수도 있습니다",
-	"qa13_q4": "github/issues에서도 제출할 수 있습니다"
+	"qa13_q4": "github/issues에서도 제출할 수 있습니다",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

@@ -277,6 +277,7 @@
 	"from_word": "From word",
 	"start_daily": ", daily",
 	"new_words": "new words",
+	"new_words_count2": "new words",
 	"review_ratio_tooltip": "Review to new word ratio",
 	"review_ratio_notice_1": "During learning, review count follows the ratio setting. 0 means no review.",
 	"review_ratio_notice_2": "After completion, new words are 0, review count follows ratio (min 1).",
@@ -508,5 +509,9 @@
 	"qa13_q1": "You can join our official WeChat group, describe in detail the features you want",
 	"qa13_q2": "If you find bugs in the application, please provide a detailed description and steps to reproduce, preferably with a short video",
 	"qa13_q3": "You can also submit a support ticket to us",
-	"qa13_q4": "You can also submit on github/issues"
+	"qa13_q4": "You can also submit on github/issues",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

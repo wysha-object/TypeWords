@@ -276,7 +276,8 @@
 	"days_to_complete": "Tage zum Abschluss",
 	"from_word": "Ab Wort",
 	"start_daily": ", täglich",
-	"new_words": "neue Wörter",
+	"new_words": "new words",
+	"new_words_count2": "neue Wörter",
 	"review_ratio_tooltip": "Verhältnis von Wiederholungswörtern zu neuen Wörtern",
 	"review_ratio_notice_1": "Wenn das Lernen nicht abgeschlossen ist, wird die Wiederholungsanzahl gemäß dem eingestellten Verhältnis generiert. Bei 0 keine Wiederholung",
 	"review_ratio_notice_2": "Nach Abschluss des Lernens ist die Anzahl neuer Wörter auf 0 festgelegt, die Wiederholungsanzahl wird gemäß Verhältnis generiert (wenn < 1, als 1 berechnet)",
@@ -508,5 +509,9 @@
 	"qa13_q1": "Sie können unserer offiziellen WeChat-Gruppe beitreten und die gewünschten Funktionen detailliert beschreiben",
 	"qa13_q2": "Wenn Sie Fehler in der Anwendung finden, geben Sie bitte eine detaillierte Beschreibung und Schritte zur Reproduktion an",
 	"qa13_q3": "Sie können uns auch ein Support-Ticket senden",
-	"qa13_q4": "Sie können auch auf github/issues einreichen"
+	"qa13_q4": "Sie können auch auf github/issues einreichen",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

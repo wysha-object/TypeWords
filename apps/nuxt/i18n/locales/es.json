@@ -276,7 +276,8 @@
 	"days_to_complete": "días para completar",
 	"from_word": "Comenzando desde la palabra",
 	"start_daily": ", diariamente",
-	"new_words": "palabras nuevas",
+	"new_words": "new words",
+	"new_words_count2": "palabras nuevas",
 	"review_ratio_tooltip": "Proporción de palabras de repaso a palabras nuevas",
 	"review_ratio_notice_1": "Cuando el aprendizaje no está completo, el conteo de repaso se genera según la proporción establecida. Si es 0, sin repaso",
 	"review_ratio_notice_2": "Después de completar el aprendizaje, el conteo de palabras nuevas se fija en 0, el conteo de repaso se genera según la proporción (si < 1, se calcula como 1)",
@@ -508,5 +509,9 @@
 	"qa13_q1": "Puede unirse a nuestro grupo oficial de WeChat, describir en detalle las funciones que desea",
 	"qa13_q2": "Si encuentra errores en la aplicación, proporcione una descripción detallada y los pasos para reproducir",
 	"qa13_q3": "También puede enviarnos un ticket de soporte",
-	"qa13_q4": "También puede enviar en github/issues"
+	"qa13_q4": "También puede enviar en github/issues",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

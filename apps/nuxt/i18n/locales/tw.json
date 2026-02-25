@@ -276,7 +276,8 @@
 	"days_to_complete": "天完成",
 	"from_word": "从第",
 	"start_daily": "個开始，每日",
-	"new_words": "個新詞",
+	"new_words": "新詞",
+	"new_words_count2": "個新詞",
 	"review_ratio_tooltip": "複習詞与新詞的比例",
 	"review_ratio_notice_1": "未完成學習時，複習數量按照設置的複習比生成，为0则不複習",
 	"review_ratio_notice_2": "完成學習后，新詞數量固定为0，複習數量按照比例生成（若複習比小于1，以 1 计算）",
@@ -508,5 +509,9 @@
 	"qa13_q1": "可以加入我们官方 微信 群, 詳細的描述您想要的功能以及告知这個功能想要解决的問題是什么",
 	"qa13_q2": "如果您在應用中發现了錯誤或漏洞，請提供詳細的描述和重现問題的步骤，當然最好提供一個小視頻",
 	"qa13_q3": "也可以给我们提工單",
-	"qa13_q4": "也可以去 github/issues 提交"
+	"qa13_q4": "也可以去 github/issues 提交",
+	"random_words_test": "随机单词测试",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

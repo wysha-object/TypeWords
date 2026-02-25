@@ -124,7 +124,6 @@
 	"continue_free_practice": "继续自由练习",
 	"smart_learning": "智能学习",
 	"review": "复习",
-	"random": "随机",
 	"random_review": "随机复习",
 	"my_dictionaries": "我的词典",
 	"manage_dict": "管理词典",
@@ -251,9 +250,6 @@
 	"disable_practice_setting_dialog": "不默认显示练习设置弹框",
 	"disable_practice_setting_dialog_desc": "在词典详情页面，点击学习按钮后，是否显示练习设置弹框",
 	"clear_input_on_error": "输入错误时，清空已输入内容",
-	"practice_sentence": "练习例句",	
-	"enable_fsrs": "启用FSRS",
-	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量",
 	"word_repeat_setting": "单词循环设置(仅跟写生效)",
 	"repeat_count": "循环次数",
 	"review_ratio": "复习比",
@@ -280,7 +276,8 @@
 	"days_to_complete": "天完成",
 	"from_word": "从第",
 	"start_daily": "个开始，每日",
-	"new_words": "个新词",
+	"new_words": "新词",
+	"new_words_count2": "个新词",
 	"review_ratio_tooltip": "复习词与新词的比例",
 	"review_ratio_notice_1": "未完成学习时，复习数量按照设置的复习比生成，为0则不复习",
 	"review_ratio_notice_2": "完成学习后，新词数量固定为0，复习数量按照比例生成（若复习比小于1，以 1 计算）",
@@ -512,5 +509,9 @@
 	"qa13_q1": "可以加入我们官方 微信 群, 详细的描述您想要的功能以及告知这个功能想要解决的问题是什么",
 	"qa13_q2": "如果您在应用中发现了错误或漏洞，请提供详细的描述和重现问题的步骤，当然最好提供一个小视频",
 	"qa13_q3": "也可以给我们提工单",
-	"qa13_q4": "也可以去 github/issues 提交"
+	"qa13_q4": "也可以去 github/issues 提交",
+	"random_words_test": "随机单词测试",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

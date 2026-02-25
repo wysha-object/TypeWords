@@ -95,7 +95,7 @@ export function useArticleOptions() {
 
 export function getCurrentStudyWord(): TaskWords {
   const store = useBaseStore()
-  console.log(store.fsrsData)
+  console.log('cardMap', store.fsrsData.cardMap)
   let data: TaskWords = { new: [], review: [] }
   let dict = store.sdict
   let isTest = false
@@ -106,6 +106,7 @@ export function getCurrentStudyWord(): TaskWords {
     })
   }
   if (words?.length) {
+    debugger
     const settingStore = useSettingStore()
     //忽略时是否加上自定义的简单词
     let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
@@ -117,6 +118,7 @@ export function getCurrentStudyWord(): TaskWords {
       start = 1
       complete = true
     }
+    //todo
     //如果已完成，并且记录在最后，那么直接随机取复习词
     if (complete && isEnd) {
       //复习比最小是1
@@ -139,7 +141,7 @@ export function getCurrentStudyWord(): TaskWords {
     }
 
     let end = start
-    let list = dict.words.slice(start)
+    let list = words.slice(start)
     //从start往后取perDay个单词，作为当前练习单词
     for (let item of list) {
       if (!ignoreList.includes(item.word.toLowerCase())) {
@@ -150,78 +152,111 @@ export function getCurrentStudyWord(): TaskWords {
       end++
     }
 
-    // debugger
-    if (settingStore.enableFSRS) {
-      // 已启用FSRS
-      let UnrecordWordQuotaLeft = perDay * settingStore.wordReviewRatio
-      let candidate = dict.words.slice(0, start).reverse()
-      //todo 这里也要查重，如果加入简单词，已掌握，就要删除
-      for (let word of candidate) {
-        UnrecordWordQuotaLeft--
-        let temp = word.word.toLowerCase()
-        let card: Card = store.fsrsData.cardMap[temp]
-        if (!card) {
-          card = createEmptyCard()
-          store.fsrsData.cardMap[temp] = card
-          data.review.push(word)
-          continue
-        }
 
-        let due = card.due
-        //这里的due字段被json序列化之后又恢复是字符串了
-        if (dayjs(due).valueOf() >= Date.now()) {
-          data.review.push(word)
-        }
-      }
-    } else {
-      //如果复习比大于等于1，或者已完成，那么就取复习词
-      if (settingStore.wordReviewRatio >= 1 || complete) {
+    //如果复习比大于等于1，或者已完成，才生成复习词
+    if (settingStore.wordReviewRatio >= 1 || complete) {
+      //Map建立索引，用于查找、包含
+      const wordMap = new Map(words.map(s => [s.word, s]))
+      //复习总数量
+      const totalNeed = perDay * settingStore.wordReviewRatio
+      const now = Date.now()
+
+      //取 due 到期的单词
+      let reviewWords = Object.entries(store.fsrsData.cardMap)
+        .filter(([word, card]) => {
+          //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
+          //2、要在当前学习这本词典里面
+          return dayjs(card.due).valueOf() <= now && wordMap.has(word)
+        })
+        .map(([word]) => word)
+
+      if (reviewWords.length >= totalNeed) {
+        // 复习单词足够
+        //截取，不能无限制的复习，一下复习几千个太吓人了
+        data.review = reviewWords
+          .slice(0, totalNeed)
+          .map(word => wordMap.get(word))
+          .filter(obj => obj)
+      } else {
+        // 复习单词不够，需要补充，先填充上次学习的，即perDay
+
+        //忽略列表：简单词或已掌握
+        let ignoreSet = [store.allIgnoreWordsSet, store.knownWordsSet][settingStore.ignoreSimpleWord ? 0 : 1]
+
+        const selected = new Set(reviewWords)
+        const result = reviewWords.map(word => wordMap.get(word))
+        // 从start往前取新单词
+        let index = 0
         //从start往前取perDay个单词，作为当前复习单词，取到0为止
-        list = dict.words.slice(0, start).reverse()
+        list = words.slice(0, start).reverse()
         //但如果已完成，则滚动取值
-        if (complete) list = list.concat(dict.words.slice(end).reverse())
-        for (let item of list) {
-          if (!ignoreList.includes(item.word.toLowerCase())) {
-            if (data.review.length < perDay) {
-              data.review.push(item)
-            } else break
+        if (complete) list = list.concat(words.slice(end).reverse())
+        //第一次取值，最大只取perDay个，并且顺序取值：即取上次学习的
+        let maxLength = Math.min(selected.size + perDay, totalNeed)
+        while (result.length < maxLength && index < list.length) {
+          const word = list[index]
+          //判断：1、不在已有的数组里面，2、不在忽略列表里面
+          let wordStr = word.word
+          if (!selected.has(wordStr) && !ignoreSet.has(wordStr)) {
+            selected.add(wordStr)
+            result.push(word)
           }
-          start--
+          index++
         }
-      }
 
-      // 上上次更早的单词
-      //默认只取start之前的单词
-      if (settingStore.wordReviewRatio >= 2) {
-        let candidateWords = dict.words.slice(0, start).reverse()
-        //但如果已完成，则滚动取值
-        if (complete) candidateWords = candidateWords.concat(dict.words.slice(end).reverse())
-        candidateWords = candidateWords.filter(w => !ignoreList.includes(w.word.toLowerCase()))
-        // console.log(candidateWords.map(v => v.word))
-        //最终要获取的单词数量
-        const totalNeed = perDay * (settingStore.wordReviewRatio - 1)
-        if (candidateWords.length <= totalNeed) {
-          data.review = data.review.concat(candidateWords)
-        } else {
-          //write数组放的是上上次之前的单词，总的数量为perDayStudyNumber * 3，取单词的规则为：从后往前取6个perDayStudyNumber的，越靠前的取的单词越多。
-          let days = 6
-          // 分6组，每组最多 perDay 个
-          const groups: Word[][] = splitIntoN(candidateWords.slice(0, days * perDay), 6)
-          // console.log('groups', groups)
+        //如果单词还不够，则继续填充直接totalNeed为止
+        if (result.length < totalNeed) {
+          //如果单词不够，说明已取到0了
+          if (index >= list.length) {
+            //如果没学完，那真没单词可取了，直接返回
+            if (!complete) {
+              data.review = result
+              return data
+            }
+          }
+          //但如果已完成，则滚动取值
+          if (complete) list = list.concat(words.slice(end).reverse())
+          //还需填充的数量
+          maxLength = totalNeed - result.length
+          let candidateWords = list.slice(index)
+          if (candidateWords.length <= maxLength) {
+            data.review = result.concat(shuffle(candidateWords))
+          } else {
+            //取单词的规则为：从后往前取6个perDayStudyNumber的单词，分6组，总的取maxLength个，越靠前的取的单词越多。
+            let days = 6
+            let sourceLength = days * perDay
+            let waitList = []
+            index = 0
+            while (waitList.length < sourceLength && index < candidateWords.length) {
+              const word = candidateWords[index]
+              //判断：1、不在已有的数组里面，2、不在忽略列表里面
+              let wordStr = word.word
+              if (!selected.has(wordStr) && !ignoreSet.has(wordStr)) {
+                selected.add(wordStr)
+                waitList.push(word)
+              }
+              index++
+            }
 
-          // 分配数量，靠前组多，靠后组少，例如分配比例 [6,5,4,3,2,1]
-          const ratio = Array.from({ length: days }, (_, i) => i + 1).reverse()
-          const ratioSum = ratio.reduce((a, b) => a + b, 0)
-          const realRatio = ratio.map(r => Math.round((r / ratioSum) * totalNeed))
-          // console.log(ratio, ratioSum, realRatio, realRatio.reduce((a, b) => a + b, 0))
+            //分成6组，因为有可能不均
+            const groups: Word[][] = splitIntoN(waitList, days)
+            // console.log('groups', groups)
 
-          // 按比例从每组随机取单词
-          let writeWords: Word[] = []
-          groups.map((v, i) => {
-            writeWords = writeWords.concat(getRandomN(v, realRatio[i]))
-          })
-          // console.log('writeWords', writeWords)
-          data.review = data.review.concat(writeWords)
+            // 分配数量，靠前组多，靠后组少，例如分配比例 [6,5,4,3,2,1]
+            const ratio = Array.from({ length: days }, (_, i) => i + 1).reverse()
+            const ratioSum = ratio.reduce((a, b) => a + b, 0)
+            const realRatio = ratio.map(r => Math.round((r / ratioSum) * maxLength))
+            // console.log(ratio, ratioSum, realRatio, realRatio.reduce((a, b) => a + b, 0))
+
+            // 按比例从每组随机取单词
+            let writeWords: Word[] = []
+            groups.map((v, i) => {
+              //todo 算法有问题
+              writeWords = writeWords.concat(getRandomN(v, realRatio[i]))
+            })
+            // console.log('writeWords', writeWords)
+            data.review = data.review.concat(writeWords)
+          }
         }
       }
     }

@@ -276,7 +276,8 @@
 	"days_to_complete": "日で完了",
 	"from_word": "単語から開始",
 	"start_daily": "、毎日",
-	"new_words": "新しい単語",
+	"new_words": "new words",
+	"new_words_count2": "新しい単語",
 	"review_ratio_tooltip": "復習単語と新単語の比率",
 	"review_ratio_notice_1": "学習未完了時、復習数は設定した復習比率に従って生成されます。0の場合は復習なし",
 	"review_ratio_notice_2": "学習完了後、新単語数は0に固定され、復習数は比率に従って生成されます（比率が1未満の場合は1として計算）",
@@ -508,5 +509,9 @@
 	"qa13_q1": "公式WeChatグループに参加して、欲しい機能を詳しく説明できます",
 	"qa13_q2": "アプリケーションでバグを見つけた場合は、詳細な説明と問題を再現する手順を提供してください。できれば短いビデオも添えてください",
 	"qa13_q3": "サポートチケットを提出することもできます",
-	"qa13_q4": "github/issuesでも提出できます"
+	"qa13_q4": "github/issuesでも提出できます",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

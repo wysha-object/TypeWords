@@ -1,6 +1,10 @@
 <script setup lang="ts">
 let logList = [
   {
+    date: '2026/02/24',
+    content: '添加 Docker 支持',
+  },
+  {
     date: '2026/02/10',
     content: '练习界面添加提示、优化引导',
   },

@@ -8,7 +8,7 @@ import BasePage from '@/components/BasePage.vue'
 import Book from '@/components/Book.vue'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
 import PopConfirm from '@/components/PopConfirm.vue'
-import { APP_NAME, AppEnv, DICT_LIST, Host, LIB_JS_URL, TourConfig } from '@/config/env.ts'
+import { APP_NAME, AppEnv, DICT_LIST, Host, LIB_JS_URL, Origin, TourConfig } from '@/config/env.ts'
 import { useBaseStore } from '@/stores/base.ts'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
@@ -218,10 +218,10 @@ onMounted(() => {
 
 <template>
   <BasePage>
-    <div class="mb-4" v-if="!isNewHost">
-      新域名已启用，后续请访问
-      <a href="https://typewords.cc/words?from_old_site=1">https://typewords.cc</a> 当前 2study.top
-      域名将在不久后停止使用
+    <div class="my-50 text-2xl text-red" v-if="!isNewHost">
+      已启用新域名
+      <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
+      >当前 2study.top 域名将在不久后停止使用
     </div>
 
     <div class="card flex flex-col md:flex-row justify-between gap-space p-4 md:p-6">
@@ -316,7 +316,9 @@ onMounted(() => {
           >
             {{ isMultiple ? $t('cancel') : $t('manage_books') }}
           </div>
-          <div class="color-link cursor-pointer" @click="nav('/book', { isAdd: true })">{{ $t('create_personal_book') }}</div>
+          <div class="color-link cursor-pointer" @click="nav('/book', { isAdd: true })">
+            {{ $t('create_personal_book') }}
+          </div>
         </div>
       </div>
       <div class="flex gap-4 flex-wrap mt-4">

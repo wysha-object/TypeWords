@@ -88,8 +88,8 @@ export const getDefaultBaseState = (): BaseState => ({
   },
   dictListVersion: 1,
   fsrsData: {
-    cardMap: {}
-  }
+    cardMap: {},
+  },
 })
 
 export const useBaseStore = defineStore('base', {
@@ -116,6 +116,12 @@ export const useBaseStore = defineStore('base', {
       return this.known.words
         .map((v: Word) => v.word.toLowerCase())
         .concat(this.simpleWords.map((v: string) => v.toLowerCase()))
+    },
+    knownWordsSet(): Set<string> {
+      return new Set<string>(this.known.words.map((v: Word) => v.word))
+    },
+    allIgnoreWordsSet() {
+      return new Set<string>(this.known.words.map((v: Word) => v.word).concat(this.simpleWords.map((v: string) => v)))
     },
     sdict(): Dict {
       if (this.word.studyIndex >= 0) {

@@ -276,7 +276,8 @@
 	"days_to_complete": "ngày để hoàn thành",
 	"from_word": "Bắt đầu từ từ",
 	"start_daily": ", hàng ngày",
-	"new_words": "từ mới",
+	"new_words": "new words",
+	"new_words_count2": "từ mới",
 	"review_ratio_tooltip": "Tỷ lệ từ ôn tập với từ mới",
 	"review_ratio_notice_1": "Khi học chưa hoàn thành, số lượng ôn tập được tạo theo tỷ lệ đã đặt. Nếu 0, không ôn tập",
 	"review_ratio_notice_2": "Sau khi hoàn thành học, số từ mới cố định là 0, số ôn tập được tạo theo tỷ lệ (nếu < 1, tính là 1)",
@@ -508,5 +509,9 @@
 	"qa13_q1": "Bạn có thể tham gia nhóm WeChat chính thức của chúng tôi, mô tả chi tiết các tính năng bạn muốn",
 	"qa13_q2": "Nếu bạn tìm thấy lỗi trong ứng dụng, vui lòng cung cấp mô tả chi tiết và các bước để tái tạo",
 	"qa13_q3": "Bạn cũng có thể gửi yêu cầu hỗ trợ cho chúng tôi",
-	"qa13_q4": "Bạn cũng có thể gửi trên github/issues"
+	"qa13_q4": "Bạn cũng có thể gửi trên github/issues",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

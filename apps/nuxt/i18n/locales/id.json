@@ -276,7 +276,8 @@
 	"days_to_complete": "hari untuk menyelesaikan",
 	"from_word": "Mulai dari kata",
 	"start_daily": ", harian",
-	"new_words": "kata baru",
+	"new_words": "new words",
+	"new_words_count2": "kata baru",
 	"review_ratio_tooltip": "Rasio kata ulasan ke kata baru",
 	"review_ratio_notice_1": "Ketika pembelajaran belum selesai, jumlah ulasan dibuat sesuai rasio yang ditetapkan. Jika 0, tidak ada ulasan",
 	"review_ratio_notice_2": "Setelah menyelesaikan pembelajaran, jumlah kata baru ditetapkan 0, jumlah ulasan dibuat sesuai rasio (jika < 1, dihitung sebagai 1)",
@@ -508,5 +509,9 @@
 	"qa13_q1": "Anda dapat bergabung dengan grup WeChat resmi kami, jelaskan secara detail fitur yang Anda inginkan",
 	"qa13_q2": "Jika Anda menemukan bug dalam aplikasi, harap berikan deskripsi terperinci dan langkah-langkah untuk mereproduksi",
 	"qa13_q3": "Anda juga dapat mengirimkan tiket dukungan kepada kami",
-	"qa13_q4": "Anda juga dapat mengirimkan di github/issues"
+	"qa13_q4": "Anda juga dapat mengirimkan di github/issues",
+	"random_words_test": "random words test",
+	"practice_sentence": "练习例句",
+	"enable_fsrs": "启用FSRS",
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
 }

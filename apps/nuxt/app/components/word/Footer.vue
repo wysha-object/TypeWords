@@ -68,17 +68,14 @@ const stages = $computed(() => {
       [WordPracticeStage.IdentifyReview]: { stageIndex: 1, childIndex: 0 },
       [WordPracticeStage.ListenReview]: { stageIndex: 1, childIndex: 1 },
       [WordPracticeStage.DictationReview]: { stageIndex: 1, childIndex: 2 },
-      [WordPracticeStage.IdentifyReviewAll]: { stageIndex: 2, childIndex: 0 },
-      [WordPracticeStage.ListenReviewAll]: { stageIndex: 2, childIndex: 1 },
-      [WordPracticeStage.DictationReviewAll]: { stageIndex: 2, childIndex: 2 },
     }
 
+    console.log('statStore.stage',statStore.stage)
     // 获取当前阶段的配置
     const currentStageConfig = stageMap[statStore.stage]
     if (!currentStageConfig) {
-      return stages
+      return [DEFAULT_BAR]
     }
-
     const { stageIndex, childIndex } = currentStageConfig
     const currentProgress = (practiceData.index / practiceData.words.length) * 100
 
@@ -90,19 +87,13 @@ const stages = $computed(() => {
       const stages = [
         {
           name: `新词：${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`,
-          ratio: 33,
+          ratio: 49,
           percentage: 0,
           active: false,
         },
         {
-          name: `上次学习：${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`,
-          ratio: 33,
-          percentage: 0,
-          active: false,
-        },
-        {
-          name: `之前学习：${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`,
-          ratio: 33,
+          name: `复习：${WordPracticeModeNameMap[settingStore.wordPracticeMode]}`,
+          ratio: 49,
           percentage: 0,
           active: false,
         },
@@ -111,13 +102,12 @@ const stages = $computed(() => {
       // 设置已完成阶段的百分比和比例
       for (let i = 0; i < stageIndex; i++) {
         stages[i].percentage = 100
-        stages[i].ratio = 33
+        stages[i].ratio = 49
       }
 
       // 设置当前激活的阶段
       stages[stageIndex].active = true
       stages[stageIndex].percentage = (practiceData.index / practiceData.words.length) * 100
-
       return stages
     } else {
       // 阶段配置：定义每个阶段组的基础信息
@@ -125,17 +115,20 @@ const stages = $computed(() => {
         {
           name: '新词',
           ratio: 70,
-          children: [{ name: '新词：跟写' }, { name: '新词：听写' }, { name: '新词：默写' }],
+          children: [
+            { name: WordPracticeStageNameMap[WordPracticeStage.FollowWriteNewWord] },
+            { name: WordPracticeStageNameMap[WordPracticeStage.ListenNewWord] },
+            { name: WordPracticeStageNameMap[WordPracticeStage.DictationNewWord] },
+          ],
         },
         {
-          name: '上次学习：复习',
-          ratio: 15,
-          children: [{ name: '上次学习：自测' }, { name: '上次学习：听写' }, { name: '上次学习：默写' }],
-        },
-        {
-          name: '之前学习：复习',
-          ratio: 15,
-          children: [{ name: '之前学习：自测' }, { name: '之前学习：听写' }, { name: '之前学习：默写' }],
+          name: '复习',
+          ratio: 30,
+          children: [
+            { name: WordPracticeStageNameMap[WordPracticeStage.IdentifyReview] },
+            { name: WordPracticeStageNameMap[WordPracticeStage.ListenReview] },
+            { name: WordPracticeStageNameMap[WordPracticeStage.DictationReview] },
+          ],
         },
       ]
 
@@ -156,7 +149,7 @@ const stages = $computed(() => {
       // 设置已完成阶段的百分比和比例
       for (let i = 0; i < stageIndex; i++) {
         stages[i].percentage = 100
-        stages[i].ratio = 15
+        stages[i].ratio = 30
       }
 
       // 设置当前激活的阶段
@@ -193,8 +186,7 @@ const stages = $computed(() => {
       }
       if (settingStore.wordPracticeMode === WordPracticeMode.Review) {
         stages.shift()
-        if (stageIndex === 1) stages[1].ratio = 30
-        if (stageIndex === 2) stages[0].ratio = 30
+        if (stageIndex === 1) stages[0].ratio = 100
 
         console.log('stages', stages, childIndex)
 
@@ -279,7 +271,8 @@ const stages = $computed(() => {
                   <IconFluentStar16Filled v-else />
                   <span>
                     {{
-                      (!isCollect ? $t('collect') : $t('uncollect')) + `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
+                      (!isCollect ? $t('collect') : $t('uncollect')) +
+                      `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
                     }}</span
                   >
                 </div>

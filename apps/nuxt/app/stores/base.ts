@@ -88,7 +88,7 @@ export const getDefaultBaseState = (): BaseState => ({
   },
   dictListVersion: 1,
   fsrsData: {
-    cardMap: new Map()
+    cardMap: {}
   }
 })
 

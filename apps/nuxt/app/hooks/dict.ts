@@ -9,7 +9,8 @@ import { detail } from '@/apis'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { DictType } from '@/types/enum.ts'
-import { createEmptyCard, FSRS } from 'ts-fsrs'
+import dayjs from 'dayjs'
+import { type Card, createEmptyCard, FSRS } from 'ts-fsrs'
 
 export function useWordOptions() {
   const store = useBaseStore()
@@ -95,7 +96,7 @@ export function useArticleOptions() {
 export function getCurrentStudyWord(): TaskWords {
   const store = useBaseStore()
   console.log(store.fsrsData)
-  let data: TaskWords = { new: [], review: []}
+  let data: TaskWords = { new: [], review: [] }
   let dict = store.sdict
   let isTest = false
   let words = dict.words.slice()
@@ -149,22 +150,25 @@ export function getCurrentStudyWord(): TaskWords {
       end++
     }
 
-    if (settingStore.enableFSRS) {// 已启用FSRS
+    debugger
+    if (settingStore.enableFSRS) {
+      // 已启用FSRS
       let UnrecordWordQuotaLeft = perDay * settingStore.wordReviewRatio
       let candidate = dict.words.slice(0, start).reverse()
       for (let word of candidate) {
         UnrecordWordQuotaLeft--
         let temp = word.word.toLowerCase()
-        let card = store.fsrsData.cardMap[temp]
+        let card: Card = store.fsrsData.cardMap[temp]
         if (!card) {
-          card = createEmptyCard();
+          card = createEmptyCard()
           store.fsrsData.cardMap[temp] = card
           data.review.push(word)
           continue
         }
 
         let due = card.due
-        if (due >= Date.now()) {
+        //这里json序列化之后是字符串了
+        if (dayjs(due).valueOf() >= Date.now()) {
           data.review.push(word)
         }
       }
@@ -172,26 +176,54 @@ export function getCurrentStudyWord(): TaskWords {
       //如果复习比大于等于1，或者已完成，那么就取复习词
       if (settingStore.wordReviewRatio >= 1 || complete) {
         //从start往前取perDay个单词，作为当前复习单词，取到0为止
-        let list = dict.words.slice(0, start).reverse()
+        list = dict.words.slice(0, start).reverse()
         //但如果已完成，则滚动取值
         if (complete) list = list.concat(dict.words.slice(end).reverse())
         for (let item of list) {
           if (!ignoreList.includes(item.word.toLowerCase())) {
-            if (data.review.length < perDay * settingStore.wordReviewRatio) {
+            if (data.review.length < perDay) {
               data.review.push(item)
             } else break
           }
           start--
         }
       }
-    }
 
-    // //如果是自由模式，那么统统设置到new字段里面去
-    // if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
-    //   data.new = data.new.length ? data.new : data.review
-    //   data.review = []
-    //   return data
-    // }
+      // 上上次更早的单词
+      //默认只取start之前的单词
+      if (settingStore.wordReviewRatio >= 2) {
+        let candidateWords = dict.words.slice(0, start).reverse()
+        //但如果已完成，则滚动取值
+        if (complete) candidateWords = candidateWords.concat(dict.words.slice(end).reverse())
+        candidateWords = candidateWords.filter(w => !ignoreList.includes(w.word.toLowerCase()))
+        // console.log(candidateWords.map(v => v.word))
+        //最终要获取的单词数量
+        const totalNeed = perDay * (settingStore.wordReviewRatio - 1)
+        if (candidateWords.length <= totalNeed) {
+          data.review = data.review.concat(candidateWords)
+        } else {
+          //write数组放的是上上次之前的单词，总的数量为perDayStudyNumber * 3，取单词的规则为：从后往前取6个perDayStudyNumber的，越靠前的取的单词越多。
+          let days = 6
+          // 分6组，每组最多 perDay 个
+          const groups: Word[][] = splitIntoN(candidateWords.slice(0, days * perDay), 6)
+          // console.log('groups', groups)
+
+          // 分配数量，靠前组多，靠后组少，例如分配比例 [6,5,4,3,2,1]
+          const ratio = Array.from({ length: days }, (_, i) => i + 1).reverse()
+          const ratioSum = ratio.reduce((a, b) => a + b, 0)
+          const realRatio = ratio.map(r => Math.round((r / ratioSum) * totalNeed))
+          // console.log(ratio, ratioSum, realRatio, realRatio.reduce((a, b) => a + b, 0))
+
+          // 按比例从每组随机取单词
+          let writeWords: Word[] = []
+          groups.map((v, i) => {
+            writeWords = writeWords.concat(getRandomN(v, realRatio[i]))
+          })
+          // console.log('writeWords', writeWords)
+          data.review = data.review.concat(writeWords)
+        }
+      }
+    }
   }
   // console.log('data-new', data.new.map(v => v.word))
   // console.log('data-review', data.review.map(v => v.word))

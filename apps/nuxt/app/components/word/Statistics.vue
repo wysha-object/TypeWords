@@ -150,8 +150,7 @@ calcWeekList() // 新增：计算本周学习记录
         <div
           class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent"
         >
-          <template v-if="practiceTaskWords.review.length"> 🎯 {{ $t('review_complete') }} </template>
-          <template v-else> 🎉 {{ $t('daily_task_complete') }} </template>
+          <div> 🎉 {{ $t('daily_task_complete') }} </div>
         </div>
         <p class="font-medium text-lg">{{ encouragementText }}</p>
       </div>

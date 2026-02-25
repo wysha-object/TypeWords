@@ -32,7 +32,7 @@ import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
 import ConflictNotice2 from '~/components/ConflictNotice2.vue'
-import { FSRS } from 'ts-fsrs'
+import { createEmptyCard, FSRS } from 'ts-fsrs'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -376,16 +376,23 @@ function complete() {
     }
   }
 
+  console.log('wrongTimesMap', wrongTimesMap)
   wrongTimesMap.forEach((value, key) => {
+    console.log(`m[${key}] = ${value}`)
     let grade = getGradeByWrongTimes(value)
-    let fsrs = new FSRS({});
-    
+    let fsrs = new FSRS({})
+
     let card = store.fsrsData.cardMap[key]
-    card = fsrs.next(card, Date.now(), grade).card
-    store.fsrsData.cardMap.set(key, card)
+    if (!card) {
+      card = createEmptyCard()
+    } else {
+      card = fsrs.next(card, Date.now(), grade).card
+    }
+    store.fsrsData.cardMap[key] = card
   })
-  
+
   showStatDialog = true
+  completeLock = false
   clearInterval(timer)
   setTimeout(() => setPracticeWordCache(null), 300)
 }
@@ -395,23 +402,11 @@ let wrongTimesMap: Map<string, number> = new Map()
 
 async function next(isTyping: boolean = true) {
   debugger
-  savePracticeData()
   let temp = word.word.toLowerCase()
-  wrongTimesMap[temp] = wrongTimesMap[temp] + wrongTimes
-  if (wrongTimes > 0) {
-    if (!allWrongWords.has(word.word.toLowerCase())) {
-      allWrongWords.add(word.word.toLowerCase())
-      statStore.wrong++
-    }
-    if (!store.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
-      store.wrong.words.push(word)
-      store.wrong.length = store.wrong.words.length
-    }
-    if (!data.wrongWords.find((v: Word) => v.word.toLowerCase() === temp)) {
-      data.wrongWords.push(word)
-    }
+  if (wrongTimes){
+    wrongTimesMap.set(temp, (wrongTimesMap.get(temp) ?? 0) + wrongTimes)
+    wrongTimes = 0
   }
-  wrongTimes = 0
   if (isTyping) statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     if (data.index === data.words.length - 1) {
@@ -465,7 +460,7 @@ async function next(isTyping: boolean = true) {
           } else if (statStore.stage === WordPracticeStage.ListenNewWord) {
             nextStage(shuffle(taskWords.new), '开始默写新词')
           } else if (statStore.stage === WordPracticeStage.DictationNewWord) {
-            nextStage(taskWords.review, '开始自测新词')
+            nextStage(taskWords.review, '开始自测旧词')
           } else if (statStore.stage === WordPracticeStage.IdentifyReview) {
             nextStage(shuffle(taskWords.review), '开始听写旧词', true)
           } else if (statStore.stage === WordPracticeStage.ListenReview) {
@@ -475,12 +470,12 @@ async function next(isTyping: boolean = true) {
           }
         } else if (settingStore.wordPracticeMode === WordPracticeMode.ListenOnly) {
           if (statStore.stage === WordPracticeStage.ListenNewWord) {
-            nextStage(taskWords.review, '开始听写', true)
+            nextStage(taskWords.review, '开始听写旧词', true)
           } else if (statStore.stage === WordPracticeStage.ListenReview) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.DictationOnly) {
           if (statStore.stage === WordPracticeStage.DictationNewWord) {
             nextStage(taskWords.review, '开始默写旧词', true)
-          } else if (statStore.stage === WordPracticeStage.DictationReview)  complete()
+          } else if (statStore.stage === WordPracticeStage.DictationReview) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.IdentifyOnly) {
           if (statStore.stage === WordPracticeStage.IdentifyNewWord) {
             nextStage(taskWords.review, '开始自测旧词')
@@ -489,9 +484,9 @@ async function next(isTyping: boolean = true) {
           if (statStore.stage === WordPracticeStage.Shuffle) complete()
         } else if (settingStore.wordPracticeMode === WordPracticeMode.Review) {
           if (statStore.stage === WordPracticeStage.IdentifyReview) {
-            nextStage(shuffle(taskWords.review), '开始听写昨日', true)
+            nextStage(shuffle(taskWords.review), '开始听写旧词', true)
           } else if (statStore.stage === WordPracticeStage.ListenReview) {
-            nextStage(shuffle(taskWords.review), '开始默写昨日')
+            nextStage(shuffle(taskWords.review), '开始默写旧词')
           } else if (statStore.stage === WordPracticeStage.DictationReview) complete()
         }
       }
@@ -524,20 +519,32 @@ function onWordKnow() {
 
 let wrongTimes = 0
 function onTypeWrong() {
+  //这里的代码暂时不能移动，因为要实时把错词加入到列表里面，从而更新toolbar里面的错词数
+  //todo 后续可以优化
+  let temp = word.word.toLowerCase()
+  if (!allWrongWords.has(word.word.toLowerCase())) {
+    allWrongWords.add(word.word.toLowerCase())
+    statStore.wrong++
+  }
+  if (!store.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
+    store.wrong.words.push(word)
+    store.wrong.length = store.wrong.words.length
+  }
+  if (!data.wrongWords.find((v: Word) => v.word.toLowerCase() === temp)) {
+    data.wrongWords.push(word)
+  }
+  savePracticeData()
   wrongTimes++
 }
 
-function savePracticeData() {
-  throttle(() => {
-    setPracticeWordCache({
-      taskWords,
-      practiceData: data,
-      statStoreData: statStore.$state,
-      wrongTimesMap: wrongTimesMap,
-    })
-  }, 300)
-  
-}
+const savePracticeData = throttle(() => {
+  setPracticeWordCache({
+    taskWords,
+    practiceData: data,
+    statStoreData: statStore.$state,
+    wrongTimesMap: wrongTimesMap,
+  })
+}, 300)
 
 watch(() => data.index, savePracticeData)
 
@@ -570,7 +577,6 @@ function repeat() {
     store.sdict.lastLearnIndex = store.sdict.lastLearnIndex - statStore.newWordNumber
     //排除已掌握单词
     temp.new = temp.new.filter(v => !ignoreList.includes(v.word))
-    temp.review = temp.review.filter(v => !ignoreList.includes(v.word))
     temp.review = temp.review.filter(v => !ignoreList.includes(v.word))
   }
   emitter.emit(EventKey.resetWord)

@@ -71,7 +71,6 @@
     "edgeone": "^1.2.27",
     "esm": "^3.2.25",
     "git-last-commit": "^1.0.1",
-    "gulp": "^4.0.2",
     "husky": "^8.0.3",
     "prettier": "^3.7.4",
     "rollup-plugin-visualizer": "^5.14.0",
@@ -88,6 +87,9 @@
     "vite-plugin-externals": "^0.6.2",
     "vue-macros": "^3.1.1",
     "vue-tsc": "^3.0.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "gulp": "^5.0.1",
+    "through2": "^4.0.2",
+    "vinyl": "^3.0.1"
   }
 }

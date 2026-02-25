@@ -152,5 +152,5 @@ export interface TaskWords {
 }
 
 export interface FSRSData {
-  cardMap: Map<string, Card>
+  cardMap: Record<string, Card>
 }

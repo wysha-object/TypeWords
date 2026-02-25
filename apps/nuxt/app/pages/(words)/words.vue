@@ -470,7 +470,7 @@ const systemPracticeText = $computed(() => {
                 :disabled="store.sdict.lastLearnIndex < 10 && !store.sdict.complete"
                 @click="startPractice(WordPracticeMode.ShuffleWordsTest, true)"
               >
-                {{ $t('random') }}{{ $t('words') }}{{ $t('test') }}
+                {{ $t('random_words_test') }}
               </BaseButton>
 
               <!--              <BaseButton-->

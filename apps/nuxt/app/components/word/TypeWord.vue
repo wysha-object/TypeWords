@@ -174,7 +174,7 @@ function unknown(e) {
 let currentPracticeSentenceIndex = $ref(-1)
 
 async function onTyping(e: KeyboardEvent) {
-  debugger
+  // debugger
   let target
   let targetVolumeIcon
   if (isTypingSentence()) {

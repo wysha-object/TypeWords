@@ -150,11 +150,12 @@ export function getCurrentStudyWord(): TaskWords {
       end++
     }
 
-    debugger
+    // debugger
     if (settingStore.enableFSRS) {
       // 已启用FSRS
       let UnrecordWordQuotaLeft = perDay * settingStore.wordReviewRatio
       let candidate = dict.words.slice(0, start).reverse()
+      //todo 这里也要查重，如果加入简单词，已掌握，就要删除
       for (let word of candidate) {
         UnrecordWordQuotaLeft--
         let temp = word.word.toLowerCase()
@@ -167,7 +168,7 @@ export function getCurrentStudyWord(): TaskWords {
         }
 
         let due = card.due
-        //这里json序列化之后是字符串了
+        //这里的due字段被json序列化之后又恢复是字符串了
         if (dayjs(due).valueOf() >= Date.now()) {
           data.review.push(word)
         }

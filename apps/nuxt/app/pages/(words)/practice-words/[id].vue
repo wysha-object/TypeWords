@@ -377,17 +377,16 @@ function complete() {
   }
 
   console.log('wrongTimesMap', wrongTimesMap)
+  let fsrs = new FSRS({})
+  debugger
   wrongTimesMap.forEach((value, key) => {
-    console.log(`m[${key}] = ${value}`)
+    //根据错误次数生成评级
     let grade = getGradeByWrongTimes(value)
-    let fsrs = new FSRS({})
-
     let card = store.fsrsData.cardMap[key]
     if (!card) {
       card = createEmptyCard()
-    } else {
-      card = fsrs.next(card, Date.now(), grade).card
     }
+    card = fsrs.next(card, Date.now(), grade).card
     store.fsrsData.cardMap[key] = card
   })
 
@@ -401,7 +400,7 @@ function complete() {
 let wrongTimesMap: Map<string, number> = new Map()
 
 async function next(isTyping: boolean = true) {
-  debugger
+  // debugger
   let temp = word.word.toLowerCase()
   if (wrongTimes){
     wrongTimesMap.set(temp, (wrongTimesMap.get(temp) ?? 0) + wrongTimes)

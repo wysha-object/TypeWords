@@ -7,6 +7,7 @@ import { get, set } from 'idb-keyval'
 import { AppEnv, DictId } from '~/config/env.ts'
 import { shakeCommonDict } from '@/utils/index.ts'
 import { APP_VERSION, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env.ts'
+import { Supabase } from '~/utils/supabase.ts'
 
 let unsub = null
 let unsub2 = null
@@ -19,6 +20,7 @@ export function useInit() {
   let lastAudioFileIdList = []
   let isInitializing = true // 标记是否正在初始化
 
+
   //init 有可能重复执行，因为从老网站导了数据之后需要 init
   async function init() {
     unsub?.()
@@ -26,9 +28,10 @@ export function useInit() {
     unsub = store.$subscribe((mutation, n) => {
       // 如果正在初始化，不保存数据，避免覆盖
       if (isInitializing) return
-      // console.log('store.$subscribe', mutation, n)
+      console.log('store.$subscribe', mutation, n)
       let data = shakeCommonDict(n)
       set(SAVE_DICT_KEY.key, JSON.stringify({ val: data, version: SAVE_DICT_KEY.version }))
+      Supabase.getInstance().from('words').upsert({ id: '1', data }).then()
 
       //筛选自定义和收藏
       let bookList = data.article.bookList.filter(v => v.custom || [DictId.articleCollect].includes(v.id))
@@ -61,8 +64,10 @@ export function useInit() {
     unsub2?.()
     unsub2 = settingStore.$subscribe((mutation, state) => {
       if (isInitializing) return
-      // console.log('settingStore.$subscribe', mutation, state)
+      console.log('settingStore.$subscribe', mutation, state)
+
       set(SAVE_SETTING_KEY.key, JSON.stringify({ val: state, version: SAVE_SETTING_KEY.version }))
+      Supabase.getInstance().from('setting').upsert({ id: '1', data: state }).then()
       if (AppEnv.CAN_REQUEST) {
         syncSetting(null, settingStore.$state)
       }
@@ -71,6 +76,17 @@ export function useInit() {
     await userStore.init()
     await store.init()
     await settingStore.init()
+
+    if (Supabase.can_req) {
+      const { data } = await Supabase.getInstance()?.from('words').select()
+      if (data?.length) {
+        store.setState(data[0].data)
+      }
+      const { data: settingData } = await Supabase.getInstance()?.from('setting').select()
+      if (settingData?.length) {
+        settingStore.setState(settingData[0].data)
+      }
+    }
     store.load = true
     isInitializing = false // 初始化完成，允许保存数据
 

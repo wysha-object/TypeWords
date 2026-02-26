@@ -21,18 +21,17 @@ import { useBaseStore } from '@/stores/base.ts'
 import { usePracticeStore } from '@/stores/practice.ts'
 import Toast from '@/components/base/toast/Toast.ts'
 import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
-import ConflictNotice from '@/components/ConflictNotice.vue'
+import ConflictNotice from '~/components/dialog/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 
 import { AppEnv, DICT_LIST, IS_DEV, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
-import type { ToastInstance } from '@/components/base/toast/type.ts'
 import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
 import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
-import ConflictNotice2 from '~/components/ConflictNotice2.vue'
-import { createEmptyCard, FSRS, Grade, Rating } from 'ts-fsrs'
+import ConflictNotice2 from '~/components/dialog/ConflictNotice2.vue'
+import { createEmptyCard, FSRS, Rating } from 'ts-fsrs'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -536,14 +535,20 @@ function onTypeWrong() {
 
 //设置单词卡片
 function setWordCard(rating: number) {
-  let card = store.fsrsData.cardMap[word.word]
+  let card = store.fsrsData[word.word]
   if (!card) {
+    //如果没输入错误过，并且是good / easy 说明只输入一次输入正确了，这种没必要生成 card 浪费空间
+    if ([Rating.Good, Rating.Easy].includes(rating)) {
+      console.log(`${word.word} 无需生成， 评分: ${Rating[rating]}`)
+      return
+    }
     card = createEmptyCard()
   }
   card = fsrs.next(card, Date.now(), rating).card
-  store.fsrsData.cardMap[word.word] = card
+  store.fsrsData[word.word] = card
   console.log(
-    `更新卡片: 单词：${word.word}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,card
+    `更新卡片: 单词：${word.word}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,
+    card, cloneDeep(store.fsrsData)
   )
 }
 
@@ -715,7 +720,8 @@ function randomWrite() {
 useEvents([
   [EventKey.repeatStudy, repeat],
   [EventKey.continueStudy, continueStudy],
-  [ShortcutKey.ShowWord, show],
+  //当默写时，执行 show 会标记为错误，并更新卡片
+  [ShortcutKey.ShowWord, throttle(show, 300)],
   [ShortcutKey.Previous, prev],
   [ShortcutKey.Next, skip],
   [ShortcutKey.ToggleCollect, collect],

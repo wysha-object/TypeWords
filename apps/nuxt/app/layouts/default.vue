@@ -4,7 +4,6 @@ import Logo from '@/components/Logo.vue'
 import MigrateDialog from '@/components/MigrateDialog.vue'
 import { Origin } from '@/config/env'
 import useTheme from '@/hooks/theme.ts'
-import { useBaseStore } from '@/stores/base'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
 import { ShortcutKey } from '@/types/enum.ts'
@@ -15,11 +14,13 @@ import { useInit } from '@/composables/useInit.ts'
 
 const router = useRouter()
 const { toggleTheme, getTheme, setTheme } = useTheme()
-const store = useBaseStore()
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
 let expand = $ref(false)
-const init = useInit()
+const initData = function () {
+  const init = useInit()
+  init()
+}
 
 function toggleExpand(n: boolean) {
   expand = n
@@ -122,7 +123,7 @@ const showIcon = $computed(() => {
       </div>
     </div>
 
-    <MigrateDialog v-model="showTransfer" @ok="init" />
+    <MigrateDialog v-model="showTransfer" @ok="initData" />
 
     <IeDialog />
 

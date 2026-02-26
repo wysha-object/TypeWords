@@ -140,7 +140,7 @@ export function getCurrentStudyWord(): TaskWords {
       const now = Date.now()
 
       //取 due 到期的单词
-      let reviewWords = Object.entries(store.fsrsData.cardMap)
+      let reviewWords = Object.entries(store.fsrsData)
         .filter(([word, card]) => {
           //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
           //2、要在当前学习这本词典里面
@@ -242,6 +242,8 @@ export function getCurrentStudyWord(): TaskWords {
               let tem = v.length - need
               if (tem < 0) {
                 missingCount = Math.abs(tem)
+              }else {
+                missingCount = 0
               }
             })
             // console.log('writeWords', writeWords)

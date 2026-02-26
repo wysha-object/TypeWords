@@ -315,8 +315,12 @@ function transferOk() {
 }
 
 function clearAllData() {
-  store.setState(cloneDeep(getDefaultBaseState()))
-  settingStore.setState(getDefaultSettingState())
+  let d = getDefaultBaseState()
+  d.load = true
+  store.setState(d)
+  let d1 = getDefaultSettingState()
+  d1.load = true
+  settingStore.setState(d1)
 }
 </script>
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { defineAsyncComponent, watch } from 'vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import { useDisableEventListener } from '@/hooks/event.ts'
-import ConflictNoticeText from '@/components/ConflictNoticeText.vue'
+import { useSettingStore } from '~/stores/setting.ts'
+import { useDisableEventListener } from '~/hooks/event.ts'
+import ConflictNoticeText from '~/components/dialog/ConflictNoticeText.vue'
 import BaseButton from '~/components/BaseButton.vue'
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 let settingStore = useSettingStore()
 let show = $ref(false)

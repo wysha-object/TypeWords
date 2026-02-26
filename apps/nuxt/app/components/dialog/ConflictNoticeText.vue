@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { jump2Feedback } from '@/utils'
+import { jump2Feedback } from '~/utils'
 import WeChat from '~/components/channel-icons/WeChat.vue'
 </script>
 

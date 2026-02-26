@@ -3,12 +3,12 @@ import { addStat, setUserDictProp } from '@/apis'
 import Toast from '@/components/base/toast/Toast.ts'
 import Tooltip from '@/components/base/Tooltip.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
-import ConflictNotice from '@/components/ConflictNotice.vue'
+import ConflictNotice from '~/components/dialog/ConflictNotice.vue'
 import ArticleList from '@/components/list/ArticleList.vue'
 import Panel from '@/components/Panel.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
 import SettingDialog from '@/components/setting/SettingDialog.vue'
-import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig } from '@/config/env.ts'
+import { AppEnv, DICT_LIST } from '@/config/env.ts'
 import { genArticleSectionData, usePlaySentenceAudio } from '@/hooks/article.ts'
 import { useArticleOptions } from '@/hooks/dict.ts'
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
@@ -22,7 +22,7 @@ import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
 import { getDefaultArticle, getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import type { Article, ArticleItem, ArticleWord, Dict, Statistics, Word } from '@/types/types.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, msToMinute, resourceWrap, total } from '@/utils'
+import { _getDictDataByUrl, _nextTick, cloneDeep, msToMinute, resourceWrap, total } from '@/utils'
 import { getPracticeArticleCache, setPracticeArticleCache } from '@/utils/cache.ts'
 import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
 import { computed, onMounted, onUnmounted, provide, watch } from 'vue'
@@ -160,7 +160,6 @@ watch(
   { immediate: true, deep: true }
 )
 
-
 onActivated(() => {
   console.log('onActivated')
 })
@@ -192,7 +191,6 @@ function unmount() {
 }
 
 onUnmounted(unmount)
-
 
 onDeactivated(unmount)
 

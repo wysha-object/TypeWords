@@ -18,7 +18,7 @@ export function useInit() {
   let lastAudioFileIdList = []
   let isInitializing = true // 标记是否正在初始化
   watch(store.$state, (n: BaseState) => {
-    console.log('store.$state', store.$state)
+    // console.log('store.$state', store.$state)
     // 如果正在初始化，不保存数据，避免覆盖
     if (isInitializing) return
     let data = shakeCommonDict(n)
@@ -65,7 +65,7 @@ export function useInit() {
   )
 
   async function init() {
-    console.log('init')
+    // console.log('init')
     isInitializing = true // 开始初始化
     await userStore.init()
     await store.init()

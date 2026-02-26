@@ -34,6 +34,8 @@ const emit = defineEmits<{
 let input = $ref('')
 let wrong = $ref('')
 let showFullWord = $ref(false)
+//错误次数
+let wrongTimes = ref(0)
 //输入锁定，因为跳转到下一个单词有延时，如果重复在延时期间内重复输入，导致会跳转N次
 let inputLock = false
 let wordRepeatCount = 0
@@ -45,7 +47,6 @@ let cursor = $ref({
   left: 0,
 })
 const settingStore = useSettingStore()
-const statStore = usePracticeStore()
 const store = useBaseStore()
 
 const playBeep = usePlayBeep()
@@ -80,9 +81,10 @@ watch(() => props.word, reset, { deep: true })
 function reset() {
   wrong = input = ''
   wordRepeatCount = 0
-  showWordResult = inputLock = false
+  showWordResult.value = inputLock = false
   currentPracticeSentenceIndex = -1
   wordCompletedTime = 0 // 重置时间戳
+  wrongTimes.value = 0
   if (settingStore.wordSound) {
     if (settingStore.wordPracticeType !== WordPracticeType.Dictation) {
       volumeIconRef?.play(400, true)
@@ -124,7 +126,7 @@ function repeat() {
   }, settingStore.waitTimeForChangeWord)
 }
 
-let showWordResult = $ref(false)
+let showWordResult = ref(false)
 let pressNumber = 0
 
 const right = $computed(() => {
@@ -145,8 +147,8 @@ let showNotice = false
 
 function know(e) {
   if (settingStore.wordPracticeType === WordPracticeType.Identify) {
-    if (!showWordResult) {
-      inputLock = showWordResult = true
+    if (!showWordResult.value) {
+      inputLock = showWordResult.value = true
       input = props.word.word
       emit('know')
       if (!showNotice) {
@@ -161,9 +163,9 @@ function know(e) {
 
 function unknown(e) {
   if (settingStore.wordPracticeType === WordPracticeType.Identify) {
-    if (!showWordResult) {
-      showWordResult = true
-      emit('wrong')
+    if (!showWordResult.value) {
+      showWordResult.value = true
+      typo()
       if (settingStore.wordSound) volumeIconRef?.play()
       return
     }
@@ -195,10 +197,10 @@ async function onTyping(e: KeyboardEvent) {
         if (wordCompletedTime && Date.now() - wordCompletedTime < 300) {
           return
         }
-        showWordResult = inputLock = false
         completeTypeWord(false)
+        showWordResult.value = inputLock = false
       } else {
-        if (showWordResult) {
+        if (showWordResult.value) {
           // 错误时，提示用户按删除键，仅默写需要提示
           pressNumber++
           if (pressNumber >= 3) {
@@ -217,7 +219,7 @@ async function onTyping(e: KeyboardEvent) {
         }
       } else {
         //当错误时，按任意键重新输入
-        showWordResult = inputLock = false
+        showWordResult.value = inputLock = false
         input = wrong = ''
         onTyping(e)
       }
@@ -236,10 +238,10 @@ async function onTyping(e: KeyboardEvent) {
         //比对是否一致
         if (input.toLowerCase() === target.toLowerCase()) {
           //如果已显示单词，则发射完成事件，并 return
-          if (showWordResult) {
+          if (showWordResult.value) {
             return emit('complete')
           } else {
-            //未显示单词，则播放正确音乐，并在后面设置为 showWordResult 为 true 来显示单词
+            //未显示单词，则播放正确音乐，并在后面设置为 showWordResult.value 为 true 来显示单词
             playCorrect()
             if (settingStore.wordSound) targetVolumeIcon?.play()
           }
@@ -247,9 +249,9 @@ async function onTyping(e: KeyboardEvent) {
           //错误处理
           playBeep()
           if (settingStore.wordSound) targetVolumeIcon?.play()
-          emit('wrong')
+          typo()
         }
-        showWordResult = true
+        showWordResult.value = true
         return
       }
     }
@@ -259,10 +261,10 @@ async function onTyping(e: KeyboardEvent) {
     playKeyboardAudio()
     updateCurrentWordInfo()
     inputLock = false
-  } else if (settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult) {
+  } else if (settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult.value) {
     //当自测模式下，按1和2会单独处理，如果按其他键则自动默认为不认识
-    showWordResult = true
-    emit('wrong')
+    showWordResult.value = true
+    typo()
     if (settingStore.wordSound) targetVolumeIcon?.play()
     inputLock = false
     onTyping(e)
@@ -312,7 +314,7 @@ async function onTyping(e: KeyboardEvent) {
       wrong = ''
       playKeyboardAudio()
     } else {
-      emit('wrong')
+      typo()
       wrong = letter
       playBeep()
       if (settingStore.wordSound) targetVolumeIcon?.play()
@@ -329,9 +331,9 @@ async function onTyping(e: KeyboardEvent) {
       playCorrect()
       if (
         [WordPracticeType.Listen, WordPracticeType.Identify].includes(settingStore.wordPracticeType) &&
-        !showWordResult
+        !showWordResult.value
       ) {
-        showWordResult = true
+        showWordResult.value = true
       }
       if ([WordPracticeType.FollowWrite, WordPracticeType.Spell].includes(settingStore.wordPracticeType)) {
         if (settingStore.autoNextWord) {
@@ -363,7 +365,8 @@ function isTypingSentence() {
 function completeTypeWord(delay: boolean) {
   if (settingStore.wordPracticeType === WordPracticeType.FollowWrite && settingStore.practiceSentence) {
     currentPracticeSentenceIndex++
-    if (currentPracticeSentenceIndex < props.word.sentences.length) {// 还有下一个句子
+    if (currentPracticeSentenceIndex < props.word.sentences.length) {
+      // 还有下一个句子
       inputLock = false
       wrong = input = ''
       return
@@ -383,9 +386,9 @@ function completeTypeWord(delay: boolean) {
 function del() {
   playKeyboardAudio()
   inputLock = false
-  if (showWordResult) {
+  if (showWordResult.value) {
     input = ''
-    showWordResult = false
+    showWordResult.value = false
   } else {
     if (wrong) {
       wrong = ''
@@ -401,7 +404,7 @@ function showWord() {
   if (settingStore.allowWordTip) {
     //如果不是跟写模式，查看单词一律标记为错词
     if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite || settingStore.dictation) {
-      emit('wrong')
+      typo()
     }
     showFullWord = true
   }
@@ -411,14 +414,19 @@ function hideWord() {
   showFullWord = false
 }
 
+function typo() {
+  emit('wrong')
+  wrongTimes.value++
+}
+
 function play() {
   if (settingStore.wordPracticeType === WordPracticeType.Dictation || settingStore.dictation) {
-    emit('wrong')
+    typo()
   }
   volumeIconRef?.play()
 }
 
-defineExpose({ del, showWord, hideWord, play })
+defineExpose({ del, showWord, hideWord, play, showWordResult,wrongTimes })
 
 function mouseleave() {
   setTimeout(() => {
@@ -507,7 +515,7 @@ const notice = $computed(() => {
       ? '选择后/输入后，按空格键切换下一个'
       : settingStore.wordPracticeType === WordPracticeType.Listen
         ? '输入完成后按空格键切换下一个'
-        : showWordResult
+        : showWordResult.value
           ? right
             ? '按空格键切换下一个'
             : $t('press_delete_reinput')
@@ -569,7 +577,7 @@ const notice = $computed(() => {
         <div
           id="word"
           class="word my-1"
-          :class="(wrong && !isTypingSentence()) ? 'is-wrong' : ''"
+          :class="wrong && !isTypingSentence() ? 'is-wrong' : ''"
           :style="{ fontSize: settingStore.fontSize.wordForeignFontSize + 'px' }"
           @mouseenter="showWord"
           @mouseleave="mouseleave"
@@ -674,15 +682,15 @@ const notice = $computed(() => {
         <div class="flex flex-col gap-3">
           <div
             class="sentence"
-            :class="(wrong && currentPracticeSentenceIndex === index) ? 'is-wrong' : ''"
+            :class="wrong && currentPracticeSentenceIndex === index ? 'is-wrong' : ''"
             v-for="(item, index) in word.sentences"
           >
             <div class="flex gap-space text-xl">
               <div v-if="index !== currentPracticeSentenceIndex">
                 <SentenceHightLightWord
-                    :text="item.c"
-                    :word="word.word"
-                    :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
+                  :text="item.c"
+                  :word="word.word"
+                  :dictation="!(!settingStore.dictation || showFullWord || showWordResult)"
                 />
               </div>
               <div v-else>
@@ -690,7 +698,12 @@ const notice = $computed(() => {
                 <span class="wrong" v-if="wrong">{{ wrong }}</span>
                 <span class="letter">{{ displaySentence }}</span>
               </div>
-              <VolumeIcon :title="`发音`" :simple="false" :cb="() => ttsPlayAudio(item.c)" ref="sentenceVolumeIconsRefs" />
+              <VolumeIcon
+                :title="`发音`"
+                :simple="false"
+                :cb="() => ttsPlayAudio(item.c)"
+                ref="sentenceVolumeIconsRefs"
+              />
             </div>
             <div class="text-base anim" v-opacity="settingStore.translate || showFullWord || showWordResult">
               {{ item.cn }}
@@ -787,7 +800,7 @@ const notice = $computed(() => {
       :style="{
         top: cursor.top + 'px',
         left: cursor.left + 'px',
-        height: isTypingSentence() ? '20px' : settingStore.fontSize.wordForeignFontSize + 'px' ,
+        height: isTypingSentence() ? '20px' : settingStore.fontSize.wordForeignFontSize + 'px',
       }"
     ></div>
   </div>
@@ -821,7 +834,6 @@ const notice = $computed(() => {
     line-height: 1;
     font-family: var(--en-article-family);
     letter-spacing: 0.3rem;
-
   }
 
   .is-wrong {

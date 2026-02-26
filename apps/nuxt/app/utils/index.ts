@@ -1,18 +1,17 @@
-import { getDefaultBaseState, useBaseStore } from '@/stores/base'
 import type { BaseState } from '@/stores/base'
-import { getDefaultSettingState } from '@/stores/setting'
+import { getDefaultBaseState, useBaseStore } from '@/stores/base'
 import type { SettingState } from '@/stores/setting'
+import { getDefaultSettingState } from '@/stores/setting'
 import type { Dict, DictResource } from '@/types/types'
 import { useRouter } from 'vue-router'
 import { useRuntimeStore } from '@/stores/runtime'
 import dayjs from 'dayjs'
-import { AppEnv, DictId, ENV, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY, WordCardGradeMap } from '@/config/env'
+import { AppEnv, DictId, ENV, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env'
 import { nextTick } from 'vue'
 import Toast from '@/components/base/toast/Toast'
 import { getDefaultDict, getDefaultWord } from '@/types/func'
 import duration from 'dayjs/plugin/duration'
 import { DictType } from '@/types/enum'
-import { Rating } from 'ts-fsrs'
 
 dayjs.extend(duration)
 
@@ -513,12 +512,7 @@ export function jump2Feedback() {
 }
 
 export function isIOS() {
-  const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  const userAgent = navigator.userAgent || navigator.vendor || window.opera
   // 判断是否包含 iPhone、iPad 或 iPod
-  return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
-}
-
-export function getGradeByWrongTimes(wrongTimes: number) {
-  if (!WordCardGradeMap[wrongTimes]) return Rating.Again
-  return WordCardGradeMap[wrongTimes]
+  return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream
 }

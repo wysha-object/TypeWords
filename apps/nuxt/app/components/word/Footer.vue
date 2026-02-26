@@ -70,7 +70,7 @@ const stages = $computed(() => {
       [WordPracticeStage.DictationReview]: { stageIndex: 1, childIndex: 2 },
     }
 
-    console.log('statStore.stage',statStore.stage)
+    // console.log('statStore.stage',statStore.stage)
     // 获取当前阶段的配置
     const currentStageConfig = stageMap[statStore.stage]
     if (!currentStageConfig) {

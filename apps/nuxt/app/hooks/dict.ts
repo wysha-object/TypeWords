@@ -95,70 +95,48 @@ export function useArticleOptions() {
 
 export function getCurrentStudyWord(): TaskWords {
   const store = useBaseStore()
-  console.log('cardMap', store.fsrsData.cardMap)
   let data: TaskWords = { new: [], review: [] }
   let dict = store.sdict
   let isTest = false
   let words = dict.words.slice()
+  let list = []
   if (isTest) {
     words = Array.from({ length: 10 }).map((v, i) => {
       return getDefaultWord({ word: String(i) })
     })
   }
   if (words?.length) {
-    debugger
     const settingStore = useSettingStore()
-    //忽略时是否加上自定义的简单词
-    let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
+    //忽略列表：简单词或已掌握
+    let ignoreSet = [store.allIgnoreWordsSet, store.knownWordsSet][settingStore.ignoreSimpleWord ? 0 : 1]
+
     const perDay = dict.perDayStudyNumber
     let start = dict.lastLearnIndex
+    let end = start
     let complete = dict.complete
     let isEnd = start >= dict.length - 1
     if (isTest) {
       start = 1
       complete = true
     }
-    //todo
-    //如果已完成，并且记录在最后，那么直接随机取复习词
-    if (complete && isEnd) {
-      //复习比最小是1
-      let ratio = settingStore.wordReviewRatio || 1
-      let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
-      // 先将可用词表全部随机，再按需过滤忽略列表，只取到目标数量为止
-      let shuffled = shuffle(cloneDeep(dict.words))
-      let count = 0
-      data.review = []
-      for (let item of shuffled) {
-        if (!ignoreList.includes(item.word.toLowerCase())) {
-          data.review.push(item)
-          count++
-          if (count >= perDay * ratio) {
-            break
-          }
-        }
-      }
-      return data
-    }
-
-    let end = start
-    let list = words.slice(start)
-    //从start往后取perDay个单词，作为当前练习单词
-    for (let item of list) {
-      if (!ignoreList.includes(item.word.toLowerCase())) {
-        if (data.new.length < perDay) {
+    if (!isEnd) {
+      list = words.slice(start)
+      //从start往后取perDay个单词，作为新词
+      for (let item of list) {
+        if (data.new.length >= perDay) break
+        if (!ignoreSet.has(item.word)) {
           data.new.push(item)
-        } else break
+        }
+        end++
       }
-      end++
     }
-
 
     //如果复习比大于等于1，或者已完成，才生成复习词
-    if (settingStore.wordReviewRatio >= 1 || complete) {
+    if (settingStore.wordReviewRatio >= 1 || complete || isEnd) {
       //Map建立索引，用于查找、包含
       const wordMap = new Map(words.map(s => [s.word, s]))
-      //复习总数量
-      const totalNeed = perDay * settingStore.wordReviewRatio
+      //复习总数量;如果已结束那么复习比最小是1
+      const totalNeed = perDay * (isEnd ? settingStore.wordReviewRatio || 1 : settingStore.wordReviewRatio)
       const now = Date.now()
 
       //取 due 到期的单词
@@ -170,6 +148,8 @@ export function getCurrentStudyWord(): TaskWords {
         })
         .map(([word]) => word)
 
+      console.log('1. fsrs 里 due 到期单词', reviewWords)
+
       if (reviewWords.length >= totalNeed) {
         // 复习单词足够
         //截取，不能无限制的复习，一下复习几千个太吓人了
@@ -178,19 +158,22 @@ export function getCurrentStudyWord(): TaskWords {
           .map(word => wordMap.get(word))
           .filter(obj => obj)
       } else {
+        console.log('2. fsrs 到期单词不够')
         // 复习单词不够，需要补充，先填充上次学习的，即perDay
-
-        //忽略列表：简单词或已掌握
-        let ignoreSet = [store.allIgnoreWordsSet, store.knownWordsSet][settingStore.ignoreSimpleWord ? 0 : 1]
 
         const selected = new Set(reviewWords)
         const result = reviewWords.map(word => wordMap.get(word))
-        // 从start往前取新单词
+
         let index = 0
-        //从start往前取perDay个单词，作为当前复习单词，取到0为止
-        list = words.slice(0, start).reverse()
-        //但如果已完成，则滚动取值
-        if (complete) list = list.concat(words.slice(end).reverse())
+        if (isEnd) {
+          // 如果已结束，则将词表全部随机，直接随机取复习词
+          list = shuffle(cloneDeep(words))
+        } else {
+          //从start往前取perDay个单词，作为当前复习单词，取到0为止
+          list = words.slice(0, start).reverse()
+          //但如果已完成，则滚动取值
+          if (complete) list = list.concat(words.slice(end).reverse())
+        }
         //第一次取值，最大只取perDay个，并且顺序取值：即取上次学习的
         let maxLength = Math.min(selected.size + perDay, totalNeed)
         while (result.length < maxLength && index < list.length) {
@@ -208,8 +191,9 @@ export function getCurrentStudyWord(): TaskWords {
         if (result.length < totalNeed) {
           //如果单词不够，说明已取到0了
           if (index >= list.length) {
-            //如果没学完，那真没单词可取了，直接返回
-            if (!complete) {
+            //1、如果没学完，那真没单词可取了，直接返回
+            //2、已学完，则代表整个list都取完了
+            if (!complete || isEnd) {
               data.review = result
               return data
             }
@@ -241,6 +225,7 @@ export function getCurrentStudyWord(): TaskWords {
             //分成6组，因为有可能不均
             const groups: Word[][] = splitIntoN(waitList, days)
             // console.log('groups', groups)
+            debugger
 
             // 分配数量，靠前组多，靠后组少，例如分配比例 [6,5,4,3,2,1]
             const ratio = Array.from({ length: days }, (_, i) => i + 1).reverse()
@@ -250,12 +235,17 @@ export function getCurrentStudyWord(): TaskWords {
 
             // 按比例从每组随机取单词
             let writeWords: Word[] = []
+            let missingCount = 0
             groups.map((v, i) => {
-              //todo 算法有问题
-              writeWords = writeWords.concat(getRandomN(v, realRatio[i]))
+              let need = realRatio[i] + missingCount
+              writeWords = writeWords.concat(getRandomN(v, need))
+              let tem = v.length - need
+              if (tem < 0) {
+                missingCount = Math.abs(tem)
+              }
             })
             // console.log('writeWords', writeWords)
-            data.review = data.review.concat(writeWords)
+            data.review = result.concat(writeWords)
           }
         }
       }
@@ -263,7 +253,6 @@ export function getCurrentStudyWord(): TaskWords {
   }
   // console.log('data-new', data.new.map(v => v.word))
   // console.log('data-review', data.review.map(v => v.word))
-  // console.log('data-write', data.write.map(v => v.word))
   return data
 }
 

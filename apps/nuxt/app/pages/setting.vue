@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { useSettingStore } from '@/stores/setting'
+import { getDefaultSettingState, useSettingStore } from '@/stores/setting'
 import { getShortcutKey, useEventListener } from '@/hooks/event'
 import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib, sleep } from '@/utils'
 import BaseButton from '@/components/BaseButton.vue'
-import { useBaseStore } from '@/stores/base'
+import { getDefaultBaseState, useBaseStore } from '@/stores/base'
 import { APP_NAME, APP_VERSION, DefaultShortcutKeyMap, IS_DEV, LIB_JS_URL, LOCAL_FILE_KEY, Origin } from '@/config/env'
 import BasePage from '@/components/BasePage.vue'
 import Toast from '@/components/base/toast/Toast'
@@ -313,6 +313,11 @@ function transferOk() {
     window.location.href = '/words'
   }, 1500)
 }
+
+function clearAllData() {
+  store.setState(cloneDeep(getDefaultBaseState()))
+  settingStore.setState(getDefaultSettingState())
+}
 </script>
 
 <template>
@@ -438,9 +443,7 @@ function transferOk() {
               />
             </div>
             <div class="inline-block mt-3 relative" v-else>
-              <BaseButton size="large" :loading="importLoading">{{
-                $t('import_data_restore')
-              }}</BaseButton>
+              <BaseButton size="large" :loading="importLoading">{{ $t('import_data_restore') }}</BaseButton>
               <input
                 type="file"
                 id="import"
@@ -460,6 +463,13 @@ function transferOk() {
                 <BaseButton @click="showTransfer = true">迁移 2study.top 网站数据</BaseButton>
               </div>
             </template>
+
+            <div class="line mt-15 mb-3"></div>
+            <div class="flex gap-space mt-3">
+              <PopConfirm title="该操作将会清除所有数据，确认继续？" @confirm="clearAllData">
+                <BaseButton>清除所有数据</BaseButton>
+              </PopConfirm>
+            </div>
           </div>
 
           <!--          日志-->

@@ -200,13 +200,6 @@ export const WordPracticeModeUrlMap: Record<WordPracticeMode, string> = {
   [WordPracticeMode.ShuffleWordsTest]: '/words-test',
   [WordPracticeMode.ReviewWordsTest]: '/words-test'
 }
-/// wrongTime -> grade
-export const WordCardGradeMap: Record<number, Rating> = {
-  0: Rating.Easy,
-  1: Rating.Good,
-  2: Rating.Hard,
-  3: Rating.Again
-}
 export class DictId {
   static wordCollect = 'wordCollect'
   static wordWrong = 'wordWrong'

@@ -32,7 +32,7 @@ import GroupList from '~/components/word/GroupList.vue'
 import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
 import ConflictNotice2 from '~/components/ConflictNotice2.vue'
-import { createEmptyCard, FSRS } from 'ts-fsrs'
+import { createEmptyCard, FSRS, Grade, Rating } from 'ts-fsrs'
 
 const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -50,6 +50,7 @@ let showStatDialog = $ref(false)
 let loading = $ref(false)
 let timer = $ref(0)
 let isFocus = true
+let fsrs = new FSRS({})
 let taskWords = $ref<TaskWords>({
   new: [],
   review: [],
@@ -175,7 +176,6 @@ function initData(initVal: TaskWords, init: boolean = false) {
     taskWords = Object.assign(taskWords, d.taskWords)
     //这里直接赋值的话，provide后的inject获取不到最新值
     data = Object.assign(data, d.practiceData)
-    wrongTimesMap = Object.assign(wrongTimesMap, d.wrongTimesMap)
     statStore.$patch(d.statStoreData)
   } else {
     // taskWords = initVal
@@ -376,37 +376,30 @@ function complete() {
     }
   }
 
-  console.log('wrongTimesMap', wrongTimesMap)
-  let fsrs = new FSRS({})
-  debugger
-  wrongTimesMap.forEach((value, key) => {
-    //根据错误次数生成评级
-    let grade = getGradeByWrongTimes(value)
-    let card = store.fsrsData.cardMap[key]
-    if (!card) {
-      card = createEmptyCard()
-    }
-    card = fsrs.next(card, Date.now(), grade).card
-    store.fsrsData.cardMap[key] = card
-  })
-
   showStatDialog = true
   completeLock = false
   clearInterval(timer)
   setTimeout(() => setPracticeWordCache(null), 300)
 }
 
-// word -> wrongTimes 用以评级
-let wrongTimesMap: Map<string, number> = new Map()
-
 async function next(isTyping: boolean = true) {
   // debugger
-  let temp = word.word.toLowerCase()
-  if (wrongTimes){
-    wrongTimesMap.set(temp, (wrongTimesMap.get(temp) ?? 0) + wrongTimes)
-    wrongTimes = 0
+  if (isTyping) {
+    statStore.inputWordNumber++
+
+    console.log('错误次数：', typingRef?.wrongTimes)
+
+    if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite) {
+      if (typingRef?.wrongTimes === 0) {
+        if (settingStore.wordPracticeType === WordPracticeType.Dictation) {
+          //如果能默写出来，设为easy
+          setWordCard(Rating.Easy)
+        } else {
+          setWordCard(Rating.Good)
+        }
+      }
+    }
   }
-  if (isTyping) statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     if (data.index === data.words.length - 1) {
       data.wrongWords = data.wrongWords.filter(v => !data.excludeWords.includes(v.word))
@@ -514,9 +507,9 @@ function onWordKnow() {
   if (rIndex < 0) {
     data.excludeWords.push(word.word)
   }
+  setWordCard(Rating.Good)
 }
 
-let wrongTimes = 0
 function onTypeWrong() {
   //这里的代码暂时不能移动，因为要实时把错词加入到列表里面，从而更新toolbar里面的错词数
   //todo 后续可以优化
@@ -533,7 +526,25 @@ function onTypeWrong() {
     data.wrongWords.push(word)
   }
   savePracticeData()
-  wrongTimes++
+
+  if (settingStore.wordPracticeType === WordPracticeType.FollowWrite) {
+    setWordCard(Rating.Hard)
+  } else {
+    setWordCard(Rating.Again)
+  }
+}
+
+//设置单词卡片
+function setWordCard(rating: number) {
+  let card = store.fsrsData.cardMap[word.word]
+  if (!card) {
+    card = createEmptyCard()
+  }
+  card = fsrs.next(card, Date.now(), rating).card
+  store.fsrsData.cardMap[word.word] = card
+  console.log(
+    `更新卡片: 单词：${word.word}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,card
+  )
 }
 
 const savePracticeData = throttle(() => {
@@ -541,7 +552,6 @@ const savePracticeData = throttle(() => {
     taskWords,
     practiceData: data,
     statStoreData: statStore.$state,
-    wrongTimesMap: wrongTimesMap,
   })
 }, 300)
 

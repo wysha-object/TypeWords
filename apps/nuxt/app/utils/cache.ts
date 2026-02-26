@@ -15,9 +15,6 @@ export type PracticeWordCache = {
   taskWords: TaskWords
   practiceData: PracticeData
   statStoreData: PracticeState
-
-  // word -> wrongTimes 用以评级
-  wrongTimesMap: Map<string, number>
 }
 
 export type PracticeArticleCache = {

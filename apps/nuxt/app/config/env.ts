@@ -121,6 +121,7 @@ export const DefaultShortcutKeyMap = {
   [ShortcutKey.RandomWrite]: 'Ctrl+R',
   [ShortcutKey.KnowWord]: '1',
   [ShortcutKey.UnknownWord]: '2',
+  [ShortcutKey.MasteredWord]: '3',
   [ShortcutKey.ChooseA]: '1',
   [ShortcutKey.ChooseB]: '2',
   [ShortcutKey.ChooseC]: '3',

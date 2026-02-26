@@ -148,7 +148,7 @@ html.dark {
     }
 
     &.info {
-      background: rgba(144, 147, 153, 0.1);
+      background: rgb(44, 45, 48);
       border-color: #909399;
       color: #909399;
     }

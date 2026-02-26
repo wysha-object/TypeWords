@@ -187,9 +187,6 @@ const stages = $computed(() => {
       if (settingStore.wordPracticeMode === WordPracticeMode.Review) {
         stages.shift()
         if (stageIndex === 1) stages[0].ratio = 100
-
-        console.log('stages', stages, childIndex)
-
         return stages
       }
     }

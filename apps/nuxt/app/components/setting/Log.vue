@@ -1,6 +1,10 @@
 <script setup lang="ts">
 let logList = [
   {
+    date: '2026/02/27',
+    content: '新增记忆曲线功能，复习词根据记忆曲线动态生成',
+  },
+  {
     date: '2026/02/24',
     content: '添加 Docker 支持',
   },

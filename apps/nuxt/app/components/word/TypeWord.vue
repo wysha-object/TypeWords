@@ -29,6 +29,7 @@ const emit = defineEmits<{
   complete: []
   wrong: []
   know: []
+  mastered: []
 }>()
 
 let input = $ref('')
@@ -159,6 +160,13 @@ function know(e) {
     }
   }
   onTyping(e)
+}
+
+function mastered(e) {
+  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
+    emit('mastered')
+    emit('complete')
+  }
 }
 
 function unknown(e) {
@@ -426,7 +434,7 @@ function play() {
   volumeIconRef?.play()
 }
 
-defineExpose({ del, showWord, hideWord, play, showWordResult,wrongTimes })
+defineExpose({ del, showWord, hideWord, play, showWordResult, wrongTimes })
 
 function mouseleave() {
   setTimeout(() => {
@@ -507,6 +515,7 @@ function checkCursorPosition() {
 useEvents([
   [ShortcutKey.KnowWord, know],
   [ShortcutKey.UnknownWord, unknown],
+  [ShortcutKey.MasteredWord, mastered],
 ])
 
 const notice = $computed(() => {
@@ -636,6 +645,12 @@ const notice = $computed(() => {
           size="large"
           @click="unknown"
           >{{ $t('i_dont_know') }}
+        </BaseButton>
+        <BaseButton
+          :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.MasteredWord]})`"
+          size="large"
+          @click="mastered"
+          >已掌握
         </BaseButton>
       </div>
 

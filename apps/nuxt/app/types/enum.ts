@@ -34,6 +34,7 @@ export enum ShortcutKey {
   RandomWrite = 'RandomWrite',
   KnowWord = 'KnowWord',
   UnknownWord = 'UnknownWord',
+  MasteredWord = 'MasteredWord',
   ChooseA = 'ChooseA',
   ChooseB = 'ChooseB',
   ChooseC = 'ChooseC',

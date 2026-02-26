@@ -250,17 +250,19 @@ async function savePracticeSetting() {
 }
 
 async function onShufflePracticeSettingOk(total) {
-  window.umami?.track('startShuffleStudyWord', {
-    name: store.sdict.name,
-    index: store.sdict.lastLearnIndex,
-    perDayStudyNumber: store.sdict.perDayStudyNumber,
-    total,
-    custom: store.sdict.custom,
-    complete: store.sdict.complete,
-  })
   isSaveData = false
   setPracticeWordCache(null)
   settingStore.wordPracticeMode = editingWordPracticeMode
+
+  window.umami?.track('startStudyWord', {
+    name: store.sdict.name,
+    index: store.sdict.lastLearnIndex,
+    perDayStudyNumber: store.sdict.perDayStudyNumber,
+    custom: store.sdict.custom,
+    complete: store.sdict.complete,
+    wordPracticeMode: settingStore.wordPracticeMode,
+  })
+
   let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
   currentStudy.review = shuffle(
     store.sdict.words.slice(0, store.sdict.lastLearnIndex).filter(v => !ignoreList.includes(v.word))
@@ -306,7 +308,7 @@ const systemPracticeText = $computed(() => {
 
 <template>
   <BasePage>
-    <div class="my-50 text-2xl text-red" v-if="!isNewHost && !IS_DEV">
+    <div class="my-30 text-2xl text-red" v-if="!isNewHost && !IS_DEV">
       已启用新域名
       <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
       >当前 2study.top 域名将在不久后停止使用
@@ -444,7 +446,7 @@ const systemPracticeText = $computed(() => {
               <BaseButton
                 class="w-full"
                 v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
-                :disabled="!currentStudy.review.length && !currentStudy.review.length"
+                :disabled="!currentStudy.review.length"
                 @click="startPractice(WordPracticeMode.Review, true)"
               >
                 {{ $t('review') }}

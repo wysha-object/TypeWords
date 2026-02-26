@@ -383,22 +383,7 @@ function complete() {
 
 async function next(isTyping: boolean = true) {
   // debugger
-  if (isTyping) {
-    statStore.inputWordNumber++
-
-    console.log('错误次数：', typingRef?.wrongTimes)
-
-    if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite) {
-      if (typingRef?.wrongTimes === 0) {
-        if (settingStore.wordPracticeType === WordPracticeType.Dictation) {
-          //如果能默写出来，设为easy
-          setWordCard(Rating.Easy)
-        } else {
-          setWordCard(Rating.Good)
-        }
-      }
-    }
-  }
+  if (isTyping) statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     if (data.index === data.words.length - 1) {
       data.wrongWords = data.wrongWords.filter(v => !data.excludeWords.includes(v.word))
@@ -451,6 +436,9 @@ async function next(isTyping: boolean = true) {
           } else if (statStore.stage === WordPracticeStage.ListenNewWord) {
             nextStage(shuffle(taskWords.new), '开始默写新词')
           } else if (statStore.stage === WordPracticeStage.DictationNewWord) {
+            console.log('新词学习完成，批量设置为 Good')
+            taskWords.new.map(w => setWordCard(Rating.Good, w.word))
+
             nextStage(taskWords.review, '开始自测旧词')
           } else if (statStore.stage === WordPracticeStage.IdentifyReview) {
             nextStage(shuffle(taskWords.review), '开始听写旧词', true)
@@ -500,6 +488,15 @@ function skipStep() {
   next(false)
 }
 
+function onWordMastered() {
+  //标记模式时，用户认识的单词加入到排除里面，后续不再复习
+  let rIndex = data.excludeWords.findIndex(v => v === word.word)
+  if (rIndex < 0) {
+    data.excludeWords.push(word.word)
+  }
+  setWordCard(Rating.Easy)
+}
+
 function onWordKnow() {
   //标记模式时，用户认识的单词加入到排除里面，后续不再复习
   let rIndex = data.excludeWords.findIndex(v => v === word.word)
@@ -526,29 +523,23 @@ function onTypeWrong() {
   }
   savePracticeData()
 
-  if (settingStore.wordPracticeType === WordPracticeType.FollowWrite) {
-    setWordCard(Rating.Hard)
-  } else {
+  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
     setWordCard(Rating.Again)
   }
 }
 
 //设置单词卡片
-function setWordCard(rating: number) {
-  let card = store.fsrsData[word.word]
+function setWordCard(rating: number, wordStr = word.word) {
+  let card = store.fsrsData[wordStr]
   if (!card) {
-    //如果没输入错误过，并且是good / easy 说明只输入一次输入正确了，这种没必要生成 card 浪费空间
-    if ([Rating.Good, Rating.Easy].includes(rating)) {
-      console.log(`${word.word} 无需生成， 评分: ${Rating[rating]}`)
-      return
-    }
     card = createEmptyCard()
   }
   card = fsrs.next(card, Date.now(), rating).card
-  store.fsrsData[word.word] = card
+  store.fsrsData[wordStr] = card
   console.log(
-    `更新卡片: 单词：${word.word}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,
-    card, cloneDeep(store.fsrsData)
+    `更新卡片: 单词：${wordStr}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,
+    card,
+    cloneDeep(store.fsrsData)
   )
 }
 
@@ -773,7 +764,14 @@ useEvents([
             <IconFluentArrowRight16Regular class="arrow" width="22" />
           </div>
         </div>
-        <TypeWord ref="typingRef" :word="word" @wrong="onTypeWrong" @complete="next" @know="onWordKnow" />
+        <TypeWord
+          ref="typingRef"
+          :word="word"
+          @wrong="onTypeWrong"
+          @complete="next"
+          @mastered="onWordMastered"
+          @know="onWordKnow"
+        />
       </div>
     </template>
     <template v-slot:panel>

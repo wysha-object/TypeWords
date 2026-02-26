@@ -8,7 +8,7 @@ import BasePage from '@/components/BasePage.vue'
 import Book from '@/components/Book.vue'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
 import PopConfirm from '@/components/PopConfirm.vue'
-import { APP_NAME, AppEnv, DICT_LIST, Host, LIB_JS_URL, Origin, TourConfig } from '@/config/env.ts'
+import { APP_NAME, AppEnv, DICT_LIST, Host, IS_DEV, LIB_JS_URL, Origin, TourConfig } from '@/config/env.ts'
 import { useBaseStore } from '@/stores/base.ts'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
@@ -218,7 +218,7 @@ onMounted(() => {
 
 <template>
   <BasePage>
-    <div class="my-50 text-2xl text-red" v-if="!isNewHost">
+    <div class="my-30 text-2xl text-red" v-if="!isNewHost && !IS_DEV">
       已启用新域名
       <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
       >当前 2study.top 域名将在不久后停止使用

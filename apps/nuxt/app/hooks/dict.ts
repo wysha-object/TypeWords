@@ -144,11 +144,19 @@ export function getCurrentStudyWord(): TaskWords {
         .filter(([word, card]) => {
           //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
           //2、要在当前学习这本词典里面
+          // console.log(`单词：${word},到期时间：${dayjs(card.due).format('YYYY-MM-DD HH:mm:ss')}`)
           return dayjs(card.due).valueOf() <= now && wordMap.has(word)
         })
         .map(([word]) => word)
 
-      console.log('1. fsrs 里 due 到期单词', reviewWords)
+      console.log('fsrs 里 due 到期单词', reviewWords)
+
+      data.review = reviewWords
+        .slice(0, totalNeed)
+        .map(word => wordMap.get(word))
+        .filter(obj => obj)
+
+      return data
 
       if (reviewWords.length >= totalNeed) {
         // 复习单词足够
@@ -242,7 +250,7 @@ export function getCurrentStudyWord(): TaskWords {
               let tem = v.length - need
               if (tem < 0) {
                 missingCount = Math.abs(tem)
-              }else {
+              } else {
                 missingCount = 0
               }
             })

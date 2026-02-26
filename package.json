@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "pnpm -F @typewords/nuxt dev",
     "start": "pnpm -F @typewords/nuxt dev",
+    "docker-build": "pnpm -F @typewords/nuxt docker-build",
     "build": "pnpm -F @typewords/nuxt static",
     "generate": "pnpm -F @typewords/nuxt static",
     "build-web": "pnpm -F @typewords/nuxt generate",

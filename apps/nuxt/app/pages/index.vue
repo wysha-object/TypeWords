@@ -7,10 +7,6 @@ definePageMeta({
   layout: 'empty',
 })
 
-function nav(url: string) {
-  window.location.href = url
-}
-
 let theme = $ref('light')
 
 onMounted(() => {
@@ -106,8 +102,8 @@ const { locales, setLocale, locale } = useI18n()
       <h1>{{ APP_NAME }}</h1>
       <h2 class="font-normal m-0">{{ $t('app_desc') }}</h2>
       <div class="">
-        <div class="base-button" @click="nav('/words')">{{ $t('start_word_practice') }}</div>
-        <div class="base-button" @click="nav('/articles')">{{ $t('start_article_practice') }}</div>
+        <div class="base-button" @click="navigateTo('/words')">{{ $t('start_word_practice') }}</div>
+        <div class="base-button" @click="navigateTo('/articles')">{{ $t('start_article_practice') }}</div>
       </div>
 
       <div class="w-70vw mb-4 mt-20">

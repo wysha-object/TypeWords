@@ -351,34 +351,30 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   }
 }
 
-let completeLock = false
 
 function complete() {
-  if (completeLock) return
-  completeLock = true
-
-  console.log('全完学完了')
-
-  //如果 shuffle 数组不为空，就说明是复习，不用修改 lastLearnIndex
-  if (settingStore.wordPracticeMode !== WordPracticeMode.Shuffle) {
-    store.sdict.lastLearnIndex = store.sdict.lastLearnIndex + statStore.newWordNumber
-    // 检查已忽略的单词数量，是否全部完成
-    let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
-    // 忽略单词数
-    const ignoreCount = ignoreList.filter(word =>
-      store.sdict.words.slice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
-    ).length
-    // 如果lastLearnIndex已经超过可学单词数，则判定完成
-    if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {
-      store.sdict.complete = true
-      store.sdict.lastLearnIndex = store.sdict.length
+  if (!showStatDialog) {
+    console.log('全完学完了')
+    //如果 shuffle 数组不为空，就说明是复习，不用修改 lastLearnIndex
+    if (settingStore.wordPracticeMode !== WordPracticeMode.Shuffle) {
+      store.sdict.lastLearnIndex = store.sdict.lastLearnIndex + statStore.newWordNumber
+      // 检查已忽略的单词数量，是否全部完成
+      let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
+      // 忽略单词数
+      const ignoreCount = ignoreList.filter(word =>
+        store.sdict.words.slice(store.sdict.lastLearnIndex).some(w => w.word.toLowerCase() === word)
+      ).length
+      // 如果lastLearnIndex已经超过可学单词数，则判定完成
+      if (store.sdict.lastLearnIndex + ignoreCount >= store.sdict.length) {
+        store.sdict.complete = true
+        store.sdict.lastLearnIndex = store.sdict.length
+      }
     }
-  }
 
-  showStatDialog = true
-  completeLock = false
-  clearInterval(timer)
-  setTimeout(() => setPracticeWordCache(null), 300)
+    showStatDialog = true
+    clearInterval(timer)
+    setTimeout(() => setPracticeWordCache(null), 300)
+  }
 }
 
 async function next(isTyping: boolean = true) {

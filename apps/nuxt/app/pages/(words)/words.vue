@@ -32,8 +32,6 @@ import {
   APP_NAME,
   AppEnv,
   DICT_LIST,
-  Host,
-  IS_DEV,
   LIB_JS_URL,
   Origin,
   TourConfig,
@@ -290,11 +288,6 @@ async function saveLastPracticeIndex(e) {
 
 const { data: recommendDictList, isFetching } = useFetch(resourceWrap(DICT_LIST.WORD.RECOMMENDED)).json()
 
-let isNewHost = $ref(true)
-onMounted(() => {
-  isNewHost = window.location.host === Host
-})
-
 const systemPracticeText = $computed(() => {
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
     return '开始学习'
@@ -304,11 +297,16 @@ const systemPracticeText = $computed(() => {
       : '开始' + WordPracticeModeNameMap[settingStore.wordPracticeMode]
   }
 })
+
+let isOldHost = $ref(false)
+onMounted(() => {
+  isOldHost = window.location.host === '2study.top'
+})
 </script>
 
 <template>
   <BasePage>
-    <div class="my-30 text-2xl text-red" v-if="!isNewHost && !IS_DEV">
+    <div class="my-30 text-2xl text-red" v-if="isOldHost">
       已启用新域名
       <a class="mr-4" :href="`${Origin}/words?from_old_site=1`">{{ Origin }}</a
       >当前 2study.top 域名将在不久后停止使用

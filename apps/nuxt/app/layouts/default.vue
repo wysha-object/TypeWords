@@ -11,6 +11,7 @@ import { onMounted, watch } from 'vue'
 import { useRouter ,useRoute} from 'vue-router'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useInit } from '@/composables/useInit.ts'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const { toggleTheme, getTheme, setTheme } = useTheme()

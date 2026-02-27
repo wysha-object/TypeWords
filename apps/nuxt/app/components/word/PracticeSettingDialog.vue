@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { _getAccomplishDays } from '~/utils'
 import BaseButton from '~/components/BaseButton.vue'
-import Checkbox from '~/components/base/checkbox/Checkbox.vue'
 import Slider from '~/components/base/Slider.vue'
 import { defineAsyncComponent, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useSettingStore } from '~/stores/setting'
 import Toast from '~/components/base/toast/Toast'
 import ChangeLastPracticeIndexDialog from '~/components/word/ChangeLastPracticeIndexDialog.vue'
@@ -14,7 +12,6 @@ import BaseInput from '~/components/base/BaseInput.vue'
 import InputNumber from '~/components/base/InputNumber.vue'
 
 const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
-const { t: $t } = useI18n()
 
 const settings = useSettingStore()
 const runtimeStore = useRuntimeStore()
@@ -33,13 +30,11 @@ let show = $ref(false)
 let tempPerDayStudyNumber = $ref(0)
 let tempWordReviewRatio = $ref(0)
 let tempLastLearnIndex = $ref(0)
-let tempDisableShowPracticeSettingDialog = $ref(false)
 
 function changePerDayStudyNumber() {
   runtimeStore.editDict.perDayStudyNumber = Number(tempPerDayStudyNumber)
   runtimeStore.editDict.lastLearnIndex = Number(tempLastLearnIndex)
   settings.wordReviewRatio = tempWordReviewRatio
-  settings.disableShowPracticeSettingDialog = tempDisableShowPracticeSettingDialog
   emit('ok')
 }
 
@@ -51,7 +46,6 @@ watch(
         tempPerDayStudyNumber = runtimeStore.editDict.perDayStudyNumber
         tempLastLearnIndex = runtimeStore.editDict.lastLearnIndex
         tempWordReviewRatio = settings.wordReviewRatio
-        tempDisableShowPracticeSettingDialog = settings.disableShowPracticeSettingDialog
       } else {
         Toast.warning($t('please_select_dict'))
       }
@@ -69,11 +63,9 @@ watch(
           >{{ $t('words_count') }}，</span
         >
         <span
-          >{{ $t('estimated') }}<span class="target-number mx-2">{{
-            _getAccomplishDays(
-              runtimeStore.editDict.length - tempLastLearnIndex,
-              tempPerDayStudyNumber
-            )
+          >{{ $t('estimated')
+          }}<span class="target-number mx-2">{{
+            _getAccomplishDays(runtimeStore.editDict.length - tempLastLearnIndex, tempPerDayStudyNumber)
           }}</span
           >{{ $t('days_to_complete') }}</span
         >
@@ -117,14 +109,7 @@ watch(
 
       <div class="flex mb-4 gap-space">
         <span class="shrink-0 w-20">{{ $t('daily_learning') }}</span>
-        <Slider
-          :min="10"
-          :step="10"
-          show-text
-          class="mt-1"
-          :max="200"
-          v-model="tempPerDayStudyNumber"
-        />
+        <Slider :min="10" :step="10" show-text class="mt-1" :max="200" v-model="tempPerDayStudyNumber" />
       </div>
       <div class="flex gap-space">
         <span class="shrink-0 w-20">{{ $t('learning_progress') }}</span>
@@ -141,14 +126,6 @@ watch(
         </div>
       </div>
     </div>
-    <template v-slot:footer-left v-if="showLeftOption">
-      <div class="flex items-center">
-        <Checkbox v-model="tempDisableShowPracticeSettingDialog" />
-        <Tooltip :title="$t('change_in_settings')">
-          <span class="text-sm">{{ $t('keep_default_no_show') }}</span>
-        </Tooltip>
-      </div>
-    </template>
   </Dialog>
   <ChangeLastPracticeIndexDialog
     v-model="show"

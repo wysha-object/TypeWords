@@ -247,8 +247,6 @@
 	"volume": "Volume",
 	"show_prev_next_word": "Show Previous/Next Word",
 	"show_prev_next_word_desc": "When enabled, previous/next word will be shown above during practice",
-	"disable_practice_setting_dialog": "Don't show practice settings by default",
-	"disable_practice_setting_dialog_desc": "Whether to show practice settings dialog when clicking learn button on dictionary page",
 	"clear_input_on_error": "Clear input on error",
 	"word_repeat_setting": "Word Repeat Setting(effective only for writing along)",
 	"repeat_count": "Repeat Count",

@@ -19,12 +19,6 @@ const settingStore = useSettingStore()
       <Switch v-model="settingStore.showNearWord"/>
     </SettingItem>
 
-    <SettingItem :title="$t('disable_practice_setting_dialog')"
-                 :desc="$t('disable_practice_setting_dialog_desc')"
-    >
-      <Switch v-model="settingStore.disableShowPracticeSettingDialog"/>
-    </SettingItem>
-
     <SettingItem :title="$t('clear_input_on_error')"
     >
       <Switch v-model="settingStore.inputWrongClear"/>
@@ -33,12 +27,6 @@ const settingStore = useSettingStore()
     <SettingItem :title="$t('practice_sentence')"
     >
       <Switch v-model="settingStore.practiceSentence"/>
-    </SettingItem>
-
-    <SettingItem :title="$t('enable_fsrs')"
-                 :desc="$t('enable_fsrs_desc')"
-    >
-      <Switch v-model="settingStore.enableFSRS"/>
     </SettingItem>
 
     <SettingItem :title="$t('word_repeat_setting')" class="gap-0!">

@@ -247,8 +247,6 @@
 	"volume": "Volume",
 	"show_prev_next_word": "Afficher le mot précédent/suivant",
 	"show_prev_next_word_desc": "Lorsqu'activé, les mots précédent et suivant seront affichés au-dessus pendant la pratique",
-	"disable_practice_setting_dialog": "Ne pas afficher la boîte de dialogue des paramètres de pratique par défaut",
-	"disable_practice_setting_dialog_desc": "Sur la page de détails du dictionnaire, afficher ou non la boîte de dialogue des paramètres de pratique après avoir cliqué sur le bouton apprendre",
 	"clear_input_on_error": "Effacer la saisie en cas d'erreur",
 	"word_repeat_setting": "Paramètre de boucle de mots (efficace uniquement lors de l'écriture suivie)",
 	"repeat_count": "Nombre de répétitions",

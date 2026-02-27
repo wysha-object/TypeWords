@@ -18,8 +18,6 @@ import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import nlp from 'compromise/three'
 import { nanoid } from 'nanoid'
 import { inject, onMounted, onUnmounted, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-const { t: $t } = useI18n()
 
 import { getPracticeArticleCache, setPracticeArticleCache } from '~/utils/cache'
 import { PracticeArticleWordType, ShortcutKey } from '~/types/enum'
@@ -643,8 +641,10 @@ onUnmounted(() => {
 })
 
 useEvents([
-  [ShortcutKey.KnowWord, onTyping],
-  [ShortcutKey.UnknownWord, onTyping],
+  [ShortcutKey.ChooseA, onTyping],
+  [ShortcutKey.ChooseB, onTyping],
+  [ShortcutKey.ChooseC, onTyping],
+  [ShortcutKey.ChooseD, onTyping],
 ])
 
 defineExpose({

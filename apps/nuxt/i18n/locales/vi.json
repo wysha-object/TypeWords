@@ -247,8 +247,6 @@
 	"volume": "Âm lượng",
 	"show_prev_next_word": "Hiển thị từ trước/sau",
 	"show_prev_next_word_desc": "Khi bật, từ trước và sau sẽ hiển thị ở trên trong khi luyện tập",
-	"disable_practice_setting_dialog": "Không hiển thị hộp thoại cài đặt luyện tập theo mặc định",
-	"disable_practice_setting_dialog_desc": "Trên trang chi tiết từ điển, có hiển thị hộp thoại cài đặt luyện tập sau khi nhấp nút học hay không",
 	"clear_input_on_error": "Xóa đầu vào khi có lỗi",
 	"word_repeat_setting": "Cài đặt vòng lặp từ (chỉ có hiệu quả khi viết theo)",
 	"repeat_count": "Số lần lặp",

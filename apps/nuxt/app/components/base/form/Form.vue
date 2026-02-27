@@ -1,13 +1,16 @@
 <template>
   <form @submit.prevent>
-    <slot/>
+    <slot />
   </form>
 </template>
 
 <script setup lang="ts">
-import {provide, ref, toRef} from 'vue'
-import type {FormField, FormModel, FormRules} from './types'
+import { provide, ref, toRef } from 'vue'
+import type { FormField, FormModel, FormRules } from './types'
 
+export interface FormType {
+  validate: (cb: (vaild: boolean) => void) => void
+}
 interface Field {
   prop: string
   modelValue: any
@@ -16,7 +19,7 @@ interface Field {
 
 const props = defineProps({
   model: Object as () => FormModel,
-  rules: Object as () => FormRules
+  rules: Object as () => FormRules,
 })
 
 const fields = ref<Field[]>([])
@@ -54,5 +57,5 @@ provide('formModel', toRef(props, 'model'))
 provide('formValidate', validate)
 provide('formRules', props.rules)
 
-defineExpose({validate, validateField})
+defineExpose({ validate, validateField })
 </script>

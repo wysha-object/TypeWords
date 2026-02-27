@@ -247,8 +247,6 @@
 	"volume": "볼륨",
 	"show_prev_next_word": "이전/다음 단어 표시",
 	"show_prev_next_word_desc": "활성화하면 연습 중 위쪽에 이전/다음 단어가 표시됩니다",
-	"disable_practice_setting_dialog": "기본적으로 연습 설정 대화 상자 표시 안 함",
-	"disable_practice_setting_dialog_desc": "사전 상세 페이지에서 학습 버튼을 클릭한 후 연습 설정 대화 상자를 표시할지 여부",
 	"clear_input_on_error": "오류 시 입력 지우기",
 	"word_repeat_setting": "단어 순환 설정(쓰기 시에만 유효)",
 	"repeat_count": "반복 횟수",

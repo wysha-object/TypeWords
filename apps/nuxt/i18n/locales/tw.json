@@ -247,8 +247,6 @@
 	"volume": "音量",
 	"show_prev_next_word": "顯示上一個/下一個單詞",
 	"show_prev_next_word_desc": "開启后，練习中会在上方顯示上一個/下一個單詞",
-	"disable_practice_setting_dialog": "不默认顯示練习設置弹框",
-	"disable_practice_setting_dialog_desc": "在詞典详情页面，点击學习按钮后，是否顯示練习設置弹框",
 	"clear_input_on_error": "輸入错误時，清空已輸入内容",
 	"word_repeat_setting": "單詞循环設置（僅跟冩生效)",
 	"repeat_count": "循环次數",

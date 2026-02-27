@@ -247,8 +247,6 @@
 	"volume": "Lautstärke",
 	"show_prev_next_word": "Vorheriges/Nächstes Wort anzeigen",
 	"show_prev_next_word_desc": "Wenn aktiviert, werden die vorherigen und nächsten Wörter während der Übung oben angezeigt",
-	"disable_practice_setting_dialog": "Übungseinstellungsdialog standardmäßig nicht anzeigen",
-	"disable_practice_setting_dialog_desc": "Auf der Wörterbuch-Detailseite, ob der Übungseinstellungsdialog nach Klicken auf die Lernschaltfläche angezeigt werden soll",
 	"clear_input_on_error": "Eingabe bei Fehler löschen",
 	"word_repeat_setting": "Wort-Schleifen-Einstellung (nur beim Mit-Schreiben wirksam)",
 	"repeat_count": "Wiederholungsanzahl",

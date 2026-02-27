@@ -247,8 +247,6 @@
 	"volume": "音量",
 	"show_prev_next_word": "前/次の単語を表示",
 	"show_prev_next_word_desc": "有効にすると、練習中に上部に前後の単語が表示されます",
-	"disable_practice_setting_dialog": "デフォルトで練習設定ダイアログを表示しない",
-	"disable_practice_setting_dialog_desc": "辞書詳細ページで、学習ボタンをクリックした後に練習設定ダイアログを表示するかどうか",
 	"clear_input_on_error": "エラー時に入力をクリア",
 	"word_repeat_setting": "単語ループ設定（書き写し時のみ有効）",
 	"repeat_count": "繰り返し回数",

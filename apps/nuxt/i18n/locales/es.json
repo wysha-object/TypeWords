@@ -247,8 +247,6 @@
 	"volume": "Volumen",
 	"show_prev_next_word": "Mostrar palabra anterior/siguiente",
 	"show_prev_next_word_desc": "Cuando está habilitado, las palabras anterior y siguiente se mostrarán arriba durante la práctica",
-	"disable_practice_setting_dialog": "No mostrar diálogo de configuración de práctica por defecto",
-	"disable_practice_setting_dialog_desc": "En la página de detalles del diccionario, si mostrar el diálogo de configuración de práctica después de hacer clic en el botón aprender",
 	"clear_input_on_error": "Borrar entrada en caso de error",
 	"word_repeat_setting": "Configuración de bucle de palabras (solo efectiva al escribir de forma seguida)",
 	"repeat_count": "Número de repeticiones",

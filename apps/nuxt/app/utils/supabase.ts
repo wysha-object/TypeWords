@@ -1,4 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { Toast } from '#components'
+
+export const SUPABASE_URL = 'supabase_url'
+export const SUPABASE_KEY = 'supabase_key'
 
 export class Supabase {
   static instance
@@ -6,15 +10,19 @@ export class Supabase {
   static supabaseKey = ''
 
   static check() {
-    this.supabaseKey = localStorage.getItem('sb-key')
-    this.supabaseUrl = localStorage.getItem('sb-url')
+    this.supabaseUrl = localStorage.getItem(SUPABASE_URL)
+    this.supabaseKey = localStorage.getItem(SUPABASE_KEY)
     return !!(this.supabaseKey && this.supabaseUrl)
   }
 
   static getInstance() {
     if (!Supabase.instance) {
       if (this.check()) {
-        Supabase.instance = createClient(this.supabaseUrl, this.supabaseKey)
+        try {
+          Supabase.instance = createClient(this.supabaseUrl, this.supabaseKey)
+        }catch(e) {
+          Toast.error(e.message)
+        }
       } else {
         Supabase.instance = {
           from: () => {

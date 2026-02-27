@@ -300,11 +300,7 @@ async function addMyStudyList() {
   if (!runtimeStore.editDict.words.length) {
     return Toast.warning('没有单词可学习！')
   }
-  if (!settingStore.disableShowPracticeSettingDialog) {
-    showPracticeSettingDialog = true
-    return
-  }
-  startPractice()
+  showPracticeSettingDialog = true
 }
 
 async function startTest() {

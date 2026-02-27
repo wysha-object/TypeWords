@@ -53,14 +53,11 @@ export interface SettingState {
   ignoreSimpleWord: boolean // 忽略简单词
   wordPracticeMode: WordPracticeMode // 单词练习模式
   wordPracticeType: WordPracticeType // 单词练习类型
-  disableShowPracticeSettingDialog: boolean // 不默认显示练习设置弹框
   autoNextWord: boolean // 自动切换下一个单词
   inputWrongClear: boolean // 单词输入错误，清空已输入内容
   mobileNavCollapsed: boolean // 移动端底部导航栏收缩状态
   ignoreSymbol: boolean // 过滤符号
   practiceSentence: boolean // 练习例句
-
-  enableFSRS: boolean // 启用FSRS
 }
 
 export const getDefaultSettingState = (): SettingState => ({
@@ -111,14 +108,11 @@ export const getDefaultSettingState = (): SettingState => ({
   ignoreSimpleWord: false,
   wordPracticeMode: WordPracticeMode.System,
   wordPracticeType: WordPracticeType.FollowWrite,
-  disableShowPracticeSettingDialog: false,
   autoNextWord: true,
   inputWrongClear: false,
   mobileNavCollapsed: false,
   ignoreSymbol: true,
   practiceSentence: false,
-  
-  enableFSRS: false,
 })
 
 export const useSettingStore = defineStore('setting', {

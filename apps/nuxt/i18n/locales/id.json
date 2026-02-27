@@ -247,8 +247,6 @@
 	"volume": "Volume",
 	"show_prev_next_word": "Tampilkan Kata Sebelumnya/Berikutnya",
 	"show_prev_next_word_desc": "Saat diaktifkan, kata sebelumnya dan berikutnya akan ditampilkan di atas selama latihan",
-	"disable_practice_setting_dialog": "Jangan tampilkan dialog pengaturan latihan secara default",
-	"disable_practice_setting_dialog_desc": "Di halaman detail kamus, apakah akan menampilkan dialog pengaturan latihan setelah mengklik tombol belajar",
 	"clear_input_on_error": "Hapus input saat error",
 	"word_repeat_setting": "Pengaturan siklus kata (berlaku hanya saat menulis mengikuti)",
 	"repeat_count": "Jumlah Pengulangan",

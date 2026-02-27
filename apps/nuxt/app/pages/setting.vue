@@ -23,6 +23,10 @@ import {
   setPracticeArticleCache,
   setPracticeWordCache,
 } from '@/utils/cache'
+import SettingItem from '~/components/setting/SettingItem.vue'
+import Switch from '~/components/base/Switch.vue'
+import Form, { type FormType } from '~/components/base/form/Form.vue'
+import { SUPABASE_KEY, SUPABASE_URL } from '~/utils/supabase.ts'
 
 let route = useRoute()
 let title = APP_NAME + ' 设置'
@@ -322,6 +326,37 @@ function clearAllData() {
   d1.load = true
   settingStore.setState(d1)
 }
+let sbFormRef = $ref<FormType>()
+let sbForm = $ref({
+  url: localStorage.getItem(SUPABASE_URL) ?? '',
+  key: localStorage.getItem(SUPABASE_KEY) ?? '',
+})
+
+let sbFormRules = {
+  url: [{ required: true, message: '请输入 Supbase Url', trigger: 'blur' }],
+  key: [{ required: true, message: '请输入  Supbase Key', trigger: 'blur' }],
+}
+
+function saveSbConfig() {
+  sbFormRef?.validate(valid => {
+    if (valid) {
+      localStorage.setItem(SUPABASE_URL, sbForm?.url)
+      localStorage.setItem(SUPABASE_KEY, sbForm?.key)
+      Toast.success('保存成功')
+      setTimeout(() => {
+        location.href = '/words'
+      }, 1000)
+    }
+  })
+}
+function removeSbConfig() {
+  localStorage.removeItem(SUPABASE_URL)
+  localStorage.removeItem(SUPABASE_KEY)
+  Toast.success('清除成功')
+  setTimeout(() => {
+    location.href = '/words'
+  }, 1000)
+}
 </script>
 
 <template>
@@ -467,6 +502,23 @@ function clearAllData() {
                 <BaseButton @click="showTransfer = true">迁移 2study.top 网站数据</BaseButton>
               </div>
             </template>
+
+            <div class="line mt-15 mb-3"></div>
+            <div class="mt-3">
+              <SettingItem title="Supbase 设置" desc="网站不会上传您的 url 和 key，只保存在浏览器本地(Local storage)">
+              </SettingItem>
+
+              <Form ref="sbFormRef" :rules="sbFormRules" :model="sbForm">
+                <FormItem label="Url" prop="url">
+                  <BaseInput v-model="sbForm.url" />
+                </FormItem>
+                <FormItem label="Key" prop="key">
+                  <BaseInput v-model="sbForm.key" />
+                </FormItem>
+              </Form>
+              <BaseButton @click="removeSbConfig">删除配置</BaseButton>
+              <BaseButton @click="saveSbConfig">保存配置</BaseButton>
+            </div>
 
             <div class="line mt-15 mb-3"></div>
             <div class="flex gap-space mt-3">

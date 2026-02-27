@@ -351,7 +351,6 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   }
 }
 
-
 function complete() {
   if (!showStatDialog) {
     console.log('全完学完了')
@@ -433,8 +432,16 @@ async function next(isTyping: boolean = true) {
             nextStage(shuffle(taskWords.new), '开始默写新词')
           } else if (statStore.stage === WordPracticeStage.DictationNewWord) {
             console.log('新词学习完成，批量设置为 Good')
-            taskWords.new.map(w => setWordCard(Rating.Good, w.word))
-
+            let easyCount = 0
+            taskWords.new.map((w, _, arr) => {
+              //如果没有打错过，设为 Easy，但不超过总新词数的 20%
+              if (!allWrongWords.has(w.word) && easyCount < Math.floor(arr.length * 0.2)) {
+                easyCount++
+                setWordCard(Rating.Easy, w.word)
+              } else {
+                setWordCard(Rating.Good, w.word)
+              }
+            })
             nextStage(taskWords.review, '开始自测旧词')
           } else if (statStore.stage === WordPracticeStage.IdentifyReview) {
             nextStage(shuffle(taskWords.review), '开始听写旧词', true)

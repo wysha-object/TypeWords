@@ -28,7 +28,7 @@ export function useInit() {
     unsub = store.$subscribe((mutation, n) => {
       // 如果正在初始化，不保存数据，避免覆盖
       if (isInitializing) return
-      console.log('store.$subscribe', mutation, n)
+      // console.log('store.$subscribe', mutation, n)
       let data = shakeCommonDict(n)
       set(SAVE_DICT_KEY.key, JSON.stringify({ val: data, version: SAVE_DICT_KEY.version }))
       Supabase.getInstance().from('words').upsert({ id: '1', data }).then()
@@ -64,7 +64,7 @@ export function useInit() {
     unsub2?.()
     unsub2 = settingStore.$subscribe((mutation, state) => {
       if (isInitializing) return
-      console.log('settingStore.$subscribe', mutation, state)
+      // console.log('settingStore.$subscribe', mutation, state)
 
       set(SAVE_SETTING_KEY.key, JSON.stringify({ val: state, version: SAVE_SETTING_KEY.version }))
       Supabase.getInstance().from('setting').upsert({ id: '1', data: state }).then()
@@ -77,7 +77,7 @@ export function useInit() {
     await store.init()
     await settingStore.init()
 
-    if (Supabase.can_req) {
+    if (Supabase.check()) {
       const { data } = await Supabase.getInstance()?.from('words').select()
       if (data?.length) {
         store.setState(data[0].data)

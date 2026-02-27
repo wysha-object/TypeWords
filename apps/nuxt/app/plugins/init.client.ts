@@ -1,7 +1,6 @@
 //@ts-ignore
 import VueVirtualScroller from 'vue-virtual-scroller'
 import { ENV } from '~/config/env.ts'
-import { useInit } from '~/composables/useInit.ts'
 
 export default defineNuxtPlugin(async nuxtApp => {
   if (
@@ -103,9 +102,6 @@ export default defineNuxtPlugin(async nuxtApp => {
   console.parse = function (v: any) {
     console.log(JSON.parse(v))
   }
-
-  const init = useInit()
-  init()
 
   nuxtApp.vueApp.use(VueVirtualScroller)
 })

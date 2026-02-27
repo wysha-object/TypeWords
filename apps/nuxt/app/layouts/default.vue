@@ -17,10 +17,7 @@ const { toggleTheme, getTheme, setTheme } = useTheme()
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
 let expand = $ref(false)
-const initData = function () {
-  const init = useInit()
-  init()
-}
+const init = useInit()
 
 function toggleExpand(n: boolean) {
   expand = n
@@ -32,6 +29,7 @@ watch(() => settingStore.sideExpand, toggleExpand)
 //迁移数据
 let showTransfer = $ref(false)
 onMounted(() => {
+  init()
   toggleExpand(settingStore.sideExpand)
   setTheme(settingStore.theme)
 
@@ -123,7 +121,7 @@ const showIcon = $computed(() => {
       </div>
     </div>
 
-    <MigrateDialog v-model="showTransfer" @ok="initData" />
+    <MigrateDialog v-model="showTransfer" @ok="init" />
 
     <IeDialog />
 

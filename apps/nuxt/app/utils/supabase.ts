@@ -2,26 +2,25 @@ import { createClient } from '@supabase/supabase-js'
 
 export class Supabase {
   static instance
-  static can_req = false
   static supabaseUrl = ''
   static supabaseKey = ''
 
-  static {
+  static check() {
     this.supabaseKey = localStorage.getItem('sb-key')
     this.supabaseUrl = localStorage.getItem('sb-url')
-    this.can_req = !!(this.supabaseKey && this.supabaseUrl)
+    return !!(this.supabaseKey && this.supabaseUrl)
   }
 
   static getInstance() {
     if (!Supabase.instance) {
-      if (this.can_req) {
+      if (this.check()) {
         Supabase.instance = createClient(this.supabaseUrl, this.supabaseKey)
       } else {
         Supabase.instance = {
           from: () => {
             return {
-              select: () => Promise.reject(),
-              upsert: () => Promise.reject(),
+              select: () => Promise.resolve({ data: [] }),
+              upsert: () => Promise.resolve({ data: [] }),
             }
           },
         }

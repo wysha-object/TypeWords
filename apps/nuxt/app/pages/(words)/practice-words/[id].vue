@@ -8,7 +8,16 @@ import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
 import { getCurrentStudyWord, useWordOptions } from '@/hooks/dict.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from '@/utils'
+import {
+  _getDictDataByUrl,
+  _nextTick,
+  cloneDeep,
+  getGradeByWrongTimes,
+  isMobile,
+  loadJsLib,
+  resourceWrap,
+  shuffle,
+} from '@/utils'
 import { useRoute, useRouter } from 'vue-router'
 import Footer from '~/components/word/Footer.vue'
 import Panel from '@/components/Panel.vue'
@@ -33,7 +42,7 @@ import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } fr
 import ConflictNotice2 from '~/components/dialog/ConflictNotice2.vue'
 import { createEmptyCard, FSRS, Rating } from 'ts-fsrs'
 
-const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
+const { toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
 const runtimeStore = useRuntimeStore()
 const { toggleTheme } = useTheme()
@@ -47,7 +56,7 @@ let showConflictNotice2 = $ref(false)
 let allWrongWords = new Set()
 let showStatDialog = $ref(false)
 let loading = $ref(false)
-let timer = $ref(0)
+let timer = $ref<any>(-1)
 let isFocus = true
 let fsrs = new FSRS({})
 let taskWords = $ref<TaskWords>({
@@ -60,6 +69,8 @@ let data = $ref<PracticeData>({
   words: [],
   wrongWords: [],
   excludeWords: [],
+  wrongTimesMap: {},
+  wrongTimes: 0,
   isTypingWrongWord: false,
 })
 
@@ -169,6 +180,7 @@ useStartKeyboardEventListener()
 useDisableEventListener(() => loading)
 
 function initData(initVal: TaskWords, init: boolean = false) {
+  // debugger
   let d = getPracticeWordCache()
   //只有初始化时，才读取缓存
   if (d && init) {
@@ -339,7 +351,7 @@ function wordLoop() {
 
 function nextStage(originList: Word[], log: string = '', toast: boolean = false) {
   //每次都判断，因为每次都可能新增已掌握的单词
-  let list = originList.filter(v => !data.excludeWords.includes(v.word))
+  let list = originList.filter(v => !checkWordIsNeedNext(v))
   console.log(log)
   statStore.stage = statStore.nextStage
   if (list.length) {
@@ -376,7 +388,12 @@ function complete() {
   }
 }
 
-async function next(isTyping: boolean = true) {
+function next(isTyping: boolean = true) {
+  let temp = word.word.toLowerCase()
+  if (data.wrongTimes) {
+    data.wrongTimesMap[temp] = (data.wrongTimesMap[temp] ?? 0) + data.wrongTimes
+    data.wrongTimes = 0
+  }
   // debugger
   if (isTyping) statStore.inputWordNumber++
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) {
@@ -408,12 +425,11 @@ async function next(isTyping: boolean = true) {
           data.index = Math.floor(data.index / groupSize) * groupSize
           emitter.emit(EventKey.resetWord)
           settingStore.wordPracticeType = WordPracticeType.Spell
-          //如果单词是已掌握的，则跳过
-          if (isWordSimple(word)) next(false)
+          if (checkWordIsNeedNext(word)) next(false)
           return
         }
       }
-      data.wrongWords = data.wrongWords.filter(v => !data.excludeWords.includes(v.word))
+      data.wrongWords = data.wrongWords.filter(v => !checkWordIsNeedNext(v))
       if (data.wrongWords.length) {
         data.isTypingWrongWord = true
         settingStore.wordPracticeType = WordPracticeType.FollowWrite
@@ -433,13 +449,19 @@ async function next(isTyping: boolean = true) {
           } else if (statStore.stage === WordPracticeStage.DictationNewWord) {
             console.log('新词学习完成，批量设置为 Good')
             let easyCount = 0
+            // wrongTime -> grade
+
             taskWords.new.map((w, _, arr) => {
-              //如果没有打错过，设为 Easy，但不超过总新词数的 20%
-              if (!allWrongWords.has(w.word) && easyCount < Math.floor(arr.length * 0.2)) {
+              //如果没有打错过/或者跳过的单词，设为 Easy，但不超过总新词数的 20%
+              if (
+                (!allWrongWords.has(w.word) || checkWordIsNeedNext(word)) &&
+                easyCount < Math.floor(arr.length * 0.2)
+              ) {
                 easyCount++
                 setWordCard(Rating.Easy, w.word)
               } else {
-                setWordCard(Rating.Good, w.word)
+                //根据错误次数生成评级
+                setWordCard(getGradeByWrongTimes(data.wrongTimesMap[w.word]), w.word, data.wrongTimesMap[w.word])
               }
             })
             nextStage(taskWords.review, '开始自测旧词')
@@ -481,8 +503,15 @@ async function next(isTyping: boolean = true) {
       }
     }
   }
-  //如果单词是已掌握的，则跳过
-  if (isWordSimple(word)) next(false)
+
+  if (checkWordIsNeedNext(word)) next(false)
+}
+
+//检查单词是否跳过
+//如果单词是已掌握的/或者主动跳过的，则略过
+function checkWordIsNeedNext(word: Word) {
+  let rIndex = data.excludeWords.findIndex(v => v === word.word)
+  return isWordSimple(word) || rIndex > -1
 }
 
 function skipStep() {
@@ -510,6 +539,7 @@ function onWordKnow() {
 }
 
 function onTypeWrong() {
+  data.wrongTimes++
   //这里的代码暂时不能移动，因为要实时把错词加入到列表里面，从而更新toolbar里面的错词数
   //todo 后续可以优化
   let temp = word.word.toLowerCase()
@@ -532,7 +562,7 @@ function onTypeWrong() {
 }
 
 //设置单词卡片
-function setWordCard(rating: number, wordStr = word.word) {
+function setWordCard(rating: number, wordStr = word.word, times?: number) {
   let card = store.fsrsData[wordStr]
   if (!card) {
     card = createEmptyCard()
@@ -540,7 +570,7 @@ function setWordCard(rating: number, wordStr = word.word) {
   card = fsrs.next(card, Date.now(), rating).card
   store.fsrsData[wordStr] = card
   console.log(
-    `更新卡片: 单词：${wordStr}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 卡片: `,
+    `更新卡片: 单词：${wordStr}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 次数：${times}, 卡片: `,
     card,
     cloneDeep(store.fsrsData)
   )
@@ -599,9 +629,12 @@ function prev() {
   }
 }
 
-function skip(e: KeyboardEvent) {
+function skip() {
+  let rIndex = data.excludeWords.findIndex(v => v === word.word)
+  if (rIndex < 0) {
+    data.excludeWords.push(word.word)
+  }
   next(false)
-  // e.preventDefault()
 }
 
 function show(e: KeyboardEvent) {
@@ -618,16 +651,15 @@ function play() {
 
 function toggleWordSimpleWrapper() {
   if (!isWordSimple(word)) {
-    //延迟一下，不知道为什么不延迟会导致当前条目不自动定位到列表中间
     setTimeout(() => next(false))
   }
+  toggleWordSimple(word)
   let rIndex = data.excludeWords.findIndex(v => v === word.word)
   if (rIndex > -1) {
     data.excludeWords.splice(rIndex, 1)
   } else {
     data.excludeWords.push(word.word)
   }
-  toggleWordSimple(word)
 }
 
 function toggleTranslate() {
@@ -690,12 +722,12 @@ async function continueStudy() {
 }
 
 async function jumpToGroup(group: number) {
+  window?.umami?.track('jumpToGroup')
   setPracticeWordCache(null)
   console.log('没学完，强行跳过', group)
   store.sdict.lastLearnIndex = (group - 1) * store.sdict.perDayStudyNumber
   emitter.emit(EventKey.resetWord)
   initData(getCurrentStudyWord())
-
   if (AppEnv.CAN_REQUEST) {
     let res = await setUserDictProp(null, { ...store.sdict, type: 'word' })
     if (!res.success) {
@@ -705,6 +737,7 @@ async function jumpToGroup(group: number) {
 }
 
 function randomWrite() {
+  window?.umami?.track('randomWrite')
   console.log('随机默写')
   data.words = shuffle(data.words)
   data.index = 0
@@ -737,6 +770,7 @@ useEvents([
   <PracticeLayout v-loading="loading" panelLeft="var(--word-panel-margin-left)">
     <template v-slot:practice>
       <div class="practice-word mb-50">
+        <!--        前后单词-->
         <div
           class="fixed z-1 top-4 w-full"
           style="left: calc(50vw + var(--aside-width) / 2 - var(--toolbar-width) / 2); width: var(--toolbar-width)"
@@ -767,6 +801,7 @@ useEvents([
             <IconFluentArrowRight16Regular class="arrow" width="22" />
           </div>
         </div>
+
         <TypeWord
           ref="typingRef"
           :word="word"
@@ -774,6 +809,8 @@ useEvents([
           @complete="next"
           @mastered="onWordMastered"
           @know="onWordKnow"
+          @skip="skip"
+          @toggle-simple="toggleWordSimpleWrapper"
         />
       </div>
     </template>
@@ -812,6 +849,7 @@ useEvents([
             :show-translate="settingStore.translate"
             :list="data.words"
             :activeIndex="data.index"
+            :excludeWords="data.excludeWords"
             @click="(val: any) => (data.index = val.index)"
           >
           </WordList>
@@ -820,14 +858,7 @@ useEvents([
       </Panel>
     </template>
     <template v-slot:footer>
-      <Footer
-        :is-simple="isWordSimple(word)"
-        @toggle-simple="toggleWordSimpleWrapper"
-        :is-collect="isWordCollect(word)"
-        @toggle-collect="toggleWordCollect(word)"
-        @skip="next(false)"
-        @skipStep="skipStep"
-      />
+      <Footer @skipStep="skipStep" />
     </template>
   </PracticeLayout>
   <Statistics v-model="showStatDialog" />

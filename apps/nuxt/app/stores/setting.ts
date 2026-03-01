@@ -66,7 +66,7 @@ export const getDefaultSettingState = (): SettingState => ({
   wordSound: true,
   wordSoundVolume: 100,
   wordSoundSpeed: 1,
-  wordReviewRatio: 4,
+  wordReviewRatio: 3,
 
   articleSound: true,
   articleAutoPlayNext: false,

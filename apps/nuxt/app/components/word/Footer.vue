@@ -1,34 +1,24 @@
 <script setup lang="ts">
 import { usePracticeStore } from '~/stores/practice'
 import { useSettingStore } from '~/stores/setting'
-import type { PracticeData, TaskWords } from '~/types/types'
+import type { PracticeData } from '~/types/types'
 import BaseIcon from '~/components/BaseIcon.vue'
 import Tooltip from '~/components/base/Tooltip.vue'
 import SettingDialog from '~/components/setting/SettingDialog.vue'
-import BaseButton from '~/components/BaseButton.vue'
-import { useBaseStore } from '~/stores/base'
 import VolumeSettingMiniDialog from '~/components/word/VolumeSettingMiniDialog.vue'
 import StageProgress from '~/components/StageProgress.vue'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '~/types/enum'
-import { WordPracticeModeNameMap, WordPracticeModeStageMap, WordPracticeStageNameMap } from '~/config/env'
-import { useI18n } from 'vue-i18n'
+import { WordPracticeModeNameMap, WordPracticeStageNameMap } from '~/config/env'
 
 const statStore = usePracticeStore()
-const { t: $t } = useI18n()
-const store = useBaseStore()
 const settingStore = useSettingStore()
 
 defineProps<{
   showEdit?: boolean
-  isCollect: boolean
-  isSimple: boolean
 }>()
 
 const emit = defineEmits<{
-  toggleCollect: []
-  toggleSimple: []
   edit: []
-  skip: []
   skipStep: []
 }>()
 
@@ -42,11 +32,6 @@ const status = $computed(() => {
   if (settingStore.wordPracticeMode === WordPracticeMode.Free) return $t('free_practice')
   if (practiceData.isTypingWrongWord) return $t('review_wrong_words')
   return statStore.getStageName
-})
-
-const progress = $computed(() => {
-  if (!practiceData.words.length) return 0
-  return (practiceData.index / practiceData.words.length) * 100
 })
 
 const stages = $computed(() => {
@@ -245,47 +230,6 @@ const stages = $computed(() => {
           >
             <IconFluentArrowRight16Regular />
           </BaseIcon>
-
-          <div class="relative z-999 group">
-            <div
-              class="space-y-2 btn-no-margin pb-2 left-1/2 -transform-translate-x-1/2 absolute z-999 bottom-full scale-95 opacity-0 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
-            >
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('toggleSimple')">
-                <div class="flex items-center gap-2">
-                  <IconFluentCheckmarkCircle16Regular v-if="!isSimple" />
-                  <IconFluentCheckmarkCircle16Filled v-else />
-                  <span>
-                    {{
-                      (!isSimple ? $t('mark_mastered') : $t('unmark_mastered')) +
-                      `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleSimple]})`
-                    }}</span
-                  >
-                </div>
-              </BaseButton>
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('toggleCollect')">
-                <div class="flex items-center gap-2">
-                  <IconFluentStarAdd16Regular v-if="!isCollect" />
-                  <IconFluentStar16Filled v-else />
-                  <span>
-                    {{
-                      (!isCollect ? $t('collect') : $t('uncollect')) +
-                      `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
-                    }}</span
-                  >
-                </div>
-              </BaseButton>
-              <BaseButton size="normal" type="info" class="w-full" @click="$emit('skip')">
-                <div class="flex items-center gap-2">
-                  <IconFluentArrowBounce20Regular class="transform-rotate-180" />
-                  <span> {{ $t('skip_word') }}({{ settingStore.shortcutKeyMap[ShortcutKey.Next] }})</span>
-                </div>
-              </BaseButton>
-            </div>
-
-            <BaseIcon>
-              <IconPhMicrosoftWordLogoLight />
-            </BaseIcon>
-          </div>
 
           <BaseIcon
             @click="settingStore.dictation = !settingStore.dictation"

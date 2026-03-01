@@ -15,6 +15,7 @@ import Toast from '~/components/base/toast/Toast'
 import Tooltip from '~/components/base/Tooltip.vue'
 import { ShortcutKey, WordPracticeStage, WordPracticeType } from '~/types/enum'
 import { useI18n } from 'vue-i18n'
+import { useWordOptions } from '~/hooks/dict.ts'
 const { t: $t } = useI18n()
 
 interface IProps {
@@ -30,6 +31,8 @@ const emit = defineEmits<{
   wrong: []
   know: []
   mastered: []
+  skip: []
+  toggleSimple: []
 }>()
 
 let input = $ref('')
@@ -536,6 +539,11 @@ const notice = $computed(() => {
     text,
   }
 })
+
+const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
+
+const isSimple = $computed(() => isWordSimple(props.word))
+const isCollect = $computed(() => isWordCollect(props.word))
 </script>
 
 <template>
@@ -630,6 +638,33 @@ const notice = $computed(() => {
         </div>
       </Tooltip>
 
+      <!--      单词操作按钮-->
+      <div class="mt-2 flex gap-4">
+        <BaseIcon
+          @click="emit('toggleSimple')"
+          :title="
+            (!isSimple ? $t('mark_mastered') : $t('unmark_mastered')) +
+            `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleSimple]})`
+          "
+        >
+          <IconFluentCheckmarkCircle16Regular v-if="!isSimple" />
+          <IconFluentCheckmarkCircle16Filled v-else />
+        </BaseIcon>
+        <BaseIcon
+          @click="toggleWordCollect(word)"
+          :title="
+            (!isCollect ? $t('collect') : $t('uncollect')) +
+            `(${settingStore.shortcutKeyMap[ShortcutKey.ToggleCollect]})`
+          "
+        >
+          <IconFluentStarAdd16Regular v-if="!isCollect" />
+          <IconFluentStar16Filled v-else />
+        </BaseIcon>
+        <BaseIcon @click="emit('skip')" :title="`${$t('skip_word')}(${settingStore.shortcutKeyMap[ShortcutKey.Next]})`">
+          <IconFluentArrowBounce20Regular class="transform-rotate-180" />
+        </BaseIcon>
+      </div>
+
       <div
         class="mt-4 flex gap-4"
         v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
@@ -673,7 +708,7 @@ const notice = $computed(() => {
         }"
       >
         <div class="flex" v-for="v in word.trans">
-          <div class="shrink-0" :class="v.pos ? 'w-12 en-article-family' : '-ml-3'">
+          <div class="shrink-0" :class="v.pos ? 'w-12' : '-ml-3'">
             {{ v.pos }}
           </div>
           <span v-if="!settingStore.dictation || showWordResult || showFullWord">{{ v.cn }}</span>
@@ -893,7 +928,6 @@ const notice = $computed(() => {
   }
 
   .pos {
-    font-family: var(--en-article-family);
     @apply text-lg w-12;
   }
 }

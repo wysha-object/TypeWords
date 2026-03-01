@@ -144,6 +144,9 @@ export interface PracticeData {
   wrongWords: Word[]
   excludeWords: string[]
   isTypingWrongWord: boolean
+  // word -> wrongTimes 用以评级
+  wrongTimesMap: Record<string, number>
+  wrongTimes: number
 }
 
 export interface TaskWords {

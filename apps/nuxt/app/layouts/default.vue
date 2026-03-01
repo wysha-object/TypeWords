@@ -8,7 +8,7 @@ import { useRuntimeStore } from '@/stores/runtime.ts'
 import { useSettingStore } from '@/stores/setting.ts'
 import { ShortcutKey } from '@/types/enum.ts'
 import { onMounted, watch } from 'vue'
-import { useRouter ,useRoute} from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { useInit } from '@/composables/useInit.ts'
 import { useI18n } from 'vue-i18n'
@@ -31,8 +31,6 @@ watch(() => settingStore.sideExpand, toggleExpand)
 let showTransfer = $ref(false)
 onMounted(() => {
   init()
-  toggleExpand(settingStore.sideExpand)
-  setTheme(settingStore.theme)
 
   if (new URLSearchParams(window.location.search).get('from_old_site') === '1' && location.origin === Origin) {
     if (localStorage.getItem('__migrated_from_2study_top__')) return
@@ -41,6 +39,15 @@ onMounted(() => {
     }, 1000)
   }
 })
+
+watch(
+  () => settingStore.load,
+  n => {
+    if (!n) return
+    toggleExpand(settingStore.sideExpand)
+    setTheme(settingStore.theme)
+  }
+)
 
 const { locales, setLocale } = useI18n()
 const route = useRoute()

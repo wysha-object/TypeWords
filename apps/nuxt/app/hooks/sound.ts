@@ -25,11 +25,17 @@ export function useSound(audioSrcList?: string[], audioFileLength?: number) {
   function play(volume: number = 100) {
     index++
     if (audioList.length > 1 && audioList.length !== audioLength) {
-      audioList[index % audioList.length].volume = volume / 100
-      audioList[index % audioList.length].play()
+      let htmlAudioElement = audioList[index % audioList.length]
+      if (htmlAudioElement) {
+        htmlAudioElement.volume = volume / 100
+        htmlAudioElement.play()
+      }
     } else {
-      audioList[index % audioLength].volume = volume / 100
-      audioList[index % audioLength].play()
+      let htmlAudioElement1 = audioList[index % audioLength]
+      if (htmlAudioElement1) {
+        htmlAudioElement1.volume = volume / 100
+        htmlAudioElement1.play()
+      }
     }
   }
 

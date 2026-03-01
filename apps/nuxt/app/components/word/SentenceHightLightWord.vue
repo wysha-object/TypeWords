@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from 'vue'
+import { computed } from 'vue'
 
 interface IProps {
   text: string
@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<IProps>(), {
   text: '',
   dictation: false,
   highLight: true,
-  word: ''
+  word: '',
 })
 
 // 计算属性：将句子中的目标单词高亮显示
@@ -25,7 +25,7 @@ const highlightedText = computed(() => {
   const regex = new RegExp(`\\b${escapeRegExp(props.word)}\\b`, 'gi')
 
   // 将匹配的单词用span标签包裹
-  return props.text.replace(regex, (match) => {
+  return props.text.replace(regex, match => {
     return `<span class="${props.highLight && 'highlight-word'} ${props.dictation && 'word-shadow'}">${match}</span>`
   })
 })
@@ -42,6 +42,6 @@ function escapeRegExp(string: string): string {
 
 <style scoped lang="scss">
 :deep(.highlight-word) {
-    color: var(--color-select-bg);
+  color: var(--color-select-bg);
 }
 </style>

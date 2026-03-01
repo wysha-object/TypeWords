@@ -47,6 +47,7 @@ export default function useTheme() {
 
   // 开启监听系统主题变更,后期可以通过用户配置来决定是否开启
   listenToSystemThemeChange((theme: Theme) => {
+    return
     // 如果系统主题变更后和当前的主题一致，则不需要再重新切换
     if (settingStore.theme === theme) {
       return

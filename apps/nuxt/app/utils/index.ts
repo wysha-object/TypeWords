@@ -12,6 +12,7 @@ import Toast from '@/components/base/toast/Toast'
 import { getDefaultDict, getDefaultWord } from '@/types/func'
 import duration from 'dayjs/plugin/duration'
 import { DictType } from '@/types/enum'
+import { Rating } from 'ts-fsrs'
 
 dayjs.extend(duration)
 
@@ -512,7 +513,20 @@ export function jump2Feedback() {
 }
 
 export function isIOS() {
+  //@ts-ignore
   const userAgent = navigator.userAgent || navigator.vendor || window.opera
   // 判断是否包含 iPhone、iPad 或 iPod
+  //@ts-ignore
   return /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream
+}
+
+export function getGradeByWrongTimes(wrongTimes?: number): Rating {
+  if (wrongTimes !== undefined) {
+    if (wrongTimes >= 9) return Rating.Again
+    else if (wrongTimes <= 6) return Rating.Hard
+    else if (wrongTimes <= 3) return Rating.Good
+    else if (wrongTimes <= 0) return Rating.Easy
+  } else {
+    return Rating.Easy
+  }
 }

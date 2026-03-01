@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { Word } from '@/types/types.ts'
-import VolumeIcon from '@/components/icon/VolumeIcon.vue'
-import { usePlayWordAudio } from '@/hooks/sound.ts'
-import Tooltip from '@/components/base/Tooltip.vue'
-import BaseIcon from '@/components/BaseIcon.vue'
-import { useWordOptions } from '@/hooks/dict.ts'
+import type { Word } from '~/types/types.ts'
+import VolumeIcon from '~/components/icon/VolumeIcon.vue'
+import { usePlayWordAudio } from '~/hooks/sound.ts'
+import Tooltip from '~/components/base/Tooltip.vue'
+import BaseIcon from '~/components/BaseIcon.vue'
+import { useWordOptions } from '~/hooks/dict.ts'
+import SentenceHightLightWord from '~/components/word/SentenceHightLightWord.vue'
 
 withDefaults(
   defineProps<{
@@ -17,6 +18,7 @@ withDefaults(
     showMarkIcon?: boolean
     index?: number
     active?: boolean
+    disabled?: boolean
   }>(),
   {
     showTranslate: true,
@@ -26,6 +28,7 @@ withDefaults(
     showCollectIcon: true,
     showMarkIcon: true,
     active: false,
+    disabled: false,
   }
 )
 
@@ -35,7 +38,7 @@ const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = use
 </script>
 
 <template>
-  <div class="common-list-item" :class="{ active }">
+  <div class="common-list-item" :class="{ active, disabled }">
     <div class="left">
       <slot name="prefix" :item="item"></slot>
       <div class="title-wrapper">
@@ -48,9 +51,20 @@ const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = use
         <div class="item-sub-title flex flex-col gap-2" v-if="item.trans.length && showTranslate">
           <div v-for="v in item.trans">
             <Tooltip v-if="v.cn.length > 30 && showTransPop" :title="v.pos + '  ' + v.cn">
-              <span>{{ v.pos + '  ' + v.cn.slice(0, 30) + '...' }}</span>
+              <SentenceHightLightWord
+                :text="v.pos + '  ' + v.cn.slice(0, 30) + '...'"
+                :word="item.word"
+                :high-light="false"
+                :dictation="!showWord"
+              />
             </Tooltip>
-            <span v-else>{{ v.pos + '  ' + v.cn }}</span>
+            <SentenceHightLightWord
+              v-else
+              :text="v.pos + '  ' + v.cn"
+              :word="item.word"
+              :high-light="false"
+              :dictation="!showWord"
+            />
           </div>
         </div>
       </div>

@@ -237,7 +237,7 @@ a {
   @apply hover:opacity-80;
 }
 
-.black-link{
+.black-link {
   @apply color-reverse-black hover:text-blue-600 transition duration-300 ease-in-out ;
 }
 
@@ -297,8 +297,12 @@ a {
     @apply opacity-0;
   }
 
+  &.disabled {
+    @apply opacity-70;
+  }
+
   &.active {
-    @apply bg-fifth;
+    @apply bg-fifth opacity-100;
 
     .item-sub-title {
       color: var(--color-sub-text);

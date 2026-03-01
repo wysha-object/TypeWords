@@ -1,21 +1,24 @@
 <script setup lang="ts">
+import BaseList from '@/components/list/BaseList.vue'
+import type { Word } from '@/types/types.ts'
+import WordItem from '../word/WordItem.vue'
 
-import BaseList from "@/components/list/BaseList.vue";
-import type { Word } from "@/types/types.ts";
-import WordItem from "../WordItem.vue";
-
-withDefaults(defineProps<{
-  list: Word[],
+interface Props {
+  list: Word[]
+  excludeWords: string[]
   showTranslate?: boolean
   showWord?: boolean
-}>(), {
+}
+
+withDefaults(defineProps<Props>(), {
   list: [],
+  excludeWords: [],
   showTranslate: true,
-  showWord: true
+  showWord: true,
 })
 
 const emit = defineEmits<{
-  click: [val: { item: Word, index: number }],
+  click: [val: { item: Word; index: number }]
 }>()
 
 const listRef: any = $ref(null as any)
@@ -28,21 +31,20 @@ function scrollToItem(index: number) {
   listRef?.scrollToItem(index)
 }
 
-defineExpose({scrollToBottom, scrollToItem})
-
+defineExpose({ scrollToBottom, scrollToItem })
 </script>
 
 <template>
-  <BaseList
-      ref="listRef"
-      @click="(e:any) => emit('click',e)"
-      :list="list"
-      v-bind="$attrs">
-      <template v-slot="{ item, index, active }">
-        <WordItem
-          :show-translate="showTranslate"
-          :show-word="showWord"
-          :item="item" :index="index" :active="active" />
-      </template>
+  <BaseList ref="listRef" @click="(e: any) => emit('click', e)" :list="list" v-bind="$attrs">
+    <template v-slot="{ item, index, active }">
+      <WordItem
+        :show-translate="showTranslate"
+        :disabled="excludeWords.includes(item.word)"
+        :show-word="showWord"
+        :item="item"
+        :index="index"
+        :active="active"
+      />
+    </template>
   </BaseList>
 </template>

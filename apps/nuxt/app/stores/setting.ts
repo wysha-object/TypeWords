@@ -58,6 +58,7 @@ export interface SettingState {
   mobileNavCollapsed: boolean // 移动端底部导航栏收缩状态
   ignoreSymbol: boolean // 过滤符号
   practiceSentence: boolean // 练习例句
+  enableFSRS: boolean // 启用FSRS
 }
 
 export const getDefaultSettingState = (): SettingState => ({
@@ -113,6 +114,7 @@ export const getDefaultSettingState = (): SettingState => ({
   mobileNavCollapsed: false,
   ignoreSymbol: true,
   practiceSentence: false,
+  enableFSRS:false,
 })
 
 export const useSettingStore = defineStore('setting', {

@@ -138,27 +138,30 @@ export function getCurrentStudyWord(): TaskWords {
       //复习总数量;如果已结束那么复习比最小是1
       const totalNeed = perDay * (isEnd ? settingStore.wordReviewRatio || 1 : settingStore.wordReviewRatio)
       const now = Date.now()
+      let reviewWords = []
 
-      //取 due 到期的单词
-      let reviewWords = Object.entries(store.fsrsData)
-        .filter(([word, card]) => {
-          //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
-          //2、要在当前学习这本词典里面
-          // console.log(`单词：${word},到期时间：${dayjs(card.due).format('YYYY-MM-DD HH:mm:ss')}`)
-          return dayjs(card.due).valueOf() <= now && wordMap.has(word)
-        })
-        .map(([word]) => word)
+      if (settingStore.enableFSRS){
+        //取 due 到期的单词
+        reviewWords = Object.entries(store.fsrsData)
+          .filter(([word, card]) => {
+            //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
+            //2、要在当前学习这本词典里面
+            // console.log(`单词：${word},到期时间：${dayjs(card.due).format('YYYY-MM-DD HH:mm:ss')}`)
+            return dayjs(card.due).valueOf() <= now && wordMap.has(word)
+          })
+          .map(([word]) => word)
 
-      console.log('fsrs 里 due 到期单词', reviewWords)
+        console.log('fsrs 里 due 到期单词', reviewWords)
 
-      //有生成的复习词，就用生成的
-      if (reviewWords.length !== 0) {
-        data.review = reviewWords
-          //截取，不能无限制的复习，一下复习几千个太吓人了
-          .slice(0, totalNeed)
-          .map(word => wordMap.get(word))
-          .filter(obj => obj)
-        return data
+        //有生成的复习词，就用生成的
+        if (reviewWords.length !== 0) {
+          data.review = reviewWords
+            //截取，不能无限制的复习，一下复习几千个太吓人了
+            .slice(0, totalNeed)
+            .map(word => wordMap.get(word))
+            .filter(obj => obj)
+          return data
+        }
       }
 
       //todo 待优化
@@ -236,11 +239,11 @@ export function getCurrentStudyWord(): TaskWords {
           // console.log(ratio, ratioSum, realRatio, realRatio.reduce((a, b) => a + b, 0))
 
           // 按比例从每组随机取单词
-          let writeWords: Word[] = []
+          let words: Word[] = []
           let missingCount = 0
           groups.map((v, i) => {
             let need = realRatio[i] + missingCount
-            writeWords = writeWords.concat(getRandomN(v, need))
+            words = words.concat(getRandomN(v, need))
             let tem = v.length - need
             if (tem < 0) {
               missingCount = Math.abs(tem)
@@ -248,8 +251,7 @@ export function getCurrentStudyWord(): TaskWords {
               missingCount = 0
             }
           })
-          // console.log('writeWords', writeWords)
-          data.review = result.concat(writeWords)
+          data.review = result.concat(words)
         }
       }
     }

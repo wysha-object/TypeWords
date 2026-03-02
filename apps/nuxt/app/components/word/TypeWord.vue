@@ -168,7 +168,6 @@ function know(e) {
 function mastered(e) {
   if (settingStore.wordPracticeType === WordPracticeType.Identify) {
     emit('mastered')
-    emit('complete')
   }
 }
 

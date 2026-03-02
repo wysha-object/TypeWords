@@ -522,21 +522,21 @@ function skipStep() {
   next(false)
 }
 
-function onWordMastered() {
+function addExcludeWord() {
   //标记模式时，用户认识的单词加入到排除里面，后续不再复习
   let rIndex = data.excludeWords.findIndex(v => v === word.word)
   if (rIndex < 0) {
     data.excludeWords.push(word.word)
   }
+}
+
+function onWordMastered() {
   setWordCard(Rating.Easy)
+  skip()
 }
 
 function onWordKnow() {
-  //标记模式时，用户认识的单词加入到排除里面，后续不再复习
-  let rIndex = data.excludeWords.findIndex(v => v === word.word)
-  if (rIndex < 0) {
-    data.excludeWords.push(word.word)
-  }
+  addExcludeWord()
   setWordCard(Rating.Good)
 }
 
@@ -632,10 +632,7 @@ function prev() {
 }
 
 function skip() {
-  let rIndex = data.excludeWords.findIndex(v => v === word.word)
-  if (rIndex < 0) {
-    data.excludeWords.push(word.word)
-  }
+  addExcludeWord()
   next(false)
 }
 

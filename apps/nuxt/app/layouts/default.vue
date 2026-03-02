@@ -49,6 +49,13 @@ watch(
   }
 )
 
+watch(
+  () => settingStore.theme,
+  n => {
+    setTheme(n)
+  }
+)
+
 const { locales, setLocale } = useI18n()
 const route = useRoute()
 

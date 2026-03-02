@@ -42,12 +42,12 @@ export function useInit() {
     const onvisibilitychange = async () => {
       //如果标签页失活了就不保存数据了
       if (document.hidden) {
-        isInitializing = false
+        isInitializing = true
       } else {
         //当激活时，要先获取数据，以保证本地是最新的，以免本地老数据上传到后端覆盖新数据
-        isInitializing = false
-        await getServerData()
         isInitializing = true
+        await getServerData()
+        isInitializing = false
       }
     }
 
@@ -95,7 +95,7 @@ export function useInit() {
     unsub2?.()
     unsub2 = settingStore.$subscribe((mutation, state) => {
       if (isInitializing) return
-      // console.log('settingStore.$subscribe', mutation, state)
+      // console.log('settingStore.$subscribe', mutation, state,isInitializing)
 
       set(SAVE_SETTING_KEY.key, JSON.stringify({ val: state, version: SAVE_SETTING_KEY.version }))
       Supabase.getInstance().from('setting').upsert({ id: '1', data: state }).then()

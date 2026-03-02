@@ -536,8 +536,8 @@ function onWordMastered() {
 }
 
 function onWordKnow() {
-  addExcludeWord()
   setWordCard(Rating.Good)
+  addExcludeWord()
 }
 
 function onTypeWrong() {
@@ -632,6 +632,9 @@ function prev() {
 }
 
 function skip() {
+  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
+    setWordCard(Rating.Easy)
+  }
   addExcludeWord()
   next(false)
 }

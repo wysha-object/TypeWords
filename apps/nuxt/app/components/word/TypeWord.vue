@@ -688,7 +688,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
         </BaseButton>
       </div>
 
-      <div class="center my-5" v-if="notice.show && settingStore.showUsageTips">
+      <div class="center mt-3" v-if="notice.show && settingStore.showUsageTips">
         <ToastComponent
           :duration="0"
           confirm

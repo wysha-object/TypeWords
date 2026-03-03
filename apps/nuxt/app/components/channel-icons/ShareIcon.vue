@@ -29,7 +29,7 @@ const studyStats = $computed(() => {
   return {
     total: practiceStore.total,
     newWords: practiceStore.newWordNumber,
-    review: practiceStore.reviewWordNumber + practiceStore.writeWordNumber,
+    review: practiceStore.reviewWordNumber,
     wrong: practiceStore.wrong,
     correct: practiceStore.total - practiceStore.wrong,
     time: msToHourMinute(practiceStore.spend),

@@ -21,6 +21,20 @@ const fsrsList = computed(() => {
       ...card,
     }))
 })
+
+const headers = [
+  { text: '单词', value: 'word' },
+  { text: '最近复习日期', value: 'last_review', sortable: true },
+  { text: '下次复习日期', value: 'due' },
+  { text: '状态', value: 'state' },
+  { text: '记忆稳定性', value: 'stability' },
+  { text: '难度', value: 'difficulty' },
+  { text: '经过天数', value: 'elapsed_days' },
+  { text: '计划间隔', value: 'scheduled_days' },
+  { text: '学习步骤', value: 'learning_steps' },
+  { text: '复习次数', value: 'reps' },
+  { text: '遗忘次数', value: 'lapses' },
+]
 </script>
 
 <template>

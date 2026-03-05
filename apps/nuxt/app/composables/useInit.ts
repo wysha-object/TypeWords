@@ -5,10 +5,11 @@ import { useUserStore } from '~/stores/user.ts'
 import { syncSetting } from '~/apis'
 import { get, set } from 'idb-keyval'
 import { AppEnv, DictId } from '~/config/env.ts'
-import { shakeCommonDict } from '@/utils/index.ts'
+import { _getDictDataByUrl, shakeCommonDict } from '@/utils/index.ts'
 import { APP_VERSION, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env.ts'
 import { Supabase } from '~/utils/supabase.ts'
 import type { Word } from '~/types/types.ts'
+import { DictType } from '~/types/enum.ts'
 
 let unsub = null
 let unsub2 = null
@@ -18,11 +19,30 @@ async function getServerData() {
   const settingStore = useSettingStore()
 
   if (Supabase.check()) {
-    const { data } = await Supabase.getInstance()?.from('typewords_data').select()
+    const { data } = await Supabase.getInstance()?.from('typewords_data').select().in('type', ['setting', 'dict'])
     if (data?.length) {
       data.map(v => {
-        if (v.type === 'setting') settingStore.setState(v.data)
-        if (v.type === 'word') store.setState(v.data)
+        if (v.type === 'setting') {
+          settingStore.setState(v.data)
+        }
+        if (v.type === 'dict') {
+          store.setState(v.data)
+          //todo 这里想办法优化，会重复加载
+          if (store.word.studyIndex >= 3) {
+            if (!store.sdict.custom && !store.sdict.words.length) {
+              _getDictDataByUrl(store.sdict).then(r => {
+                store.word.bookList[store.word.studyIndex] = r
+              })
+            }
+          }
+          if (store.article.studyIndex >= 1) {
+            if (!store.sbook.custom && !store.sbook.articles.length) {
+              _getDictDataByUrl(store.sbook, DictType.article).then(r => {
+                store.article.bookList[store.article.studyIndex] = r
+              })
+            }
+          }
+        }
       })
     }
   }
@@ -61,14 +81,17 @@ export function useInit() {
     unsub?.()
     //用 $subscribe 替代 watch
     unsub = store.$subscribe(
-      throttle((mutation, n) => {
+      debounce((mutation, n) => {
         // 如果正在初始化，不保存数据，避免覆盖
         if (isInitializing) return
         // console.log('store.$subscribe', mutation, n)
         let data = shakeCommonDict(n)
         set(SAVE_DICT_KEY.key, JSON.stringify({ val: data, version: SAVE_DICT_KEY.version }))
         const updated_at = new Date().toISOString() // 转换为 ISO 8601 格式
-        Supabase.getInstance().from('typewords_data').upsert({ id: '1', data, type: 'word', updated_at }).then()
+        Supabase.getInstance()
+          .from('typewords_data')
+          .upsert({ data, type: 'dict', updated_at }, { onConflict: 'type' })
+          .then()
 
         //筛选自定义和收藏
         let bookList = data.article.bookList.filter(v => v.custom || [DictId.articleCollect].includes(v.id))
@@ -96,25 +119,25 @@ export function useInit() {
             }
           })
         }
-      }, 300)
+      }, 500)
     )
 
     unsub2?.()
     unsub2 = settingStore.$subscribe(
-      throttle((mutation, state) => {
+      debounce((mutation, state) => {
         if (isInitializing) return
-        console.log('settingStore.$subscribe', mutation, state, isInitializing)
+        // console.log('settingStore.$subscribe', mutation, state, isInitializing)
 
         set(SAVE_SETTING_KEY.key, JSON.stringify({ val: state, version: SAVE_SETTING_KEY.version }))
         const updated_at = new Date().toISOString() // 转换为 ISO 8601 格式
         Supabase.getInstance()
           .from('typewords_data')
-          .upsert({ id: '2', data: state, type: 'setting', updated_at })
+          .upsert({ data: state, type: 'setting', updated_at }, { onConflict: 'type' })
           .then()
         if (AppEnv.CAN_REQUEST) {
           syncSetting(null, settingStore.$state)
         }
-      }, 300)
+      }, 500)
     )
 
     await userStore.init()

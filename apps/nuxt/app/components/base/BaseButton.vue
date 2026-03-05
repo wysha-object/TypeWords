@@ -51,6 +51,7 @@ html.dark {
 
 <style scoped lang="scss">
 .base-button {
+  position: relative;
   cursor: pointer;
   box-sizing: border-box;
   display: inline-flex;

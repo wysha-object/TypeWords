@@ -1,6 +1,10 @@
 <script setup lang="ts">
 let logList = [
   {
+    date: '2026/03/06',
+    content: '新增 Supbase 同步数据',
+  },
+  {
     date: '2026/02/27',
     content: '新增记忆曲线功能，复习词根据记忆曲线动态生成',
   },

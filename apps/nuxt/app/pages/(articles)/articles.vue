@@ -15,7 +15,7 @@ import { useSettingStore } from '@/stores/setting.ts'
 import { getDefaultDict } from '@/types/func.ts'
 import type { DictResource } from '@/types/types.ts'
 import { _getDictDataByUrl, _nextTick, isMobile, loadJsLib, msToHourMinute, resourceWrap, total, useNav } from '@/utils'
-import { getPracticeArticleCache } from '@/utils/cache.ts'
+import { getPracticeArticleCacheLocal } from '@/utils/cache.ts'
 import { useFetch } from '@vueuse/core'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
@@ -59,7 +59,7 @@ async function init() {
       store.article.bookList[store.article.studyIndex] = await _getDictDataByUrl(store.sbook, DictType.article)
     }
   }
-  let d = getPracticeArticleCache()
+  let d = getPracticeArticleCacheLocal()
   if (d) {
     isSaveData = true
   }

@@ -44,12 +44,13 @@ import PracticeWordListDialog from '~/components/word/PracticeWordListDialog.vue
 import ShufflePracticeSettingDialog from '~/components/word/ShufflePracticeSettingDialog.vue'
 import { deleteDict } from '@/apis/dict.ts'
 import OptionButton from '@/components/base/OptionButton.vue'
-import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
+import { usePracticeWordPersistence } from '@/composables/usePracticePersistence'
 import { WordPracticeMode } from '@/types/enum.ts'
 
 const store = useBaseStore()
 const settingStore = useSettingStore()
 const practiceStore = usePracticeStore()
+const wordPersistence = usePracticeWordPersistence()
 const router = useRouter()
 const { nav } = useNav()
 const runtimeStore = useRuntimeStore()
@@ -115,12 +116,13 @@ async function init() {
     }
   }
   if (!currentStudy.new.length && store.sdict.words.length) {
-    if (practiceStore.word.task) {
-      currentStudy = practiceStore.word.task
+    const d = await wordPersistence.load()
+    if (d) {
+      currentStudy = d.taskWords
       isSaveData = true
       if (!currentStudy.new.length && !currentStudy.review.length) {
         isSaveData = false
-        setPracticeWordCache(null)
+        wordPersistence.clear()
         init()
       }
     } else {
@@ -132,7 +134,7 @@ async function init() {
 
 function startPractice(practiceMode: WordPracticeMode, resetCache: boolean = false): void {
   if (resetCache) {
-    setPracticeWordCache(null)
+    wordPersistence.clear()
   }
   if (shouldShowDialogPracticeMode.includes(practiceMode)) {
     editingWordPracticeMode = practiceMode
@@ -243,14 +245,14 @@ function check(cb: Function) {
 async function savePracticeSetting() {
   Toast.success('修改成功')
   isSaveData = false
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   await store.changeDict(runtimeStore.editDict)
   currentStudy = getCurrentStudyWord()
 }
 
 async function onShufflePracticeSettingOk(total) {
   isSaveData = false
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   settingStore.wordPracticeMode = editingWordPracticeMode
 
   window.umami?.track('startStudyWord', {
@@ -282,7 +284,7 @@ async function saveLastPracticeIndex(e) {
   // runtimeStore.editDict.complete = e >= runtimeStore.editDict.length - 1
   showChangeLastPracticeIndexDialog = false
   isSaveData = false
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   await store.changeDict(runtimeStore.editDict)
   currentStudy = getCurrentStudyWord()
 }

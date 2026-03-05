@@ -19,7 +19,7 @@ import nlp from 'compromise/three'
 import { nanoid } from 'nanoid'
 import { inject, onMounted, onUnmounted, watch } from 'vue'
 
-import { getPracticeArticleCache, setPracticeArticleCache } from '~/utils/cache'
+import { usePracticeArticlePersistence } from '~/composables/usePracticePersistence'
 import { PracticeArticleWordType, ShortcutKey } from '~/types/enum'
 
 interface IProps {
@@ -88,18 +88,25 @@ const { toggleWordCollect } = useWordOptions()
 const store = useBaseStore()
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
+const articlePersistence = usePracticeArticlePersistence()
 const isMob = isMobile()
 
-watch([() => sectionIndex, () => sentenceIndex, () => wordIndex, () => stringIndex], ([a, b, c]) => {
-  if (a !== 0 || b !== 0 || c !== 0) {
-    setPracticeArticleCache({
+const save = debounce(
+  () =>
+    articlePersistence.save({
       practiceData: {
         sectionIndex,
         sentenceIndex,
         wordIndex,
       },
       statStoreData: statStore.$state,
-    })
+    }),
+  500
+)
+
+watch([() => sectionIndex, () => sentenceIndex, () => wordIndex, () => stringIndex], ([a, b, c]) => {
+  if (a !== 0 || b !== 0 || c !== 0) {
+    save()
   }
   checkCursorPosition(a, b, c)
 })
@@ -129,10 +136,10 @@ watch(
   }
 )
 
-function init() {
+async function init() {
   if (!props.article.id) return
   isSpace = isEnd = false
-  let d = getPracticeArticleCache()
+  const d = await articlePersistence.load()
   if (d) {
     sectionIndex = d.practiceData.sectionIndex
     sentenceIndex = d.practiceData.sentenceIndex
@@ -435,7 +442,7 @@ function onTyping(e: KeyboardEvent) {
     e.preventDefault()
   } catch (e) {
     //todo 上报
-    setPracticeArticleCache(null)
+    articlePersistence.clear()
     init()
   } finally {
     isTyping = false
@@ -791,14 +798,18 @@ const currentPractice = inject('currentPractice', [])
 
     <div class="font-family text-base pr-2 mb-50 mt-10" v-if="currentPractice.length && isEnd">
       <div class="text-2xl font-bold">{{ $t('learning_record') }}</div>
-      <div class="mt-1 mb-3">{{ $t('total_learning_time') }}：{{ msToHourMinute(total(currentPractice, 'spend')) }}</div>
+      <div class="mt-1 mb-3">
+        {{ $t('total_learning_time') }}：{{ msToHourMinute(total(currentPractice, 'spend')) }}
+      </div>
       <div
         class="item border border-item border-solid mt-2 p-2 bg-[var(--bg-history)] rounded-md flex justify-between"
         :class="i === currentPractice.length - 1 && 'color-red!'"
         v-for="(item, i) in currentPractice"
       >
         <span :class="i === currentPractice.length - 1 ? 'color-red' : 'color-gray'"
-          >{{ i === currentPractice.length - 1 ? $t('current') : i + 1 }}.&nbsp;&nbsp;{{ _dateFormat(item.startDate) }}</span
+          >{{ i === currentPractice.length - 1 ? $t('current') : i + 1 }}.&nbsp;&nbsp;{{
+            _dateFormat(item.startDate)
+          }}</span
         >
         <span>{{ msToHourMinute(item.spend) }}</span>
       </div>

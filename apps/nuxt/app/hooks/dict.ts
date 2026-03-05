@@ -152,15 +152,12 @@ export function getCurrentStudyWord(): TaskWords {
 
         console.log('fsrs 里 due 到期单词', reviewWords)
 
-        //有生成的复习词，就用生成的
-        if (reviewWords.length !== 0) {
-          data.review = reviewWords
-            //截取，不能无限制的复习，一下复习几千个太吓人了
-            .slice(0, totalNeed)
-            .map(word => wordMap.get(word))
-            .filter(obj => obj)
-          return data
-        }
+        data.review = reviewWords
+          //截取，不能无限制的复习，一下复习几千个太吓人了
+          .slice(0, totalNeed)
+          .map(word => wordMap.get(word))
+          .filter(obj => obj)
+        return data
       }
 
       //todo 待优化

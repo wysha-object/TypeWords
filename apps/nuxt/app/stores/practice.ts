@@ -13,9 +13,6 @@ export interface PracticeState {
   reviewWordNumber: number
   inputWordNumber: number //当前总输入了多少个单词（不包含跳过）
   wrong: number
-  word?: PracticeData & {
-    stage: WordPracticeStage
-  } & TaskWords
 }
 
 export const usePracticeStore = defineStore('practice', {
@@ -29,18 +26,6 @@ export const usePracticeStore = defineStore('practice', {
       reviewWordNumber: 0,
       inputWordNumber: 0,
       wrong: 0,
-      word: {
-        new: [],
-        review: [],
-        index: 0,
-        words: [],
-        wrongWords: [],
-        excludeWords: [],
-        isTypingWrongWord: false,
-        wrongTimesMap: {},
-        wrongTimes: 0,
-        stage: WordPracticeStage.FollowWriteNewWord,
-      },
     }
   },
   getters: {

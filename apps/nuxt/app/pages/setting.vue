@@ -27,12 +27,8 @@ import CommonSetting from '@/components/setting/CommonSetting.vue'
 import FsrsSetting from '@/components/setting/FsrsSetting.vue'
 import ArticleSetting from '@/components/setting/ArticleSetting.vue'
 import WordSetting from '@/components/setting/WordSetting.vue'
-import {
-  PRACTICE_ARTICLE_CACHE,
-  PRACTICE_WORD_CACHE,
-  setPracticeArticleCache,
-  setPracticeWordCache,
-} from '@/utils/cache'
+import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache'
+import { usePracticeWordPersistence, usePracticeArticlePersistence } from '@/composables/usePracticePersistence'
 import SettingItem from '~/components/setting/SettingItem.vue'
 import Form, { type FormType } from '~/components/base/form/Form.vue'
 import { SUPABASE_KEY, SUPABASE_URL } from '~/utils/supabase.ts'
@@ -57,6 +53,8 @@ const tabIndex = $ref(0)
 const settingStore = useSettingStore()
 const runtimeStore = useRuntimeStore()
 const store = useBaseStore()
+const wordPersistence = usePracticeWordPersistence()
+const articlePersistence = usePracticeArticlePersistence()
 
 const config = useRuntimeConfig()
 
@@ -214,8 +212,8 @@ function importJson(str: string, notice: boolean = true) {
     let baseState = checkAndUpgradeSaveDict(data.dict)
     baseState.load = true
     store.setState(baseState)
-    setPracticeWordCache(null)
-    setPracticeArticleCache(null)
+    wordPersistence.clear()
+    articlePersistence.clear()
     if (obj.version >= 4) {
       try {
         let save: any = obj.val[PRACTICE_WORD_CACHE.key] || {}
@@ -347,9 +345,12 @@ let sbFormRules = {
   key: [{ required: true, message: '请输入  Supbase Key', trigger: 'blur' }],
 }
 
+let configLoading = $ref(false)
 function saveSbConfig() {
   sbFormRef?.validate(async valid => {
     if (valid) {
+      if (configLoading) return
+      configLoading = true
       Supabase.saveConfig(sbForm?.url, sbForm?.key)
 
       // 重新初始化 Supabase 实例
@@ -370,7 +371,8 @@ function saveSbConfig() {
           const defaultData = [
             { type: 'word', data: {} },
             { type: 'setting', data: {} },
-            { type: 'cache', data: {} },
+            { type: 'practice_word', data: {} },
+            { type: 'practice_article', data: {} },
           ]
 
           for (const item of defaultData) {
@@ -382,6 +384,8 @@ function saveSbConfig() {
         Toast.success('保存成功')
       } catch (error) {
         Toast.error('保存成功，但初始化数据表失败: ' + error.message)
+      } finally {
+        configLoading = false
       }
       // setTimeout(() => {
       //   location.href = '/words'
@@ -414,7 +418,7 @@ function removeSbConfig() {
               <span>{{ $t('general_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
-              <IconFluentBot20Regular/>
+              <IconFluentBot20Regular />
               <span>{{ $t('fsrs_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
@@ -565,25 +569,17 @@ function removeSbConfig() {
                 <FormItem label="Key" prop="key">
                   <BaseInput v-model="sbForm.key" />
                 </FormItem>
-                <FormItem label="创建表语句" >
-                  <span>
-                    CREATE TABLE IF NOT EXISTS typewords_data (
-                                       id SERIAL PRIMARY KEY,
-                                       data JSONB,
-                                       type TEXT UNIQUE NOT NULL,
-                                       updated_at TIMESTAMPTZ DEFAULT now()
-                );
-                INSERT INTO typewords_data (type, data) VALUES
-                  ('word', '{}'),
-                  ('setting', '{}'),
-                  ('cache', '{}')
-                ON CONFLICT (type) DO NOTHING;
-                  </span>
-                </FormItem>
+<!--                <FormItem label="创建表语句">-->
+<!--                  <span>-->
+<!--                    CREATE TABLE IF NOT EXISTS typewords_data ( id SERIAL PRIMARY KEY, data JSONB, type TEXT UNIQUE NOT-->
+<!--                    NULL, updated_at TIMESTAMPTZ DEFAULT now() ); INSERT INTO typewords_data (type, data) VALUES-->
+<!--                    ('word', '{}'), ('setting', '{}'), ('cache', '{}') ON CONFLICT (type) DO NOTHING;-->
+<!--                  </span>-->
+<!--                </FormItem>-->
               </Form>
               <div class="flex justify-end">
                 <BaseButton @click="removeSbConfig">删除配置</BaseButton>
-                <BaseButton @click="saveSbConfig">保存配置</BaseButton>
+                <BaseButton @click="saveSbConfig" :loading="configLoading">保存配置</BaseButton>
               </div>
             </div>
 

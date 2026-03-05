@@ -61,8 +61,8 @@ watch(model, async newVal => {
     dictIsEnd = false
     let data: Statistics = {
       spend: statStore.spend,
-      //修正计时
-      startDate: Date.now() - statStore.spend,
+      //不需要修正计时，startDate+spend!=Date.now()对不止是正常的，因为会暂停
+      startDate: statStore.startDate,
       total: statStore.total,
       wrong: statStore.wrong,
       new: statStore.newWordNumber,
@@ -150,7 +150,7 @@ calcWeekList() // 新增：计算本周学习记录
         <div
           class="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent"
         >
-          <div> 🎉 {{ $t('daily_task_complete') }} </div>
+          <div>🎉 {{ $t('daily_task_complete') }}</div>
         </div>
         <p class="font-medium text-lg">{{ encouragementText }}</p>
       </div>

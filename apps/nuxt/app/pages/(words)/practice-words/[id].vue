@@ -8,15 +8,7 @@ import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
 import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@/hooks/event.ts'
 import useTheme from '@/hooks/theme.ts'
 import { getCurrentStudyWord, useWordOptions } from '@/hooks/dict.ts'
-import {
-  _getDictDataByUrl,
-  _nextTick,
-  cloneDeep,
-  isMobile,
-  loadJsLib,
-  resourceWrap,
-  shuffle,
-} from '@/utils'
+import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, resourceWrap, shuffle } from '@/utils'
 import { useRoute, useRouter } from 'vue-router'
 import Footer from '~/components/word/Footer.vue'
 import Panel from '@/components/Panel.vue'
@@ -36,7 +28,8 @@ import { AppEnv, DICT_LIST, IS_DEV, LIB_JS_URL, TourConfig, WordPracticeModeStag
 import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
 import GroupList from '~/components/word/GroupList.vue'
-import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
+import { getPracticeWordCacheLocal } from '@/utils/cache.ts'
+import { usePracticeWordPersistence } from '@/composables/usePracticePersistence'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
 import ConflictNotice2 from '~/components/dialog/ConflictNotice2.vue'
 import { createEmptyCard, FSRS, Rating } from 'ts-fsrs'
@@ -50,6 +43,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useBaseStore()
 const statStore = usePracticeStore()
+const wordPersistence = usePracticeWordPersistence()
 const typingRef: any = $ref()
 let showConflictNotice = $ref(false)
 let showConflictNotice2 = $ref(false)
@@ -63,6 +57,9 @@ let taskWords = $ref<TaskWords>({
   new: [],
   review: [],
 })
+
+//watch 实例列表，用于本地代码修改hrm后，导致重复watch
+let watchRefList = []
 
 let data = $ref<PracticeData>({
   index: 0,
@@ -95,7 +92,7 @@ async function loadDict() {
         return Toast.warning('没有单词可学习！')
       }
       store.changeDict(dict)
-      initData(getCurrentStudyWord(), true)
+      await initData(getCurrentStudyWord(), true)
       loading = false
     } else {
       router.push('/words')
@@ -113,10 +110,22 @@ watch(
   { immediate: true }
 )
 
-onMounted(() => {
+const onvisibilitychange = async () => {
+  isFocus = !document.hidden
+  if (isFocus) {
+    const d = await wordPersistence.refreshFromRemote()
+    if (d) {
+      taskWords = Object.assign(taskWords, d.taskWords)
+      data = Object.assign(data, d.practiceData)
+      statStore.$patch(d.statStoreData)
+    }
+  }
+}
+
+onMounted(async () => {
   //如果是从单词学习主页过来的，就直接使用；否则等待加载
   if (runtimeStore.routeData) {
-    initData(runtimeStore.routeData.taskWords, true)
+    await initData(runtimeStore.routeData.taskWords, true)
   } else {
     loading = true
   }
@@ -125,17 +134,17 @@ onMounted(() => {
   } else {
     showConflictNotice = true
   }
-  document.addEventListener('visibilitychange', () => {
-    isFocus = !document.hidden
-  })
+  document.removeEventListener('visibilitychange', onvisibilitychange)
+  document.addEventListener('visibilitychange', onvisibilitychange)
 })
 
 onUnmounted(() => {
-  let cache = getPracticeWordCache()
-  if (cache) {
-    savePracticeData()
+  document.removeEventListener('visibilitychange', onvisibilitychange)
+  if (getPracticeWordCacheLocal()) {
+    savePracticeData('onUnmounted')
   }
   timer && clearInterval(timer)
+  watchRefList.map(v => v.stop())
 })
 
 watchOnce(
@@ -176,15 +185,12 @@ watchOnce(
   }
 )
 
-useStartKeyboardEventListener()
-useDisableEventListener(() => loading)
-
 let isIniting = ref(true)
-function initData(initVal: TaskWords, init: boolean = false) {
+async function initData(initVal: TaskWords, init: boolean = false) {
+  console.log('initData')
   isIniting.value = true
-  debugger
-  let d = getPracticeWordCache()
-  //只有初始化时，才读取缓存
+  const d = init ? await wordPersistence.load() : null
+  //只有初始化时，才读取缓存（本地 + 可选 Supabase）
   if (d && init) {
     taskWords = Object.assign(taskWords, d.taskWords)
     //这里直接赋值的话，provide后的inject获取不到最新值
@@ -317,13 +323,6 @@ function watchPracticeType(n: WordPracticeType) {
   }
 }
 
-watch(isIniting, n => {
-  if (!n) {
-    watch(() => statStore.stage, watchStage)
-    watch(() => settingStore.wordPracticeType, watchPracticeType)
-  }
-})
-
 const groupSize = 7
 
 function wordLoop() {
@@ -378,9 +377,9 @@ function complete() {
       }
     }
 
-    showStatDialog = true
     clearInterval(timer)
-    setTimeout(() => setPracticeWordCache(null), 300)
+    setTimeout(() => wordPersistence.clear(), 300)
+    showStatDialog = true
   }
 }
 
@@ -556,7 +555,7 @@ function onTypeWrong() {
   if (!data.wrongWords.find((v: Word) => v.word.toLowerCase() === temp)) {
     data.wrongWords.push(word)
   }
-  savePracticeData()
+  savePracticeData('wrong')
 
   if (settingStore.wordPracticeType === WordPracticeType.Identify) {
     setWordCard(Rating.Again)
@@ -571,22 +570,32 @@ function setWordCard(rating: number, wordStr = word.word, times?: number) {
   }
   card = fsrs.next(card, Date.now(), rating).card
   store.fsrsData[wordStr] = card
-  console.log(
-    `更新卡片: 单词：${wordStr}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 次数：${times}, 卡片: `,
-    card,
-    cloneDeep(store.fsrsData)
-  )
+  // console.log(
+  //   `更新卡片: 单词：${wordStr}, 模式：${WordPracticeType[settingStore.wordPracticeType]}, 评分: ${Rating[rating]}, 次数：${times}, 卡片: `,
+  //   card,
+  //   cloneDeep(store.fsrsData)
+  // )
 }
 
-const savePracticeData = throttle(() => {
-  setPracticeWordCache({
+const savePracticeData = debounce((where?) => {
+  const stages = WordPracticeModeStageMap[settingStore.wordPracticeMode]
+  if (
+    data.index === 0 &&
+    statStore.stage === stages[0] &&
+    settingStore.wordPracticeType === WordPracticeType.FollowWrite
+  ) {
+    //未开始练习
+    return
+  }
+  if (showStatDialog) return
+  console.log('savePracticeData', where)
+  wordPersistence.save({
     taskWords,
     practiceData: data,
     statStoreData: statStore.$state,
   })
-}, 300)
-
-watch(() => data.index, savePracticeData)
+  //改这个延迟，要同步修改结算时的延迟
+}, 500)
 
 function onKeyUp(e: KeyboardEvent) {
   // console.log('onKeyUp', e)
@@ -602,11 +611,9 @@ function onKeyDown(e: KeyboardEvent) {
   }
 }
 
-useOnKeyboardEventListener(onKeyDown, onKeyUp)
-
 function repeat() {
   console.log('重学一遍')
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   let temp = cloneDeep(taskWords)
   let ignoreSet = [store.allIgnoreWordsSet, store.knownWordsSet][settingStore.ignoreSimpleWord ? 0 : 1]
   //随机练习单独处理
@@ -670,7 +677,7 @@ function toggleConciseMode() {
 }
 
 async function continueStudy() {
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   let temp = cloneDeep(taskWords)
   let ignoreList = [store.allIgnoreWords, store.knownWords][settingStore.ignoreSimpleWord ? 0 : 1]
   //随机练习单独处理
@@ -712,7 +719,7 @@ async function continueStudy() {
 
 async function jumpToGroup(group: number) {
   window?.umami?.track('jumpToGroup')
-  setPracticeWordCache(null)
+  wordPersistence.clear()
   console.log('没学完，强行跳过', group)
   store.sdict.lastLearnIndex = (group - 1) * store.sdict.perDayStudyNumber
   emitter.emit(EventKey.resetWord)
@@ -732,6 +739,29 @@ function randomWrite() {
   data.index = 0
   settingStore.dictation = true
 }
+
+useStartKeyboardEventListener()
+useDisableEventListener(() => loading)
+useOnKeyboardEventListener(onKeyDown, onKeyUp)
+
+watch(isIniting, n => {
+  if (!n) {
+    watchRefList = [
+      watch(() => statStore.stage, watchStage),
+      watch(() => settingStore.wordPracticeType, watchPracticeType),
+      watch(() => data.index, savePracticeData),
+      // 监听 statStore.spend，每过10秒自动保存数据
+      watch(
+        () => statStore.spend,
+        curr => {
+          if (curr % (10 * 1000) === 0 && curr !== 0) {
+            savePracticeData('spend')
+          }
+        }
+      ),
+    ]
+  }
+})
 
 useEvents([
   [EventKey.repeatStudy, repeat],

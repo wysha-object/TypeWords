@@ -96,7 +96,7 @@ export interface Statistics {
   new: number //新学单词数量
   review: number //复习单词数量
   wrong: number //错误数
-  title: string //文章标题
+  title?: string //文章标题
 }
 
 export type DictResource = {

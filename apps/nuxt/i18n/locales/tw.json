@@ -403,7 +403,7 @@
 	"increase_03s": "增加 0.3 秒",
 	"record": "記錄",
 	"end_time": "結束時間",
-	"audio_upload_notice": "1、上传的文件保存在本地电腦上，更換电腦數据將丟失，請及時備份數据\n2、LRC 文件用于解析句子對應音頻的位置，不一定准确，后续可自行修改",
+	"audio_upload_notice": "1、上传的文件保存在本地电腦上，更換电腦數据將丟失，請及時備份數据\r\n2、LRC 文件用于解析句子對應音頻的位置，不一定准确，后续可自行修改",
 	"upload_audio": "上传音頻",
 	"upload_lrc": "上传 LRC 文件",
 	"name_management": "人名管理",
@@ -511,5 +511,13 @@
 	"random_words_test": "随机单词测试",
 	"practice_sentence": "练习例句",
 	"enable_fsrs": "启用FSRS",
-	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量",
+	"fsrs_settings": "FSRS设置",
+	"fsrs_limit_desc": "在单次学习的整个过程中每个单词的错误次数会被用以给其评级,共有四个评级,Again,Hard,Good,Easy,FSRS算法会使用评级来计算这个单词下一次需要复习的时间,启用或禁用FSRS仅影响生成复习词的规则,不影响上述过程的执行",
+	"fsrs_easy_limit": "Easy评级判定标准",
+	"fsrs_good_limit": "Good评级判定标准",
+	"fsrs_hard_limit": "Hard评级判定标准",
+	"less_or_equals": "小于等于",
+	"times": "次",
+	"wrong": "错误"
 }

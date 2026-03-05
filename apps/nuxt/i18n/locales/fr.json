@@ -403,7 +403,7 @@
 	"increase_03s": "Augmenter de 0,3s",
 	"record": "Enregistrer",
 	"end_time": "Heure de fin",
-	"audio_upload_notice": "1. Les fichiers téléchargés sont enregistrés localement, les données seront perdues en changeant d'ordinateur, veuillez sauvegarder à temps\n2. Prend en charge mp3, wav, m4a et autres formats audio courants",
+	"audio_upload_notice": "1. Les fichiers téléchargés sont enregistrés localement, les données seront perdues en changeant d'ordinateur, veuillez sauvegarder à temps\r\n2. Prend en charge mp3, wav, m4a et autres formats audio courants",
 	"upload_audio": "Télécharger audio",
 	"upload_lrc": "Télécharger fichier LRC",
 	"name_management": "Gestion des noms",
@@ -511,5 +511,13 @@
 	"random_words_test": "random words test",
 	"practice_sentence": "练习例句",
 	"enable_fsrs": "启用FSRS",
-	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量"
+	"enable_fsrs_desc": "开启后，将使用FSRS算法来决定需要复习的单词,而非固定单词数量",
+	"fsrs_settings": "FSRS设置",
+	"fsrs_limit_desc": "在单次学习的整个过程中每个单词的错误次数会被用以给其评级,共有四个评级,Again,Hard,Good,Easy,FSRS算法会使用评级来计算这个单词下一次需要复习的时间,启用或禁用FSRS仅影响生成复习词的规则,不影响上述过程的执行",
+	"fsrs_easy_limit": "Easy评级判定标准",
+	"fsrs_good_limit": "Good评级判定标准",
+	"fsrs_hard_limit": "Hard评级判定标准",
+	"less_or_equals": "小于等于",
+	"times": "次",
+	"wrong": "错误"
 }

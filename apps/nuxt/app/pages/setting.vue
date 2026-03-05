@@ -24,6 +24,7 @@ import MigrateDialog from '@/components/MigrateDialog.vue'
 import Log from '@/components/setting/Log.vue'
 import About from '@/components/About.vue'
 import CommonSetting from '@/components/setting/CommonSetting.vue'
+import FsrsSetting from '@/components/setting/FsrsSetting.vue'
 import ArticleSetting from '@/components/setting/ArticleSetting.vue'
 import WordSetting from '@/components/setting/WordSetting.vue'
 import {
@@ -413,29 +414,33 @@ function removeSbConfig() {
               <span>{{ $t('general_settings') }}</span>
             </div>
             <div class="tab" :class="tabIndex === 1 && 'active'" @click="tabIndex = 1">
+              <IconFluentBot20Regular/>
+              <span>{{ $t('fsrs_settings') }}</span>
+            </div>
+            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
               <IconFluentTextUnderlineDouble20Regular />
               <span>{{ $t('word_settings') }}</span>
             </div>
-            <div class="tab" :class="tabIndex === 2 && 'active'" @click="tabIndex = 2">
+            <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
               <IconFluentBookLetter20Regular />
               <span>{{ $t('article_settings') }}</span>
             </div>
-            <div class="tab" :class="tabIndex === 4 && 'active'" @click="tabIndex = 4">
+            <div class="tab" :class="tabIndex === 5 && 'active'" @click="tabIndex = 5">
               <IconFluentDatabasePerson20Regular />
               <span>{{ $t('data_management') }}</span>
             </div>
 
-            <div class="tab" :class="tabIndex === 3 && 'active'" @click="tabIndex = 3">
+            <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
               <IconFluentKeyboardLayoutFloat20Regular />
               <span>{{ $t('shortcut_settings') }}</span>
             </div>
 
             <div
               class="tab"
-              :class="tabIndex === 5 && 'active'"
+              :class="tabIndex === 7 && 'active'"
               @click="
                 () => {
-                  tabIndex = 5
+                  tabIndex = 7
                   runtimeStore.isNew = false
                   set(APP_VERSION.key, APP_VERSION.version)
                 }
@@ -445,7 +450,7 @@ function removeSbConfig() {
               <span>{{ $t('update_log') }}</span>
               <div class="red-point" v-if="runtimeStore.isNew"></div>
             </div>
-            <div class="tab" :class="tabIndex === 6 && 'active'" @click="tabIndex = 6">
+            <div class="tab" :class="tabIndex === 8 && 'active'" @click="tabIndex = 8">
               <IconFluentPerson20Regular />
               <span>{{ $t('about') }}</span>
             </div>
@@ -454,10 +459,11 @@ function removeSbConfig() {
         <div class="col-line"></div>
         <div class="flex-1 overflow-y-auto overflow-x-hidden pr-4 content">
           <CommonSetting v-if="tabIndex === 0" />
-          <WordSetting v-if="tabIndex === 1" />
-          <ArticleSetting v-if="tabIndex === 2" />
+          <FsrsSetting v-if="tabIndex === 1" />
+          <WordSetting v-if="tabIndex === 2" />
+          <ArticleSetting v-if="tabIndex === 3" />
 
-          <div class="body" v-if="tabIndex === 3">
+          <div class="body" v-if="tabIndex === 6">
             <div class="row">
               <label class="main-title">{{ $t('function') }}</label>
               <div class="wrapper">{{ $t('shortcut_key') }}</div>
@@ -495,7 +501,7 @@ function removeSbConfig() {
             </div>
           </div>
 
-          <div v-if="tabIndex === 4">
+          <div v-if="tabIndex === 5">
             <!--            导出数据-->
             <SettingItem
               title="导出数据"
@@ -591,9 +597,9 @@ function removeSbConfig() {
           </div>
 
           <!--          日志-->
-          <Log v-if="tabIndex === 5" />
+          <Log v-if="tabIndex === 7" />
 
-          <div v-if="tabIndex === 6" class="center flex-col">
+          <div v-if="tabIndex === 8" class="center flex-col">
             <About />
             <div class="text-md color-gray mt-10">Build {{ gitLastCommitHash }}</div>
           </div>

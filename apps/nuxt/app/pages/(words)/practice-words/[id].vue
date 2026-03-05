@@ -12,7 +12,6 @@ import {
   _getDictDataByUrl,
   _nextTick,
   cloneDeep,
-  getGradeByWrongTimes,
   isMobile,
   loadJsLib,
   resourceWrap,
@@ -41,6 +40,7 @@ import { getPracticeWordCache, setPracticeWordCache } from '@/utils/cache.ts'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@/types/enum.ts'
 import ConflictNotice2 from '~/components/dialog/ConflictNotice2.vue'
 import { createEmptyCard, FSRS, Rating } from 'ts-fsrs'
+import { useGetGradeByWrongTimes } from '~/hooks/fsrs'
 
 const { toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()
@@ -383,6 +383,8 @@ function complete() {
     setTimeout(() => setPracticeWordCache(null), 300)
   }
 }
+
+let { getGradeByWrongTimes } = useGetGradeByWrongTimes()
 
 function next(isTyping: boolean = true) {
   let temp = word.word.toLowerCase()

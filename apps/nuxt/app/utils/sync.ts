@@ -6,10 +6,7 @@ export function parseTimestamp(ts: string | undefined): number | null {
   return Number.isNaN(parsed) ? null : parsed
 }
 
-export function compareTimestamps(
-  localTs: string | undefined,
-  remoteTs: string | undefined
-): TimestampCompareResult {
+export function compareTimestamps(localTs: string | undefined, remoteTs: string | undefined): TimestampCompareResult {
   const localTime = parseTimestamp(localTs)
   const remoteTime = parseTimestamp(remoteTs)
   if (localTime == null || remoteTime == null) return 'unknown'
@@ -30,8 +27,6 @@ export function shouldFetchRemote(
   currentVersion: number
 ): boolean {
   if (remoteVersion == null) return false
-  const hasLocal = parseTimestamp(localUpdatedAt) != null
-  if (!hasLocal && parseTimestamp(remoteUpdatedAt) != null) return true
   if (remoteVersion > currentVersion) return true
   if (remoteVersion < currentVersion) return false
   return compareTimestamps(localUpdatedAt, remoteUpdatedAt) === 'remote_newer'

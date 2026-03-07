@@ -167,6 +167,13 @@ export function usePracticeWordPersistence() {
     const currentVersion = PRACTICE_WORD_CACHE.version
     const compareResult = compareTimestamps(localMeta?.updated_at, remoteMeta?.updated_at)
 
+    if (remoteMeta?.data_version == null && localMeta?.val) {
+      const updated_at = localMeta.updated_at ?? new Date().toISOString()
+      setPracticeWordCacheLocal(localMeta.val, updated_at)
+      void upsertPracticeData('word', localMeta.val, updated_at)
+      return restorePracticeWordCache(localMeta.val)
+    }
+
     if (remoteMeta && shouldFetchRemote(localMeta?.updated_at, remoteMeta?.updated_at, remoteMeta?.data_version, currentVersion)) {
       const remote = await fetchFromSupabase('word')
       const remoteData = remote?.data != null && typeof remote.data === 'object' ? (remote.data as PracticeWordCacheStored) : null
@@ -210,6 +217,13 @@ export function usePracticeArticlePersistence() {
     const localMeta = getPracticeArticleCacheLocalWithMeta()
     const currentVersion = PRACTICE_ARTICLE_CACHE.version
     const compareResult = compareTimestamps(localMeta?.updated_at, remoteMeta?.updated_at)
+
+    if (remoteMeta?.data_version == null && localMeta?.val) {
+      const updated_at = localMeta.updated_at ?? new Date().toISOString()
+      setPracticeArticleCacheLocal(localMeta.val, updated_at)
+      void upsertPracticeData('article', localMeta.val, updated_at)
+      return localMeta.val
+    }
 
     if (remoteMeta && shouldFetchRemote(localMeta?.updated_at, remoteMeta?.updated_at, remoteMeta?.data_version, currentVersion)) {
       const remote = await fetchFromSupabase('article')

@@ -343,6 +343,12 @@ let sbForm = $ref({
   key: initialSbConfig?.key ?? '',
 })
 let sbStatus = $ref(Supabase.getStatus())
+watch(
+  () => tabIndex,
+  () => {
+    if (tabIndex === 5) sbStatus = Supabase.getStatus()
+  }
+)
 
 let sbFormRules = {
   url: [{ required: true, message: '请输入 Supabase  Url', trigger: 'blur' }],
@@ -579,7 +585,10 @@ function removeSbConfig() {
                     >保存配置</BaseButton
                   >
                 </div>
-                <div class="absolute top-0 left-0 w-full h-full bg-white opacity-80 cursor-not-allowed z-10 center rounded-md" v-if="!canSyncToServe">
+                <div
+                  class="absolute top-0 left-0 w-full h-full bg-white opacity-80 cursor-not-allowed z-10 center rounded-md"
+                  v-if="!canSyncToServe"
+                >
                   <div class="text-red">检测到自定义文章里面有自定义音频，无法使用同步功能</div>
                 </div>
               </div>

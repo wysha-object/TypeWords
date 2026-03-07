@@ -1,21 +1,20 @@
-import { useBaseStore } from '~/stores/base.ts'
-import { useRuntimeStore } from '~/stores/runtime.ts'
-import { useSettingStore } from '~/stores/setting.ts'
-import { useUserStore } from '~/stores/user.ts'
-import { syncSetting } from '~/apis'
-import { get, set } from 'idb-keyval'
-import { AppEnv, DictId } from '~/config/env.ts'
+import { APP_VERSION, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env.ts'
 import {
   _getDictDataByUrl,
   checkAndUpgradeSaveDict,
   checkAndUpgradeSaveSetting,
   shakeCommonDict,
 } from '@/utils/index.ts'
-import { APP_VERSION, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env.ts'
-import { Supabase } from '~/utils/supabase.ts'
-import { compareTimestamps, parseTimestamp, shouldFetchRemote } from '@/utils/sync'
-import type { Word } from '~/types/types.ts'
+import { compareTimestamps, shouldFetchRemote } from '@/utils/sync'
+import { get, set } from 'idb-keyval'
+import { syncSetting } from '~/apis'
+import { AppEnv, DictId } from '~/config/env.ts'
+import { useBaseStore } from '~/stores/base.ts'
+import { useRuntimeStore } from '~/stores/runtime.ts'
+import { useSettingStore } from '~/stores/setting.ts'
+import { useUserStore } from '~/stores/user.ts'
 import { DictType } from '~/types/enum.ts'
+import { Supabase } from '~/utils/supabase.ts'
 
 let unsub = null
 let unsub2 = null
@@ -64,7 +63,7 @@ async function persistLocalState(type: SyncType, val: unknown, updated_at?: stri
   )
 }
 
-async function fetchServerMeta(): Promise<RemoteMetaRow[]> {
+async function fetchServerMeta(): Promise<RemoteMetaRow[] | null> {
   if (!Supabase.check()) return []
   const { data, error } = await Supabase.getInstance()
     .from('typewords_data')
@@ -72,7 +71,7 @@ async function fetchServerMeta(): Promise<RemoteMetaRow[]> {
     .in('type', ['setting', 'dict'])
   if (error) {
     Supabase.setStatus('error', error?.message ?? String(error))
-    return []
+    return null
   }
   return (data ?? []) as RemoteMetaRow[]
 }
@@ -130,8 +129,19 @@ async function getServerData() {
   if (!Supabase.check()) return
   const store = useBaseStore()
   const settingStore = useSettingStore()
+  const syncLocalToRemote = (type: SyncType, updated_at: string) => {
+    if (type === 'setting') {
+      void persistLocalState('setting', settingStore.$state, updated_at)
+      void upsertServerData('setting', settingStore.$state, updated_at)
+      return
+    }
+    const data = shakeCommonDict(store.$state)
+    void persistLocalState('dict', data, updated_at)
+    void upsertServerData('dict', data, updated_at)
+  }
   try {
     const remoteMetas = await fetchServerMeta()
+    if (!remoteMetas) return
     const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
     const syncTypes: SyncType[] = ['setting', 'dict']
 
@@ -139,22 +149,13 @@ async function getServerData() {
       const remoteMeta = remoteMetaMap.get(type)
       const currentVersion = getDataVersion(type)
       const localMeta = await getLocalPersistMeta(type)
-      const compareResult = compareTimestamps(localMeta.updated_at, remoteMeta?.updated_at)
-
-      if (!remoteMeta) {
+      if (!remoteMeta || remoteMeta.data_version == null) {
         const updated_at = localMeta.updated_at ?? new Date().toISOString()
-        if (type === 'setting') {
-          void persistLocalState('setting', settingStore.$state, updated_at)
-          void upsertServerData('setting', settingStore.$state, updated_at)
-        } else {
-          const data = shakeCommonDict(store.$state)
-          void persistLocalState('dict', data, updated_at)
-          void upsertServerData('dict', data, updated_at)
-        }
+        syncLocalToRemote(type, updated_at)
         continue
       }
 
-      if (shouldFetchRemote(localMeta.updated_at, remoteMeta?.updated_at, remoteMeta?.data_version, currentVersion)) {
+      if (shouldFetchRemote(localMeta.updated_at, remoteMeta.updated_at, remoteMeta.data_version, currentVersion)) {
         const remoteData = await fetchServerData(type)
         if (!remoteData) continue
 
@@ -176,19 +177,18 @@ async function getServerData() {
         continue
       }
 
+      const compareResult = compareTimestamps(localMeta.updated_at, remoteMeta.updated_at)
       if (compareResult === 'equal' || compareResult === 'unknown') {
         continue
       }
 
       if (localMeta.updated_at && compareResult === 'local_newer') {
-        if (type === 'setting') {
-          void upsertServerData('setting', settingStore.$state, localMeta.updated_at)
-        } else {
-          void upsertServerData('dict', shakeCommonDict(store.$state), localMeta.updated_at)
-        }
+        syncLocalToRemote(type, localMeta.updated_at)
       }
     }
-    Supabase.setStatus('success')
+    if (Supabase.getStatus().status !== 'error') {
+      Supabase.setStatus('success')
+    }
   } catch (e) {
     Supabase.setStatus('error', (e as Error)?.message ?? String(e))
   }
@@ -252,14 +252,13 @@ export function useInit() {
           let result = []
           //删除未使用到的文件
           get(LOCAL_FILE_KEY).then((fileList: Array<{ id: string; file: Blob }>) => {
-            if (fileList && fileList.length > 0) {
-              audioFileIdList.forEach(a => {
-                let item = fileList.find(b => b.id === a)
-                item && result.push(item)
-              })
-              set(LOCAL_FILE_KEY, result)
-              lastAudioFileIdList = audioFileIdList
-            }
+            const files = fileList ?? []
+            audioFileIdList.forEach(a => {
+              let item = files.find(b => b.id === a)
+              item && result.push(item)
+            })
+            set(LOCAL_FILE_KEY, result)
+            lastAudioFileIdList = [...audioFileIdList]
           })
         }
       }, 500)

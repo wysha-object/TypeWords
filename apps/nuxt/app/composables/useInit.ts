@@ -153,7 +153,9 @@ async function upsertServerData(type: SyncType, data: unknown, updated_at: strin
   const data_version = getDataVersion(type)
   try {
     const client = Supabase.getInstance() as any
-    const { error } = await client.from('typewords_data').upsert({ type, data, updated_at, data_version }, { onConflict: 'type' })
+    const { error } = await client
+      .from('typewords_data')
+      .upsert({ type, data, updated_at, data_version }, { onConflict: 'type' })
     if (error) {
       Supabase.setStatus('error', error?.message ?? String(error))
       return
@@ -284,6 +286,8 @@ export function useInit() {
       //当激活时，要先获取数据，以保证本地是最新的，以免本地老数据上传到后端覆盖新数据
       isInitializing = true
       await getServerData()
+      store.load = true
+      settingStore.load = true
       isInitializing = false
     }
   }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BaseIcon from '~/components/base/BaseIcon.vue'
 import Logo from '@/components/Logo.vue'
-import MigrateDialog from '@/components/MigrateDialog.vue'
+import MigrateDialog from '~/components/dialog/MigrateDialog.vue'
 import { Origin } from '@/config/env'
 import useTheme from '@/hooks/theme.ts'
 import { useRuntimeStore } from '@/stores/runtime.ts'

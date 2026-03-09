@@ -23,7 +23,7 @@ import Toast from '@/components/base/toast/Toast'
 import { get, set } from 'idb-keyval'
 import { useRuntimeStore } from '@/stores/runtime'
 import { useExport } from '@/hooks/export'
-import MigrateDialog from '@/components/MigrateDialog.vue'
+import MigrateDialog from '~/components/dialog/MigrateDialog.vue'
 import Log from '@/components/setting/Log.vue'
 import About from '@/components/About.vue'
 import CommonSetting from '@/components/setting/CommonSetting.vue'
@@ -43,6 +43,7 @@ import SettingItem from '~/components/setting/SettingItem.vue'
 import Form, { type FormType } from '~/components/base/form/Form.vue'
 import { Supabase } from '~/utils/supabase.ts'
 import BackupGateDialog from '@/components/dialog/BackupGateDialog.vue'
+import { createClient } from '@supabase/supabase-js'
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
@@ -407,7 +408,9 @@ async function restoreHistoryData() {
   }
 }
 
-async function pushLocalDataToSupabase(client: any): Promise<void> {
+let tempSbInstance = null
+
+async function pushLocalDataToSupabase(): Promise<void> {
   const updated_at = new Date().toISOString()
   const rows: Array<{ type: SupabaseSyncType; data: unknown; data_version: number; updated_at: string }> = [
     {
@@ -435,24 +438,30 @@ async function pushLocalDataToSupabase(client: any): Promise<void> {
       updated_at,
     },
   ]
-  const { error } = await client.from('typewords_data').upsert(rows, { onConflict: 'type' })
+  const { error } = await tempSbInstance.from('typewords_data').upsert(rows, { onConflict: 'type' })
   if (error) throw new Error(error?.message ?? String(error))
 }
 
-async function pullRemoteDataToLocal(client: any): Promise<void> {
-  const { data, error } = await client
+async function pullRemoteDataToLocal(): Promise<void> {
+  const { data, error } = await tempSbInstance
     .from('typewords_data')
     .select('type, data, updated_at, data_version')
     .in('type', ['dict', 'setting', 'practice_word', 'practice_article'])
     .not('data_version', 'is', null)
   if (error) throw new Error(error?.message ?? String(error))
-  const rows = (data ?? []) as Array<{ type: SupabaseSyncType; data: unknown; updated_at?: string }>
+  const rows = (data ?? []) as Array<{
+    type: SupabaseSyncType
+    data: unknown
+    updated_at?: string
+    data_version: number
+  }>
   const map = new Map(rows.map(item => [item.type, item]))
   const now = new Date().toISOString()
 
   const dictRow = map.get('dict')
+  debugger
   if (dictRow && dictRow.data && typeof dictRow.data === 'object') {
-    const dictState = checkAndUpgradeSaveDict(dictRow.data as any)
+    const dictState = checkAndUpgradeSaveDict({ val: dictRow.data, version: dictRow.data_version })
     dictState.load = true
     store.setState(dictState)
     await set(
@@ -467,7 +476,7 @@ async function pullRemoteDataToLocal(client: any): Promise<void> {
 
   const settingRow = map.get('setting')
   if (settingRow && settingRow.data && typeof settingRow.data === 'object') {
-    const settingState = checkAndUpgradeSaveSetting(settingRow.data as any)
+    const settingState = checkAndUpgradeSaveSetting({ val: settingRow.data, version: settingRow.data_version })
     settingState.load = true
     settingStore.setState(settingState)
     await set(
@@ -501,16 +510,17 @@ async function onSbFirstSyncChoice(action: 'push_local' | 'pull_remote') {
   if (sbSyncChoiceLoading) return
   sbSyncChoiceLoading = true
   try {
-    const client = Supabase.getInstance() as any
     if (action === 'push_local') {
-      await pushLocalDataToSupabase(client)
+      await pushLocalDataToSupabase()
       Toast.success('已将本地数据推送到远程')
     } else {
-      await pullRemoteDataToLocal(client)
+      await pullRemoteDataToLocal()
       Toast.success('已拉取远程数据到本地')
     }
     Supabase.setStatus('success')
     sbStatus = Supabase.getStatus()
+    Toast.success('保存成功')
+    Supabase.saveConfig(sbForm?.url, sbForm?.key)
     showSbFirstSyncChoiceDialog = false
     transferOk()
   } catch (error) {
@@ -582,13 +592,10 @@ async function doSaveSbConfig() {
   if (configLoading) return
   showBackupGate = false
   configLoading = true
-  Supabase.saveConfig(sbForm?.url, sbForm?.key)
-  // 重新初始化 Supabase 实例
-  Supabase.instance = null
-  const supabase = Supabase.getInstance()
+  tempSbInstance = createClient(sbForm?.url, sbForm?.key)
   try {
     // 检测 typewords_data 表是否存在
-    const { data: existingData, error: checkError } = await supabase.from('typewords_data').select('type')
+    const { data: existingData, error: checkError } = await tempSbInstance.from('typewords_data').select('type')
     if (checkError) {
       Supabase.setStatus('error', checkError?.message ?? '表不存在')
       sbStatus = Supabase.getStatus()
@@ -605,10 +612,10 @@ async function doSaveSbConfig() {
       ]
       for (const item of defaultData) {
         if (!existingTypes.includes(item.type)) {
-          await (supabase as any).from('typewords_data').insert(item)
+          await (tempSbInstance as any).from('typewords_data').insert(item)
         }
       }
-      const { data: hasVersionData, error: versionError } = await (supabase as any)
+      const { data: hasVersionData, error: versionError } = await (tempSbInstance as any)
         .from('typewords_data')
         .select('type, data_version')
         .in('type', ['dict', 'setting', 'practice_word', 'practice_article'])
@@ -617,12 +624,14 @@ async function doSaveSbConfig() {
         throw new Error(versionError?.message ?? String(versionError))
       }
       const hasRemoteVersionData = Array.isArray(hasVersionData) && hasVersionData.length > 0
-      Supabase.setStatus('success')
-      sbStatus = Supabase.getStatus()
-      Toast.success('保存成功')
+
       if (hasRemoteVersionData) {
         showSbFirstSyncChoiceDialog = true
       } else {
+        Supabase.setStatus('success')
+        sbStatus = Supabase.getStatus()
+        Toast.success('保存成功')
+        Supabase.saveConfig(sbForm?.url, sbForm?.key)
         transferOk()
       }
     }
@@ -897,7 +906,7 @@ function removeSbConfig() {
       <div class="text-sm">检测到远程存在数据，请选择同步方向：</div>
       <div class="text-sm color-gray mt-2">- 本地推送：用当前本地数据覆盖远程</div>
       <div class="text-sm color-gray">- 拉取远程：用远程数据覆盖当前本地</div>
-      <div class="flex justify-end mt-4 gap-space">
+      <div class="flex justify-end gap-space">
         <BaseButton :loading="sbSyncChoiceLoading" @click="onSbFirstSyncChoice('push_local')">本地推送</BaseButton>
         <BaseButton :loading="sbSyncChoiceLoading" @click="onSbFirstSyncChoice('pull_remote')">拉取远程</BaseButton>
       </div>

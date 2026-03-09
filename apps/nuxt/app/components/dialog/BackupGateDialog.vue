@@ -3,6 +3,7 @@ import { watch } from 'vue'
 import Dialog from '@/components/dialog/Dialog.vue'
 import BaseButton from '~/components/base/BaseButton.vue'
 import { useExport } from '@/hooks/export'
+import { IS_DEV } from '~/config/env.ts'
 
 const model = defineModel()
 
@@ -29,7 +30,7 @@ async function onBackup() {
 
       <div class="flex justify-end mt-4">
         <BaseButton :loading="backupLoading" @click="onBackup">备份数据</BaseButton>
-        <slot :disabled="!backupTriggered"></slot>
+        <slot :disabled="!backupTriggered && !IS_DEV"></slot>
       </div>
     </div>
   </Dialog>

@@ -1,11 +1,11 @@
 <script setup lang="ts">
 
-import Toast from "@/components/base/toast/Toast.ts";
-import { Origin } from "@/config/env.ts";
+import Toast from "~/components/base/toast/Toast.ts";
+import { Origin } from "~/config/env.ts";
 import { set } from 'idb-keyval';
 import { defineAsyncComponent } from "vue";
 
-const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
+const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))
 
 const model = defineModel()
 

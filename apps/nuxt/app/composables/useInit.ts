@@ -13,8 +13,14 @@ import {
   checkAndUpgradeSaveSetting,
   shakeCommonDict,
 } from '@/utils/index.ts'
-import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache'
-import { compareTimestamps, shouldFetchRemote } from '@/utils/sync'
+import {
+  getPracticeWordCacheLocalWithMeta,
+  PRACTICE_ARTICLE_CACHE,
+  PRACTICE_WORD_CACHE,
+  type PracticeWordCacheStored,
+  setPracticeWordCacheLocal,
+} from '@/utils/cache'
+import { shouldFetchRemoteV2 } from '@/utils/sync'
 import { del, get, set } from 'idb-keyval'
 import { syncSetting } from '~/apis'
 import { AppEnv, DictId } from '~/config/env.ts'
@@ -22,7 +28,7 @@ import { useBaseStore } from '~/stores/base.ts'
 import { useRuntimeStore } from '~/stores/runtime.ts'
 import { useSettingStore } from '~/stores/setting.ts'
 import { useUserStore } from '~/stores/user.ts'
-import { DictType } from '~/types/enum.ts'
+import { CompareResult, DictType } from '~/types/enum.ts'
 import { Supabase } from '~/utils/supabase.ts'
 
 let unsub = null
@@ -148,6 +154,27 @@ async function fetchServerData(type: SyncType): Promise<RemoteDataRow | null> {
   return data as RemoteDataRow | null
 }
 
+async function fetchCompareResultByTypeIns(
+  type: SyncType,
+  remoteMetaMap: Map<SyncType, RemoteMetaRow>
+): Promise<CompareResult> {
+  const remoteMeta = remoteMetaMap.get(type)
+  if (!remoteMeta) return CompareResult.NoRemote
+  const localMeta = await getLocalPersistMeta(type)
+  if (!localMeta?.updated_at && localMeta?.version == null) return CompareResult.NoLocal
+  const currentVersion = getDataVersion(type)
+  return shouldFetchRemoteV2(localMeta.updated_at, remoteMeta.updated_at, remoteMeta.data_version, currentVersion)
+}
+
+async function fetchCompareResultByType(
+  type: SyncType,
+  remoteMetaMap: Map<SyncType, RemoteMetaRow>
+): Promise<CompareResult> {
+  const result = await fetchCompareResultByTypeIns(type, remoteMetaMap)
+  console.log('init-CompareResult', CompareResult[result])
+  return result
+}
+
 async function upsertServerData(type: SyncType, data: unknown, updated_at: string): Promise<void> {
   if (!Supabase.check()) return
   const data_version = getDataVersion(type)
@@ -189,16 +216,7 @@ async function getServerData() {
   if (!Supabase.check()) return
   const store = useBaseStore()
   const settingStore = useSettingStore()
-  const syncLocalToRemote = (type: SyncType, updated_at: string) => {
-    if (type === 'setting') {
-      void persistLocalState('setting', settingStore.$state, updated_at)
-      void upsertServerData('setting', settingStore.$state, updated_at)
-      return
-    }
-    const data = shakeCommonDict(store.$state)
-    void persistLocalState('dict', data, updated_at)
-    void upsertServerData('dict', data, updated_at)
-  }
+
   try {
     const remoteMetas = await fetchServerMeta()
     if (!remoteMetas) return
@@ -206,44 +224,31 @@ async function getServerData() {
     const syncTypes: SyncType[] = ['setting', 'dict']
 
     for (const type of syncTypes) {
-      const remoteMeta = remoteMetaMap.get(type)
-      const currentVersion = getDataVersion(type)
-      const localMeta = await getLocalPersistMeta(type)
-      if (!remoteMeta || remoteMeta.data_version == null) {
-        const updated_at = localMeta.updated_at ?? new Date().toISOString()
-        syncLocalToRemote(type, updated_at)
-        continue
-      }
+      const compareResult = await fetchCompareResultByType(type, remoteMetaMap)
 
-      if (shouldFetchRemote(localMeta.updated_at, remoteMeta.updated_at, remoteMeta.data_version, currentVersion)) {
-        const remoteData = await fetchServerData(type)
-        if (!remoteData) continue
+      switch (compareResult) {
+        case CompareResult.RemoteNewer:
+        case CompareResult.NoLocal: {
+          const remoteData = await fetchServerData(type)
+          if (!remoteData) continue
 
-        if (type === 'setting') {
-          const normalized = checkAndUpgradeSaveSetting({
-            val: remoteData.data,
-            version: remoteData.data_version ?? currentVersion,
-          })
-          settingStore.setState(normalized)
-          await persistLocalState('setting', normalized, remoteData.updated_at)
-        } else {
-          const normalized = checkAndUpgradeSaveDict({
-            val: remoteData.data,
-            version: remoteData.data_version ?? currentVersion,
-          })
-          applyDictData(store, normalized)
-          await persistLocalState('dict', normalized, remoteData.updated_at)
+          if (type === 'setting') {
+            const normalized = checkAndUpgradeSaveSetting({
+              val: remoteData.data,
+              version: remoteData.data_version,
+            })
+            settingStore.setState(normalized)
+            await persistLocalState('setting', normalized, remoteData.updated_at)
+          } else {
+            const normalized = checkAndUpgradeSaveDict({
+              val: remoteData.data,
+              version: remoteData.data_version,
+            })
+            applyDictData(store, normalized)
+            await persistLocalState('dict', normalized, remoteData.updated_at)
+          }
+          break
         }
-        continue
-      }
-
-      const compareResult = compareTimestamps(localMeta.updated_at, remoteMeta.updated_at)
-      if (compareResult === 'equal' || compareResult === 'unknown') {
-        continue
-      }
-
-      if (localMeta.updated_at && compareResult === 'local_newer') {
-        syncLocalToRemote(type, localMeta.updated_at)
       }
     }
     if (Supabase.getStatus().status !== 'error') {
@@ -305,14 +310,12 @@ export function useInit() {
     unsub?.()
     //用 $subscribe 替代 watch
     unsub = store.$subscribe(
-      debounce((mutation, n) => {
+      debounce(async (mutation, n) => {
         // 如果正在初始化，不保存数据，避免覆盖
         if (isInitializing) return
         console.log('store.$subscribe', mutation, n)
         let data = shakeCommonDict(n)
         const updated_at = new Date().toISOString()
-        void persistLocalState('dict', data, updated_at)
-        void upsertServerData('dict', data, updated_at)
 
         //筛选自定义和收藏
         let bookList = data.article.bookList.filter(v => v.custom || [DictId.articleCollect].includes(v.id))
@@ -339,18 +342,47 @@ export function useInit() {
             lastAudioFileIdList = [...audioFileIdList]
           })
         }
+
+        const remoteMetas = await fetchServerMeta()
+        if (!remoteMetas) {
+          await persistLocalState('dict', data, updated_at)
+          return
+        }
+        const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
+        const compareResult = await fetchCompareResultByType('dict', remoteMetaMap)
+        if (compareResult === CompareResult.RemoteNewer) {
+          isInitializing = true
+          await getServerData()
+          isInitializing = false
+        } else {
+          await persistLocalState('dict', data, updated_at)
+          await upsertServerData('dict', data, updated_at)
+        }
       }, 1000)
     )
 
     unsub2?.()
     unsub2 = settingStore.$subscribe(
-      debounce((mutation, state) => {
+      debounce(async (mutation, data) => {
         if (isInitializing) return
         // console.log('settingStore.$subscribe', mutation, state, isInitializing)
 
         const updated_at = new Date().toISOString()
-        void persistLocalState('setting', state, updated_at)
-        void upsertServerData('setting', state, updated_at)
+        const remoteMetas = await fetchServerMeta()
+        if (!remoteMetas) {
+          await persistLocalState('setting', data, updated_at)
+          return
+        }
+        const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
+        const compareResult = await fetchCompareResultByType('setting', remoteMetaMap)
+        if (compareResult === CompareResult.RemoteNewer) {
+          isInitializing = true
+          await getServerData()
+          isInitializing = false
+        } else {
+          await persistLocalState('setting', data, updated_at)
+          await upsertServerData('setting', data, updated_at)
+        }
         if (AppEnv.CAN_REQUEST) {
           syncSetting(null, settingStore.$state)
         }

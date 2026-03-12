@@ -13,7 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@typewords/ui": "workspace:*"
+    "@typewords/ui": "workspace:*",
+    "jszip": "^3.10.1"
   },
   "config": {
     "commitizen": {

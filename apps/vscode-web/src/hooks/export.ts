@@ -1,13 +1,5 @@
-import { loadJsLib, shakeCommonDict } from '@/utils'
-import {
-  APP_NAME,
-  APP_VERSION,
-  EXPORT_DATA_KEY,
-  LIB_JS_URL,
-  LOCAL_FILE_KEY,
-  SAVE_DICT_KEY,
-  SAVE_SETTING_KEY,
-} from '@/config/env'
+import { shakeCommonDict } from '@/utils'
+import { APP_NAME, APP_VERSION, EXPORT_DATA_KEY, LOCAL_FILE_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@/config/env'
 import { get } from 'idb-keyval'
 import saveAs from 'file-saver'
 import dayjs from 'dayjs'
@@ -16,6 +8,7 @@ import { useBaseStore } from '@/stores/base'
 import { useSettingStore } from '@/stores/setting'
 import { ref } from 'vue'
 import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@/utils/cache'
+import JSZip from 'jszip'
 
 export function useExport() {
   const store = useBaseStore()
@@ -30,7 +23,6 @@ export function useExport() {
     if (loading.value) return
     loading.value = true
     try {
-      const JSZip = await loadJsLib('JSZip', LIB_JS_URL.JSZIP)
       let data = {
         version: EXPORT_DATA_KEY.version,
         val: {

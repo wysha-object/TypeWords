@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, provide, watch } from 'vue'
 import Statistics from '~/components/word/Statistics.vue'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
+import { useEvents, emitter, EventKey } from '@typewords/utils/eventBus'
 import { useSettingStore } from '@/stores/setting.ts'
 import { useRuntimeStore } from '@/stores/runtime.ts'
 import type { Dict, PracticeData, TaskWords, Word } from '@/types/types.ts'
@@ -21,7 +21,6 @@ import { usePracticeStore } from '@/stores/practice.ts'
 import { getDefaultDict, getDefaultWord } from '@/types/func.ts'
 import ConflictNotice from '~/components/dialog/ConflictNotice.vue'
 import PracticeLayout from '@/components/PracticeLayout.vue'
-
 import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@/config/env.ts'
 import { watchOnce } from '@vueuse/core'
 import { setUserDictProp } from '@/apis'
@@ -47,7 +46,6 @@ let { nextCard } = useNextCard()
 const typingRef: any = $ref()
 let showConflictNotice = $ref(false)
 let showConflictNotice2 = $ref(false)
-let allWrongWords = new Set()
 let isComplete = $ref(false)
 let loading = $ref(false)
 let timer = $ref<any>(-1)
@@ -412,7 +410,7 @@ function complete() {
   }
 }
 
-function next(isTyping: boolean = true) {
+function next(isTyping: boolean = true, ignoreLoop = false) {
   let temp = word.word.toLowerCase()
 
   data.wrongTimesMap[temp] = (data.wrongTimesMap[temp] ?? 0) + data.wrongTimes
@@ -442,13 +440,13 @@ function next(isTyping: boolean = true) {
     if (data.words.length === 0 || data.index === data.words.length - 1) {
       // 有词时才做「回到最后一组」等依赖当前词的处理；无词时直接走错词/阶段逻辑
       if (data.words.length) {
-        if (statStore.stage === WordPracticeStage.FollowWriteNewWord || data.isTypingWrongWord) {
+        if ((statStore.stage === WordPracticeStage.FollowWriteNewWord || data.isTypingWrongWord) && !ignoreLoop) {
           if (settingStore.wordPracticeType !== WordPracticeType.Spell) {
             //回到最后一组的开始位置
             data.index = Math.floor(data.index / groupSize) * groupSize
             emitter.emit(EventKey.resetWord)
             settingStore.wordPracticeType = WordPracticeType.Spell
-            if (checkWordIsNeedNext(word)) next(false)
+            if (checkWordIsNeedNext(word)) next(false, ignoreLoop)
             return
           }
         }
@@ -513,7 +511,7 @@ function next(isTyping: boolean = true) {
   }
 
   // 仅在有当前词列表时再检查是否需跳过当前词，避免 words 被清空后用默认 word 误触发 next
-  if (data.words.length > 0 && checkWordIsNeedNext(word)) next(false)
+  if (data.words.length > 0 && checkWordIsNeedNext(word)) next(false, ignoreLoop)
 }
 
 //检查单词是否跳过
@@ -527,7 +525,7 @@ function checkWordIsNeedNext(word: Word) {
 function skipStep() {
   data.index = data.words.length - 1
   data.wrongWords = []
-  next(false)
+  next(false, true)
 }
 
 function addExcludeWord() {

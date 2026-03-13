@@ -179,4 +179,12 @@ export default defineNuxtConfig({
   devServer: {
     port: 5567,
   },
+  nitro: {
+    devProxy: {
+      '/baidu': {
+        target: 'https://api.fanyi.baidu.com/api/trans/vip/translate',
+        changeOrigin: true,
+      },
+    },
+  },
 })

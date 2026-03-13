@@ -1,6 +1,5 @@
 import { offset } from '@floating-ui/dom'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@/types/enum'
-import { Rating } from 'ts-fsrs'
 
 export const GITHUB = 'https://github.com/zyronon/TypeWords'
 export const Host = 'typewords.cc'
@@ -170,7 +169,7 @@ export const WordPracticeModeStageMap: Record<WordPracticeMode, WordPracticeStag
     WordPracticeStage.Complete,
   ],
   [WordPracticeMode.ShuffleWordsTest]: null,
-  [WordPracticeMode.ReviewWordsTest]: null
+  [WordPracticeMode.ReviewWordsTest]: null,
 }
 export const WordPracticeStageNameMap: Record<WordPracticeStage, string> = {
   [WordPracticeStage.FollowWriteNewWord]: '跟写新词',
@@ -193,7 +192,7 @@ export const WordPracticeModeNameMap: Record<WordPracticeMode, string> = {
   [WordPracticeMode.Shuffle]: '随机复习',
   [WordPracticeMode.Review]: '复习',
   [WordPracticeMode.ShuffleWordsTest]: '随机单词测试',
-  [WordPracticeMode.ReviewWordsTest]: '单词测试'
+  [WordPracticeMode.ReviewWordsTest]: '单词测试',
 }
 export const WordPracticeModeUrlMap: Record<WordPracticeMode, string> = {
   [WordPracticeMode.System]: '/practice-words',
@@ -204,7 +203,7 @@ export const WordPracticeModeUrlMap: Record<WordPracticeMode, string> = {
   [WordPracticeMode.Shuffle]: '/practice-words',
   [WordPracticeMode.Review]: '/practice-words',
   [WordPracticeMode.ShuffleWordsTest]: '/words-test',
-  [WordPracticeMode.ReviewWordsTest]: '/words-test'
+  [WordPracticeMode.ReviewWordsTest]: '/words-test',
 }
 export class DictId {
   static wordCollect = 'wordCollect'

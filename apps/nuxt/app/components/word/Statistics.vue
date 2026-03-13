@@ -2,7 +2,7 @@
 import { useBaseStore } from '~/stores/base.ts'
 import { BaseButton, Progress, Toast } from '@typewords/base'
 import type { Statistics, TaskWords } from '~/types/types.ts'
-import { emitter, EventKey, useEvents } from '~/utils/eventBus.ts'
+import { useEvents, emitter, EventKey } from '@typewords/utils/eventBus'
 import { useSettingStore } from '~/stores/setting.ts'
 import { usePracticeStore } from '~/stores/practice.ts'
 import dayjs from 'dayjs'

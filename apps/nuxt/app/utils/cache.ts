@@ -97,16 +97,6 @@ export function setPracticeArticleCacheLocal(cache: PracticeArticleCache | null,
   setLocal(PRACTICE_ARTICLE_CACHE, cache, updated_at)
 }
 
-/** @deprecated 使用 usePracticePersistence('word') 的 load/save/clear；兼容用 */
-export function getPracticeWordCache(): PracticeWordCacheStored | null {
-  return getPracticeWordCacheLocal()
-}
-
-/** @deprecated 使用 usePracticePersistence('word') 的 save/clear；兼容用 */
-export function setPracticeWordCache(cache: PracticeWordCacheStored | null): void {
-  setPracticeWordCacheLocal(cache)
-}
-
 /** @deprecated 使用 usePracticePersistence('article') 的 load/save/clear；兼容用 */
 export function getPracticeArticleCache(): PracticeArticleCache | null {
   return getPracticeArticleCacheLocal()

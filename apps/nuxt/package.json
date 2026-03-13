@@ -13,6 +13,9 @@
     "i18n:write": "gulp i18nWrite"
   },
   "dependencies": {
-    "@typewords/base": "workspace:*"
+    "@typewords/base": "workspace:*",
+    "@typewords/types": "workspace:*",
+    "@typewords/utils": "workspace:*",
+    "@typewords/libs": "workspace:*"
   }
 }

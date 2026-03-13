@@ -442,7 +442,7 @@ function minusStartTime(val: Sentence) {
         :autosize="false"
       />
       <div class="justify-between items-center flex">
-        <div class="flex gap-space items-center w-50">
+        <div class="flex gap-space items-center w-50" v-if="false">
           <BaseButton @click="startNetworkTranslate" :loading="progress !== 0 && progress !== 100"
             >{{ $t('translate') }}
           </BaseButton>
@@ -451,6 +451,7 @@ function minusStartTime(val: Sentence) {
           </Select>
           {{ progress }}%
         </div>
+        <div></div>
         <div class="flex items-center">
           <Tooltip>
             <IconFluentQuestionCircle20Regular class="mr-3" width="20" />

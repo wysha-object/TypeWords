@@ -1,7 +1,6 @@
 import type {Article, Sentence} from "@/types/types.ts";
-import Baidu from "@/libs/translate/baidu";
-import {Translator} from "@/libs/translate/translator/index.ts";
-import {TranslateEngine} from "@/types/enum.ts";
+import { Baidu, Translator } from '@typewords/libs'
+import { TranslateEngine } from '@/types/enum.ts'
 
 export function getSentenceAllTranslateText(article: Article) {
   return article.sections.map(v => v.map(s => s.translate.trim()).filter(v => v).join(' \n')).filter(v => v).join(' \n\n');
@@ -104,7 +103,7 @@ export async function getNetworkTranslate(
     }
 
     if (promiseList.length) {
-      let timer = -1
+      let timer:any = -1
       let progress = 0
       if (progressCb) {
         timer = setInterval(() => {

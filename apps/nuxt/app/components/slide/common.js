@@ -1,7 +1,7 @@
-import {emitter as bus} from "@/utils/eventBus.ts";
+import { emitter as bus } from '@typewords/utils/eventBus'
 import Utils from '@/utils/gm.js'
-import GM from "@/utils/gm.js";
-import {SlideType} from "@/config/env";
+import GM from '@/utils/gm.js'
+import { SlideType } from '@/config/env'
 
 export function slideInit(el, state, type) {
   state.wrapper.width = GM.$getCss(el, 'width')
@@ -14,7 +14,8 @@ export function slideInit(el, state, type) {
   }
 
   let t = getSlideDistance(state, type)
-  let dx1 = 0, dx2 = 0
+  let dx1 = 0,
+    dx2 = 0
   if (type === SlideType.HORIZONTAL) dx1 = t
   else dx2 = t
 
@@ -33,7 +34,7 @@ export function canSlide(state, judgeValue, type = SlideType.HORIZONTAL) {
   if (state.needCheck) {
     if (Math.abs(state.move.x) > judgeValue || Math.abs(state.move.y) > judgeValue) {
       let angle = (Math.abs(state.move.x) * 10) / (Math.abs(state.move.y) * 10)
-      state.next = type === SlideType.HORIZONTAL ? angle > 1 : angle <= 1;
+      state.next = type === SlideType.HORIZONTAL ? angle > 1 : angle <= 1
       // console.log(angle)
       state.needCheck = false
     } else {
@@ -78,7 +79,7 @@ export function slideTouchMove(e, el, state, judgeValue, canNextCb, nextCb, type
 }
 
 export function slideTouchEnd(e, state, canNextCb, nextCb, notNextCb, type = SlideType.HORIZONTAL) {
-  let isHorizontal = type === SlideType.HORIZONTAL;
+  let isHorizontal = type === SlideType.HORIZONTAL
   let isNext = isHorizontal ? state.move.x < 0 : state.move.y < 0
 
   if (!canNextCb?.(isNext)) return notNextCb?.()
@@ -89,7 +90,7 @@ export function slideTouchEnd(e, state, canNextCb, nextCb, notNextCb, type = Sli
     let distance = isHorizontal ? state.move.x : state.move.y
     let judgeValue = isHorizontal ? state.wrapper.width : state.wrapper.height
     if (Math.abs(distance) < 20) gapTime = 1000
-    if (Math.abs(distance) > (judgeValue / 3)) gapTime = 100
+    if (Math.abs(distance) > judgeValue / 3) gapTime = 100
     if (gapTime < 150) {
       if (isNext) {
         state.localIndex++
@@ -111,7 +112,7 @@ export function slideReset(el, state, type, emit) {
     bus.emit(state.name + '-end', state.localIndex)
     dx1 = t
   } else {
-    bus.emit(state.name + '-end',)
+    bus.emit(state.name + '-end')
     dx2 = t
   }
   Utils.$setCss(el, 'transform', `translate3d(${dx1}px, ${dx2}px, 0)`)
@@ -132,4 +133,3 @@ export function getSlideDistance(state, type = SlideType.HORIZONTAL) {
     return -state.localIndex * state.wrapper.height
   }
 }
-

@@ -24,7 +24,7 @@ import { getDefaultArticle, getDefaultDict, getDefaultWord } from '@/types/func.
 import type { Article, ArticleItem, ArticleWord, Dict, Statistics, Word } from '@/types/types.ts'
 import { _getDictDataByUrl, _nextTick, cloneDeep, isMobile, loadJsLib, msToMinute, resourceWrap, total } from '@/utils'
 import { getPracticeArticleCache, setPracticeArticleCache } from '@/utils/cache.ts'
-import { emitter, EventKey, useEvents } from '@/utils/eventBus.ts'
+import { useEvents, emitter, EventKey } from '@typewords/utils/eventBus'
 import { computed, onMounted, onUnmounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { nanoid } from 'nanoid'

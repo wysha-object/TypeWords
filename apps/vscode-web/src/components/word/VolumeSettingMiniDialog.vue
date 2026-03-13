@@ -9,7 +9,7 @@ import { SoundFileOptions } from '~/config/env.ts'
 import { useWindowClick } from '~/hooks/event.ts'
 import { getAudioFileUrl, usePlayAudio } from '~/hooks/sound.ts'
 import { useSettingStore } from '~/stores/setting.ts'
-import { emitter, EventKey } from '~/utils/eventBus.ts'
+import { emitter, EventKey } from '@typewords/utils/eventBus'
 
 const settingStore = useSettingStore()
 let timer = 0
@@ -105,7 +105,6 @@ function eventCheck(e) {
 </template>
 
 <style scoped lang="scss">
-
 .wrapper {
   width: 50%;
   position: relative;

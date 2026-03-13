@@ -1,15 +1,9 @@
 <script setup lang="ts">
 import BaseIcon from '~/components/BaseIcon.vue'
-import Switch from '~/components/base/Switch.vue'
-import Select from '~/components/base/select/Select.vue'
-import Option from '~/components/base/select/Option.vue'
 import MiniDialog from '~/components/dialog/MiniDialog.vue'
-import VolumeIcon from '~/components/icon/VolumeIcon.vue'
-import { SoundFileOptions } from '~/config/env.ts'
 import { useWindowClick } from '~/hooks/event.ts'
-import { getAudioFileUrl, usePlayAudio } from '~/hooks/sound.ts'
 import { useSettingStore } from '~/stores/setting.ts'
-import { emitter, EventKey } from '~/utils/eventBus.ts'
+import { emitter, EventKey } from '@typewords/utils/eventBus'
 
 const settingStore = useSettingStore()
 let timer = 0
@@ -60,7 +54,7 @@ function eventCheck(e) {
     </BaseIcon>
     <MiniDialog width="14rem" v-model="show">
       <NuxtLink to="/words" class="mini-row">单词</NuxtLink>
-<!--      <NuxtLink to="/articles" class="mini-row">文章</NuxtLink>-->
+      <!--      <NuxtLink to="/articles" class="mini-row">文章</NuxtLink>-->
       <NuxtLink to="/setting" class="mini-row">设置</NuxtLink>
     </MiniDialog>
   </div>
@@ -68,6 +62,6 @@ function eventCheck(e) {
 
 <style scoped lang="scss">
 .mini-row {
- @apply hover:bg-gray-700;
+  @apply hover:bg-gray-700;
 }
 </style>

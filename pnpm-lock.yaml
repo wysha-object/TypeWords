@@ -252,6 +252,15 @@ importers:
       '@typewords/base':
         specifier: workspace:*
         version: link:../../packages/base
+      '@typewords/libs':
+        specifier: workspace:*
+        version: link:../../packages/libs
+      '@typewords/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@typewords/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
 
   apps/vscode:
     devDependencies:
@@ -285,6 +294,15 @@ importers:
       '@typewords/base':
         specifier: workspace:*
         version: link:../../packages/base
+      '@typewords/libs':
+        specifier: workspace:*
+        version: link:../../packages/libs
+      '@typewords/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      '@typewords/utils':
+        specifier: workspace:*
+        version: link:../../packages/utils
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
@@ -309,6 +327,12 @@ importers:
         version: 1.2.3
 
   packages/base: {}
+
+  packages/libs: {}
+
+  packages/types: {}
+
+  packages/utils: {}
 
 packages:
 

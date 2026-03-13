@@ -1,5 +1,5 @@
 import mitt from 'mitt'
-import {onMounted, onUnmounted} from "vue";
+import { onMounted, onUnmounted } from 'vue'
 
 export const emitter = mitt()
 export const EventKey = {
@@ -28,12 +28,12 @@ export function useEvent(key: string, func: any) {
   })
 }
 
-export function useEvents(arrs: any[],) {
+export function useEvents(arrs: any[]) {
   onMounted(() => {
-    arrs.map((arr) => emitter.on(arr[0], arr[1]))
+    arrs.map(arr => emitter.on(arr[0], arr[1]))
   })
 
   onUnmounted(() => {
-    arrs.map((arr) => emitter.off(arr[0], arr[1]))
+    arrs.map(arr => emitter.off(arr[0], arr[1]))
   })
 }

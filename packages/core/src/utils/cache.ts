@@ -1,5 +1,5 @@
 import type { PracticeData, TaskWords } from '../types'
-import type { PracticeState } from '@/stores/practice.ts'
+import type { PracticeState } from '../stores/practice.ts'
 
 type CacheConfig = { key: string; version: number }
 

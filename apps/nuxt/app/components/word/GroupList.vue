@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { Radio, RadioGroup } from '@typewords/base'
-import { useBaseStore } from '~/stores/base.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 const store = useBaseStore()
 
 const isVisible = ref(false)

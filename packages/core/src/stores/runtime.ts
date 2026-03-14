@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import type { Dict } from '@typewords/core/types/types'
-import { getDefaultDict } from '@typewords/core/types/func'
+import type { Dict } from '../types'
+import { getDefaultDict } from '../types'
 
 export interface RuntimeState {
   disableEventListener: boolean

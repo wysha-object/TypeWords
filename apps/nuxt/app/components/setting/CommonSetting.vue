@@ -6,8 +6,8 @@ import Option from '@/components/base/select/Option.vue'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
 import { Slider, Switch, Textarea } from '@typewords/base'
 import SettingItem from '@/components/setting/SettingItem.vue'
-import { useSettingStore } from '@/stores/setting.ts'
-import { useBaseStore } from '@/stores/base.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { ShortcutKey } from '@typewords/core/types/enum.ts'
 
 const settingStore = useSettingStore()

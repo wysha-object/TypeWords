@@ -2,7 +2,7 @@
 import BasePage from '~/components/base/BasePage.vue'
 import { BaseButton, InputNumber, PopConfirm, Radio, RadioGroup, Toast } from '@typewords/base'
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user.ts'
+import { useUserStore } from '@typewords/core/stores/user.ts'
 import type { User } from '@typewords/core/apis/user.ts'
 import { onMounted, onUnmounted, watch } from 'vue'
 import Header from '@/components/Header.vue'

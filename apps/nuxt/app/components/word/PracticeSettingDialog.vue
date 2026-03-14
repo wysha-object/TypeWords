@@ -2,9 +2,9 @@
 import { _getAccomplishDays } from '@typewords/core/utils'
 import { BaseButton, InputNumber, Slider, Tooltip, Toast } from '@typewords/base'
 import { defineAsyncComponent, watch } from 'vue'
-import { useSettingStore } from '~/stores/setting'
+import { useSettingStore } from '@typewords/core/stores/setting'
 import ChangeLastPracticeIndexDialog from '~/components/word/ChangeLastPracticeIndexDialog.vue'
-import { useRuntimeStore } from '~/stores/runtime'
+import { useRuntimeStore } from '@typewords/core/stores/runtime'
 import BaseInput from '~/components/base/BaseInput.vue'
 
 const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))

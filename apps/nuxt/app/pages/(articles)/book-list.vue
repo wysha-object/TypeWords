@@ -2,7 +2,7 @@
 import { resourceWrap, useNav } from '@typewords/core/utils'
 import BasePage from '~/components/base/BasePage.vue'
 import type { DictResource } from '@typewords/core/types/types.ts'
-import { useRuntimeStore } from '@/stores/runtime.ts'
+import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import { BaseIcon } from '@typewords/base'
 import Empty from '@/components/Empty.vue'
 import { BaseButton } from '@typewords/base'

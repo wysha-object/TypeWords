@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBaseStore } from '@/stores/base'
+import { useBaseStore } from '@typewords/core/stores/base'
 import dayjs from 'dayjs'
 import { State } from 'ts-fsrs'
 import isToday from 'dayjs/plugin/isToday' // ES 2015

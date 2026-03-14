@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import {useSettingStore} from "~/stores/setting.ts";
+import {useSettingStore} from "@typewords/core/stores/setting.ts";
 import Space from "~/components/article/Space.vue";
 
 import {PracticeArticleWordType} from "@typewords/core/types/enum.ts";

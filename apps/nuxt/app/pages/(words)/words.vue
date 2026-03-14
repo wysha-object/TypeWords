@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBaseStore } from '@/stores/base.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { useRouter } from 'vue-router'
 import { BaseIcon } from '@typewords/base'
 import {
@@ -16,7 +16,7 @@ import BasePage from '~/components/base/BasePage.vue'
 import type { DictResource } from '@typewords/core/types/types.ts'
 import { watch } from 'vue'
 import { getCurrentStudyWord } from '@typewords/core/hooks/dict.ts'
-import { useRuntimeStore } from '@/stores/runtime.ts'
+import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import Book from '@/components/Book.vue'
 import { PopConfirm, Progress, Toast } from '@typewords/base'
 import { BaseButton } from '@typewords/base'
@@ -24,7 +24,7 @@ import { getDefaultDict } from '@typewords/core/types/func.ts'
 import DeleteIcon from '@/components/icon/DeleteIcon.vue'
 import PracticeSettingDialog from '~/components/word/PracticeSettingDialog.vue'
 import ChangeLastPracticeIndexDialog from '~/components/word/ChangeLastPracticeIndexDialog.vue'
-import { useSettingStore } from '@/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { useFetch } from '@vueuse/core'
 import {
   APP_NAME,

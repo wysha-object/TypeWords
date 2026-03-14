@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent, watch } from 'vue'
-import { useSettingStore } from '~/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { useDisableEventListener } from '@typewords/core/hooks/event.ts'
 import ConflictNoticeText from '~/components/dialog/ConflictNoticeText.vue'
 import { BaseButton } from '@typewords/base'

@@ -3,7 +3,7 @@
 import BaseTable from "~/components/base/BaseTable.vue";
 import WordItem from "~/components/word/WordItem.vue";
 import { defineAsyncComponent } from "vue";
-import { useRuntimeStore } from "~/stores/runtime.ts";
+import { useRuntimeStore } from "@typewords/core/stores/runtime.ts";
 import { AppEnv } from "@typewords/core/config/env.ts";
 
 const Dialog = defineAsyncComponent(() => import('~/components/dialog/Dialog.vue'))

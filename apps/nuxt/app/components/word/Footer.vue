@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { usePracticeStore } from '~/stores/practice'
-import { useSettingStore } from '~/stores/setting'
+import { usePracticeStore } from '@typewords/core/stores/practice'
+import { useSettingStore } from '@typewords/core/stores/setting'
 import type { PracticeData } from '@typewords/core/types/types'
 import { BaseIcon } from '@typewords/base'
 import { Tooltip } from '@typewords/base'

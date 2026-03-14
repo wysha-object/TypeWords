@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useUserStore } from '@/stores/user.ts'
+import { useUserStore } from '@typewords/core/stores/user.ts'
 import { useRouter } from 'vue-router'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BasePage from '~/components/base/BasePage.vue'

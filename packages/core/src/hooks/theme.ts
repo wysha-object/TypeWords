@@ -1,4 +1,4 @@
-import { useSettingStore } from '@/stores/setting.ts'
+import { useSettingStore } from '../stores/setting.ts'
 
 type Theme = 'light' | 'dark'
 

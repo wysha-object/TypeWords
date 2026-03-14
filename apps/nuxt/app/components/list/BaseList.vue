@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSettingStore } from '@/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { nextTick, watch } from 'vue'
 
 const props = withDefaults(

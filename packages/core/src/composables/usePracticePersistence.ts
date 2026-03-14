@@ -1,4 +1,4 @@
-import { useBaseStore } from '@/stores/base.ts'
+import { useBaseStore } from '../stores/base.ts'
 import type { PracticeData, TaskWords, Word } from '../types'
 import type {
   PracticeArticleCache,

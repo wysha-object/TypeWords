@@ -1,4 +1,5 @@
 import { type Card, type CardInput, FSRS, type Grade, Rating } from 'ts-fsrs'
+import { useSettingStore } from '../stores/setting.ts'
 
 export function useGetGradeByWrongTimes() {
   let store = useSettingStore()

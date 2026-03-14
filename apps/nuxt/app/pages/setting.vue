@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { defineAsyncComponent, nextTick, ref, watch } from 'vue'
-import { getDefaultSettingState, useSettingStore } from '@/stores/setting'
+import { getDefaultSettingState, useSettingStore } from '@typewords/core/stores/setting'
 import { getShortcutKey, useEventListener } from '@typewords/core/hooks/event'
 import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, loadJsLib } from '@typewords/core/utils'
 import { BaseButton, Form, FormItem, type FormType, PopConfirm, Toast } from '@typewords/base'
-import { getDefaultBaseState, useBaseStore } from '@/stores/base'
+import { getDefaultBaseState, useBaseStore } from '@typewords/core/stores/base'
 import {
   APP_NAME,
   APP_VERSION,
@@ -20,7 +20,7 @@ import {
 } from '@typewords/core/config/env'
 import BasePage from '~/components/base/BasePage.vue'
 import { get, set } from 'idb-keyval'
-import { useRuntimeStore } from '@/stores/runtime'
+import { useRuntimeStore } from '@typewords/core/stores/runtime'
 import { useExport } from '@typewords/core/hooks/export'
 import MigrateDialog from '~/components/dialog/MigrateDialog.vue'
 import Log from '@/components/setting/Log.vue'

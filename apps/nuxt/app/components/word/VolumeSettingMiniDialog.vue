@@ -7,7 +7,7 @@ import VolumeIcon from '~/components/icon/VolumeIcon.vue'
 import { SoundFileOptions } from '@typewords/core/config/env.ts'
 import { useWindowClick } from '@typewords/core/hooks/event.ts'
 import { getAudioFileUrl, usePlayAudio } from '@typewords/core/hooks/sound.ts'
-import { useSettingStore } from '~/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { emitter, EventKey } from '@typewords/core/utils/eventBus'
 
 const settingStore = useSettingStore()

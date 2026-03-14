@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, provide} from "vue"
-import {useSettingStore} from "@/stores/setting";
+import {useSettingStore} from "@typewords/core/stores/setting";
 import Close from "@/components/icon/Close.vue";
 import { Tooltip } from '@typewords/base'
 import {ShortcutKey} from "@typewords/core/types/enum";

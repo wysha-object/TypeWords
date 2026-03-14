@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Word } from '@typewords/core/types/types'
 import VolumeIcon from '~/components/icon/VolumeIcon.vue'
-import { useSettingStore } from '~/stores/setting'
-import { useBaseStore } from '~/stores/base'
+import { useSettingStore } from '@typewords/core/stores/setting'
+import { useBaseStore } from '@typewords/core/stores/base'
 import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio, useTTsPlayAudio } from '@typewords/core/hooks/sound'
 import { useEvents, emitter, EventKey } from '@typewords/core/utils/eventBus'
 import { onMounted, onUnmounted, watch } from 'vue'

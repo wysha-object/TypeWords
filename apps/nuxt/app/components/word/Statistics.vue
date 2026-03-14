@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { useBaseStore } from '~/stores/base.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { BaseButton, Progress, Toast } from '@typewords/base'
 import type { Statistics, TaskWords } from '@typewords/core/types/types.ts'
 import { useEvents, emitter, EventKey } from '@typewords/core/utils/eventBus'
-import { useSettingStore } from '~/stores/setting.ts'
-import { usePracticeStore } from '~/stores/practice.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
+import { usePracticeStore } from '@typewords/core/stores/practice.ts'
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import { defineAsyncComponent, inject, watch } from 'vue'

@@ -1,5 +1,5 @@
 import { onMounted, watchEffect } from 'vue'
-import { useSettingStore } from '@/stores/setting'
+import { useSettingStore } from '../stores/setting'
 
 import { ENV, PronunciationApi, SoundFileOptions } from '@typewords/core/config/env'
 

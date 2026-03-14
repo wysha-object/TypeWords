@@ -5,7 +5,7 @@ import { useEventListener } from '@typewords/core/hooks/event'
 import { useI18n } from 'vue-i18n'
 
 import { BaseButton } from '@typewords/base'
-import { useRuntimeStore } from '@/stores/runtime'
+import { useRuntimeStore } from '@typewords/core/stores/runtime'
 
 export interface ModalProps {
   modelValue?: boolean

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Slider, Switch } from '@typewords/base'
 import SettingItem from '@/components/setting/SettingItem.vue'
-import { useSettingStore } from '@/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 
 const settingStore = useSettingStore()
 </script>

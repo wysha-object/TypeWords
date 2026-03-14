@@ -18,8 +18,8 @@ import {
   type PracticeWordCacheStored,
 } from '../utils/cache'
 import { SAVE_DICT_KEY, SAVE_SETTING_KEY } from '../config/env'
-import { useBaseStore } from '@/stores/base'
-import { useSettingStore } from '@/stores/setting'
+import { useBaseStore } from '../stores/base'
+import { useSettingStore } from '../stores/setting'
 import { DictType, CompareResult } from '../types'
 import { Supabase } from '../utils/supabase'
 import { get, set } from 'idb-keyval'

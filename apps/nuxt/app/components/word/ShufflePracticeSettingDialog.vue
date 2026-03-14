@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Slider } from '@typewords/base'
 import { defineAsyncComponent, watch } from 'vue'
-import { useBaseStore } from '~/stores/base.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { WordPracticeModeNameMap } from '@typewords/core/config/env'
 
 const props = defineProps({

@@ -4,11 +4,11 @@ import { BaseIcon, Progress, Toast } from '@typewords/base'
 
 const Dialog = defineAsyncComponent(() => import('@/components/dialog/Dialog.vue'))
 
-import { usePracticeStore } from '@/stores/practice.ts'
-import { useBaseStore } from '@/stores/base.ts'
+import { usePracticeStore } from '@typewords/core/stores/practice.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { loadJsLib, msToHourMinute } from '@typewords/core/utils'
 import dayjs from 'dayjs'
-import { useUserStore } from '@/stores/user.ts'
+import { useUserStore } from '@typewords/core/stores/user.ts'
 import { defineAsyncComponent } from 'vue'
 
 const practiceStore = usePracticeStore()

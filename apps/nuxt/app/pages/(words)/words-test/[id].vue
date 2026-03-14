@@ -4,15 +4,15 @@ import BasePage from '~/components/base/BasePage.vue'
 import { BaseButton, Toast } from '@typewords/base'
 import VolumeIcon from '@/components/icon/VolumeIcon.vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useBaseStore } from '@/stores/base.ts'
+import { useBaseStore } from '@typewords/core/stores/base.ts'
 import type { Dict, TaskWords, Word } from '@typewords/core/types/types.ts'
 import { _getDictDataByUrl, shuffle } from '@typewords/core/utils'
-import { useRuntimeStore } from '@/stores/runtime.ts'
+import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import { usePlayBeep, usePlayCorrect, usePlayWordAudio } from '@typewords/core/hooks/sound.ts'
 import { useEvents } from '@typewords/core/utils/eventBus'
 import { useStartKeyboardEventListener } from '@typewords/core/hooks/event.ts'
 import { ShortcutKey } from '@typewords/core/types/enum'
-import { useSettingStore } from '@/stores/setting.ts'
+import { useSettingStore } from '@typewords/core/stores/setting.ts'
 
 type Candidate = { word: string; wordObj?: Word; label: string }
 type Question = {

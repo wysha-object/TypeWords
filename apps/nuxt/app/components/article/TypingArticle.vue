@@ -19,7 +19,7 @@ import nlp from 'compromise/three'
 import { nanoid } from 'nanoid'
 import { inject, onMounted, onUnmounted, watch } from 'vue'
 
-import { usePracticeArticlePersistence } from '~/composables/usePracticePersistence'
+import { usePracticeArticlePersistence } from '@typewords/core/composables/usePracticePersistence'
 import { PracticeArticleWordType, ShortcutKey } from '@typewords/core/types/enum'
 import type { PracticeArticleCache } from '@typewords/core/utils/cache'
 

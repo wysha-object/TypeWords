@@ -22,7 +22,7 @@ import { getDefaultArticle, getDefaultDict, getDefaultWord } from '@typewords/co
 import type { Article, ArticleItem, ArticleWord, Dict, Statistics, Word } from '@typewords/core/types/types.ts'
 import { _getDictDataByUrl, _nextTick, cloneDeep, msToMinute, resourceWrap, total } from '@typewords/core/utils'
 import { getPracticeArticleCacheLocal } from '@typewords/core/utils/cache.ts'
-import { usePracticeArticlePersistence } from '@/composables/usePracticePersistence'
+import { usePracticeArticlePersistence } from '@typewords/core/composables/usePracticePersistence'
 import { useEvents, emitter, EventKey } from '@typewords/core/utils/eventBus'
 import { computed, onMounted, onUnmounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

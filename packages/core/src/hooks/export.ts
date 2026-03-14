@@ -16,7 +16,7 @@ import { useBaseStore } from '@/stores/base'
 import { useSettingStore } from '@/stores/setting'
 import { ref } from 'vue'
 import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '../utils/cache'
-import { usePracticeArticlePersistence, usePracticeWordPersistence } from '~/composables/usePracticePersistence.ts'
+import { usePracticeArticlePersistence, usePracticeWordPersistence } from '../composables/usePracticePersistence.ts'
 
 export function useExport() {
   const store = useBaseStore()

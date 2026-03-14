@@ -42,7 +42,7 @@ import PracticeWordListDialog from '~/components/word/PracticeWordListDialog.vue
 import ShufflePracticeSettingDialog from '~/components/word/ShufflePracticeSettingDialog.vue'
 import { deleteDict } from '@/apis/dict.ts'
 import { OptionButton } from '@typewords/base'
-import { usePracticeWordPersistence } from '@/composables/usePracticePersistence'
+import { usePracticeWordPersistence } from '@typewords/core/composables/usePracticePersistence'
 import { WordPracticeMode } from '@typewords/core/types/enum.ts'
 import type { PracticeWordCache } from '@typewords/core/utils/cache.ts'
 

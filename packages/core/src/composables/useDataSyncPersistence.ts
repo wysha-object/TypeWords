@@ -4,7 +4,7 @@ import {
   shakeCommonDict,
   _getDictDataByUrl,
   shouldFetchRemote,
-} from '@typewords/core/utils'
+} from '../utils'
 import {
   getPracticeArticleCacheLocal,
   getPracticeArticleCacheLocalWithMeta,
@@ -16,12 +16,12 @@ import {
   setPracticeWordCacheLocal,
   type PracticeArticleCache,
   type PracticeWordCacheStored,
-} from '@typewords/core/utils/cache'
-import { SAVE_DICT_KEY, SAVE_SETTING_KEY } from '@typewords/core/config/env'
+} from '../utils/cache'
+import { SAVE_DICT_KEY, SAVE_SETTING_KEY } from '../config/env'
 import { useBaseStore } from '@/stores/base'
 import { useSettingStore } from '@/stores/setting'
-import { DictType, CompareResult } from '@typewords/core/types/enum'
-import { Supabase } from '@typewords/core/utils/supabase'
+import { DictType, CompareResult } from '../types'
+import { Supabase } from '../utils/supabase'
 import { get, set } from 'idb-keyval'
 import type { SupabaseClient } from '@supabase/supabase-js'
 

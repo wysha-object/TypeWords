@@ -18,7 +18,7 @@ import isoWeek from 'dayjs/plugin/isoWeek'
 import { watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { DictType } from '@typewords/core/types/enum.ts'
-import { usePracticeArticlePersistence } from '~/composables/usePracticePersistence.ts'
+import { usePracticeArticlePersistence } from '@typewords/core/composables/usePracticePersistence.ts'
 
 dayjs.extend(isoWeek)
 dayjs.extend(isBetween)

@@ -1,16 +1,16 @@
 import { useBaseStore } from '@/stores/base.ts'
-import type { PracticeData, TaskWords, Word } from '@typewords/core/types/types.ts'
+import type { PracticeData, TaskWords, Word } from '../types'
 import type {
   PracticeArticleCache,
   PracticeWordCache,
   PracticeWordCacheCompact,
   PracticeWordCacheStored,
-} from '@typewords/core/utils/cache'
+} from '../utils/cache'
 import {
   getPracticeArticleCacheLocal,
   getPracticeWordCacheLocal,
-} from '@typewords/core/utils/cache'
-import { useDataSyncPersistence } from '@/composables/useDataSyncPersistence'
+} from '../utils/cache'
+import { useDataSyncPersistence } from './useDataSyncPersistence'
 
 function isCompactPracticeWordCache(data: PracticeWordCacheStored | null): data is PracticeWordCacheCompact {
   return !!data && 'taskWordsStr' in data

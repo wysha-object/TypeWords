@@ -6,20 +6,20 @@ import {
   SAVE_DICT_KEY,
   SAVE_SETTING_KEY,
   WEBSITE_VERSION_HASH,
-} from '@typewords/core/config/env.ts'
-import { shakeCommonDict } from '@typewords/core/utils/index.ts'
-import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '@typewords/core/utils/cache'
+} from '../config/env.ts'
+import { shakeCommonDict } from '../utils'
+import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '../utils/cache'
 import { del, get, set } from 'idb-keyval'
 import { syncSetting } from '~/apis'
-import { AppEnv, DictId } from '@typewords/core/config/env.ts'
+import { AppEnv, DictId } from '../config/env.ts'
 import { useBaseStore } from '~/stores/base.ts'
 import { useRuntimeStore } from '~/stores/runtime.ts'
 import { useSettingStore } from '~/stores/setting.ts'
 import { useUserStore } from '~/stores/user.ts'
-import { CompareResult } from '@typewords/core/types/enum.ts'
-import { Supabase } from '@typewords/core/utils/supabase.ts'
-import { debounce } from '@typewords/core/utils'
-import { useDataSyncPersistence } from '@/composables/useDataSyncPersistence'
+import { CompareResult } from '../types'
+import { Supabase } from '../utils/supabase.ts'
+import { debounce } from '../utils'
+import { useDataSyncPersistence } from './useDataSyncPersistence'
 
 let unsub = null
 let unsub2 = null

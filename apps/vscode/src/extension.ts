@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode'
-import axios from 'axios'
+import * as vscode from 'vscode' 
 
 // WebviewPanel 管理类
 class ChatPanel {
@@ -63,8 +62,8 @@ class ChatPanel {
     const cdnUrl = 'https://vs.typewords.cc'
     const fileUrl = 'https://files.2study.top'
 
-    const res = await axios.get('https://files.2study.top/libs/vs.json')
-    console.log('vs', res.data)
+    let s = await fetch('https://files.2study.top/libs/vs.json')
+    let r:any = await s.json()
 
     // 生成 nonce 用于 CSP
     const nonce = Buffer.from(Date.now().toString()).toString('base64')
@@ -74,7 +73,7 @@ class ChatPanel {
       "default-src 'none'",
       `script-src 'nonce-${nonce}' ${cdnUrl} 'unsafe-inline'`,
       `style-src ${cdnUrl} 'unsafe-inline'`,
-      `connect-src ${cdnUrl} ${fileUrl} https://nchwpxoznvqyngnvyghe.supabase.co`,
+      `connect-src ${cdnUrl} ${fileUrl} https://*.supabase.co`,
       'img-src data: https:',
       'media-src https://dict.youdao.com',
       'font-src data:',
@@ -89,8 +88,8 @@ class ChatPanel {
     <title>New Agent</title>
 
 
-  <script type="module" src="${cdnUrl}/assets/${res.data.js}.js"></script>
-  <link rel="stylesheet" href="${cdnUrl}/assets/${res.data.css}.css">
+  <script type="module" src="${cdnUrl}/assets/${r.js}.js"></script>
+  <link rel="stylesheet" href="${cdnUrl}/assets/${r.css}.css">
 </head>
 <body>
     <div id="app"></div>
@@ -99,18 +98,11 @@ class ChatPanel {
   }
 }
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export async function activate(context: vscode.ExtensionContext) {
-  const disposable = vscode.commands.registerCommand('typewords.helloWorld', () => {
-    vscode.window.showInformationMessage('Hello World from TypeW123123ords!')
-  })
-
-  // 打开聊天面板命令
-  const openChatDisposable = vscode.commands.registerCommand('typewords.openChat', async () => {
+  const openChatDisposable = vscode.commands.registerCommand('typewords.openChat', () => {
     ChatPanel.createOrShow(context.extensionUri)
   })
-  context.subscriptions.push(disposable, openChatDisposable)
+  context.subscriptions.push(openChatDisposable)
 }
 
 // This method is called when your extension is deactivated

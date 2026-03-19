@@ -7,11 +7,12 @@ import { CompareResult, DictType, getDefaultDict, getDefaultWord } from '../type
 import { useRouter } from 'vue-router'
 import { useRuntimeStore } from '../stores/runtime'
 import dayjs from 'dayjs'
-import { APP_VERSION, AppEnv, DictId, ENV, RESOURCE_PATH, SAVE_DICT_KEY, SAVE_SETTING_KEY } from '../config/env'
+import { APP_VERSION, AppEnv, DictId, ENV, RESOURCE_PATH, SAVE_DICT_KEY } from '../config/env'
 import { nextTick } from 'vue'
 import { Toast } from '@typewords/base'
 import duration from 'dayjs/plugin/duration'
 import { get } from 'idb-keyval'
+import { saveHashSnapshot } from '../composables/useDataSyncPersistence'
 
 dayjs.extend(duration)
 
@@ -27,7 +28,7 @@ function checkRiskKey(origin: object, target: object) {
   return origin
 }
 
-export function checkAndUpgradeSaveDict(val: any) {
+export async function checkAndUpgradeSaveDict(val: any) {
   // console.log(configStr)
   // console.log('s', new Blob([val]).size)
   // val = ''
@@ -42,11 +43,13 @@ export function checkAndUpgradeSaveDict(val: any) {
       }
       if (!data.version) {
         console.warn('数据缺少版本号，返回默认状态')
+        await saveHashSnapshot('数据缺少版本号-自动备份', '')
         return defaultState
       }
       let state: any = data.val
       if (typeof state !== 'object') {
         console.warn('数据格式无效，返回默认状态')
+        await saveHashSnapshot('数据格式无效-自动备份', '')
         return defaultState
       }
       state.load = false
@@ -80,11 +83,13 @@ export function checkAndUpgradeSaveDict(val: any) {
           return defaultState
         } catch (upgradeError) {
           console.error('数据升级失败，返回默认状态', upgradeError)
+          await saveHashSnapshot('数据升级失败-自动备份', '')
           return defaultState
         }
       }
     } catch (e) {
       console.error('数据解析异常，返回默认状态', e)
+      await saveHashSnapshot('数据解析异常-自动备份', '')
       return defaultState
     }
   }

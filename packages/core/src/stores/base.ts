@@ -175,7 +175,7 @@ export const useBaseStore = defineStore('base', {
       return new Promise(async resolve => {
         try {
           let configStr: string = await get(SAVE_DICT_KEY.key)
-          let data = checkAndUpgradeSaveDict(configStr)
+          let data = await checkAndUpgradeSaveDict(configStr)
           if (AppEnv.IS_OFFICIAL) {
             let r = await dictListVersion()
             if (r.success) {

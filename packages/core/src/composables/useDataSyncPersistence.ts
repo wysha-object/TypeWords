@@ -17,12 +17,12 @@ import {
   type PracticeArticleCache,
   type PracticeWordCacheStored,
 } from '../utils/cache'
-import { SAVE_DICT_KEY, SAVE_SETTING_KEY } from '../config/env'
-import { useBaseStore } from '../stores/base'
+import { BACKUP_INDEX_KEY, BACKUP_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY, WEBSITE_VERSION_HASH } from '../config/env'
+import { getDefaultBaseState, useBaseStore } from '../stores/base'
 import { useSettingStore } from '../stores/setting'
-import { DictType, CompareResult, SaveData, BackupData } from '../types'
+import { DictType, CompareResult, SaveData, BackupData, Snapshot } from '../types'
 import { Supabase } from '../utils/supabase'
-import { get, set } from 'idb-keyval'
+import { del, get, set } from 'idb-keyval'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { useRuntimeStore } from '../stores/runtime'
 
@@ -223,7 +223,7 @@ async function applyRemoteDataByType(
     return
   }
   if (type === 'dict') {
-    const normalized = checkAndUpgradeSaveDict({
+    const normalized = await checkAndUpgradeSaveDict({
       val: row.data,
       version: row.data_version,
     })
@@ -232,6 +232,82 @@ async function applyRemoteDataByType(
     return
   }
   await persistLocalState(type, row.data, row.updated_at ?? now)
+}
+
+
+type HashBackupIndexItem = {
+  hash: string
+  key: string
+  createdAt: number
+}
+
+function normalizeHash(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null
+  const v = raw.trim()
+  return v.length > 0 ? v : null
+}
+
+export async function ensureHashGuardBeforeInit() {
+  const runtimeConfig = useRuntimeConfig()
+
+  try {
+    const currentHash = normalizeHash(runtimeConfig?.public?.latestCommitHash)
+    if (!currentHash) return
+
+    const localHash = normalizeHash(await get(WEBSITE_VERSION_HASH))
+    let res = true
+    if (localHash !== currentHash) {
+      res = await saveHashSnapshot(localHash ?? currentHash, '')
+    }
+    res && (await set(WEBSITE_VERSION_HASH, currentHash))
+  } catch (e) {
+    console.warn('init hash guard failed', e)
+  }
+}
+
+export async function saveHashSnapshot(currentHash: string, previousHash: string | null): Promise<void> {
+  const backupKey = `${BACKUP_KEY}${currentHash}`
+  const createdAt = Date.now()
+
+  const snapshot: Snapshot = {
+    meta: {
+      currentHash,
+      previousHash,
+      createdAt,
+    },
+    data: {
+      dict: await get(SAVE_DICT_KEY.key),
+      setting: await get(SAVE_SETTING_KEY.key),
+      [PRACTICE_WORD_CACHE.key]: import.meta.client ? localStorage.getItem(PRACTICE_WORD_CACHE.key) : null,
+      [PRACTICE_ARTICLE_CACHE.key]: import.meta.client ? localStorage.getItem(PRACTICE_ARTICLE_CACHE.key) : null,
+    },
+  }
+  if (!snapshot.data.dict) {
+    return false
+  }
+  await set(backupKey, snapshot)
+
+  const rawIndex = (await get(BACKUP_INDEX_KEY)) as HashBackupIndexItem[] | undefined
+  const index = Array.isArray(rawIndex)
+    ? rawIndex.filter(item => item && typeof item.hash === 'string' && typeof item.key === 'string')
+    : []
+
+  let rIndex = index.findIndex(item => item.hash === currentHash)
+  if (rIndex === -1) {
+    index.push({ hash: currentHash, key: backupKey, createdAt })
+  } else {
+    index[rIndex] = { hash: currentHash, key: backupKey, createdAt }
+  }
+
+  if (index.length > 15) {
+    index.sort((a, b) => a.createdAt - b.createdAt)
+    const removed = index.splice(0, index.length - 10)
+    for (const item of removed) {
+      await del(item.key)
+    }
+  }
+  await set(BACKUP_INDEX_KEY, index)
+  return true
 }
 
 export function useDataSyncPersistence() {

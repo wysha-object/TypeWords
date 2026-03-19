@@ -214,7 +214,7 @@ async function importJson(str: string) {
     debugger
     obj = JSON.parse(str)
     let data = obj.val
-    data.dict.val = checkAndUpgradeSaveDict(data.dict)
+    data.dict.val =await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
     //老版本兼容逻辑
     if (obj.version === 4) {
@@ -358,7 +358,7 @@ async function restoreHistoryData() {
       [PRACTICE_WORD_CACHE.key]: JSON.parse(val[PRACTICE_WORD_CACHE.key]),
       [PRACTICE_ARTICLE_CACHE.key]: JSON.parse(val[PRACTICE_ARTICLE_CACHE.key]),
     }
-    data.dict.val = checkAndUpgradeSaveDict(data.dict)
+    data.dict.val =await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
 
     //需在调同步方法前面，同步方法可能报错

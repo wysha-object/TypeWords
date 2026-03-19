@@ -213,7 +213,7 @@ async function importJson(str: string) {
     debugger
     obj = JSON.parse(str)
     let data = obj.val
-    data.dict.val = checkAndUpgradeSaveDict(data.dict)
+    data.dict.val = await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
     //老版本兼容逻辑
     if (obj.version === 4) {
@@ -357,7 +357,7 @@ async function restoreHistoryData() {
       [PRACTICE_WORD_CACHE.key]: JSON.parse(val[PRACTICE_WORD_CACHE.key]),
       [PRACTICE_ARTICLE_CACHE.key]: JSON.parse(val[PRACTICE_ARTICLE_CACHE.key]),
     }
-    data.dict.val = checkAndUpgradeSaveDict(data.dict)
+    data.dict.val = await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
 
     //需在调同步方法前面，同步方法可能报错
@@ -791,7 +791,7 @@ function removeSbConfig() {
     <div class="p-4 w-120 max-h-100 overflow-auto">
       <div v-if="!historyBackups.length" class="color-gray">暂无历史数据</div>
       <div v-else class="flex flex-col gap-3">
-        <div>这里是每次 {{APP_NAME}} 更新后自动保存的用户数据，如果您的数据被损坏，您可在此尝试恢复</div>
+        <div>这里是每次 {{ APP_NAME }} 更新后/报错后自动保存的用户数据，如果您的数据被损坏，您可在此尝试恢复</div>
         <div v-for="item in historyBackups" :key="item.key" class="border rounded-md flex justify-between">
           <div>
             <div class="">版本号：{{ item.hash }}</div>

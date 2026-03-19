@@ -1,85 +1,17 @@
-import {
-  APP_VERSION,
-  BACKUP_INDEX_KEY,
-  BACKUP_KEY,
-  LOCAL_FILE_KEY,
-  SAVE_DICT_KEY,
-  SAVE_SETTING_KEY,
-  WEBSITE_VERSION_HASH,
-} from '../config/env.ts'
-import { shakeCommonDict } from '../utils'
-import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '../utils/cache'
-import { del, get, set } from 'idb-keyval'
+import { APP_VERSION, AppEnv, DictId, LOCAL_FILE_KEY } from '../config/env.ts'
+import { debounce, shakeCommonDict } from '../utils'
+import { get, set } from 'idb-keyval'
 import { syncSetting } from '../apis'
-import { AppEnv, DictId } from '../config/env.ts'
 import { useBaseStore } from '../stores/base.ts'
 import { useRuntimeStore } from '../stores/runtime.ts'
 import { useSettingStore } from '../stores/setting.ts'
 import { useUserStore } from '../stores/user.ts'
-import { CompareResult, Snapshot } from '../types'
+import { CompareResult } from '../types'
 import { Supabase } from '../utils/supabase.ts'
-import { debounce } from '../utils'
-import { useDataSyncPersistence } from './useDataSyncPersistence'
+import { ensureHashGuardBeforeInit, useDataSyncPersistence } from './useDataSyncPersistence'
 
 let unsub = null
 let unsub2 = null
-
-type HashBackupIndexItem = {
-  hash: string
-  key: string
-  createdAt: number
-}
-
-function normalizeHash(raw: unknown): string | null {
-  if (typeof raw !== 'string') return null
-  const v = raw.trim()
-  return v.length > 0 ? v : null
-}
-
-async function saveHashSnapshot(currentHash: string, previousHash: string | null): Promise<void> {
-  const backupKey = `${BACKUP_KEY}${currentHash}`
-  const createdAt = Date.now()
-
-  const snapshot: Snapshot = {
-    meta: {
-      currentHash,
-      previousHash,
-      createdAt,
-    },
-    data: {
-      dict: await get(SAVE_DICT_KEY.key),
-      setting: await get(SAVE_SETTING_KEY.key),
-      [PRACTICE_WORD_CACHE.key]: import.meta.client ? localStorage.getItem(PRACTICE_WORD_CACHE.key) : null,
-      [PRACTICE_ARTICLE_CACHE.key]: import.meta.client ? localStorage.getItem(PRACTICE_ARTICLE_CACHE.key) : null,
-    },
-  }
-  if (!snapshot.data.dict) {
-    return false
-  }
-  await set(backupKey, snapshot)
-
-  const rawIndex = (await get(BACKUP_INDEX_KEY)) as HashBackupIndexItem[] | undefined
-  const index = Array.isArray(rawIndex)
-    ? rawIndex.filter(item => item && typeof item.hash === 'string' && typeof item.key === 'string')
-    : []
-
-  let rIndex = index.findIndex(item => item.hash === currentHash)
-  if (rIndex === -1) {
-    index.push({ hash: currentHash, key: backupKey, createdAt })
-  } else {
-    index[rIndex] = { hash: currentHash, key: backupKey, createdAt }
-  }
-
-  if (index.length > 15) {
-    index.sort((a, b) => a.createdAt - b.createdAt)
-    const removed = index.splice(0, index.length - 10)
-    for (const item of removed) {
-      await del(item.key)
-    }
-  }
-  await set(BACKUP_INDEX_KEY, index)
-  return true
-}
 
 export function useInit() {
   const store = useBaseStore()
@@ -87,24 +19,7 @@ export function useInit() {
   const runtimeStore = useRuntimeStore()
   const userStore = useUserStore()
   const dataSync = useDataSyncPersistence()
-  const runtimeConfig = useRuntimeConfig()
   let isInitializing = true // 标记是否正在初始化
-
-  const ensureHashGuardBeforeInit = async () => {
-    try {
-      const currentHash = normalizeHash(runtimeConfig?.public?.latestCommitHash)
-      if (!currentHash) return
-
-      const localHash = normalizeHash(await get(WEBSITE_VERSION_HASH))
-      let res = true
-      if (localHash !== currentHash) {
-        res = await saveHashSnapshot(localHash ?? currentHash, '')
-      }
-      res && (await set(WEBSITE_VERSION_HASH, currentHash))
-    } catch (e) {
-      console.warn('init hash guard failed', e)
-    }
-  }
 
   const onvisibilitychange = async () => {
     //如果标签页失活了就不保存数据了
@@ -199,12 +114,13 @@ export function useInit() {
       }, 1000)
     )
 
+    console.time('init')
     await ensureHashGuardBeforeInit()
     await userStore.init()
     await store.init()
     await settingStore.init()
     await dataSync.pullRemoteIfNewer(['setting', 'dict'])
-
+    console.timeEnd('init')
     store.load = true
     isInitializing = false // 初始化完成，允许保存数据
 

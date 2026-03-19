@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBaseStore } from '../../stores/base.ts'
 import { BaseButton, Progress, Toast } from '@typewords/base'
-import type { Statistics, TaskWords } from '../../types'
+import type { PracticeData, Statistics, TaskWords } from '../../types'
 import { useEvents, emitter, EventKey } from '../../utils/eventBus'
 import { useSettingStore } from '../../stores/setting.ts'
 import { usePracticeStore } from '../../stores/practice.ts'
@@ -27,7 +27,7 @@ const statStore = usePracticeStore()
 const model = defineModel({ default: false })
 let list = $ref([])
 let dictIsEnd = $ref(false)
-let practiceTaskWords = inject<TaskWords>('practiceTaskWords')
+let practiceData = inject<PracticeData>('practiceData')
 
 function calcWeekList() {
   // 获取本周的起止时间
@@ -141,8 +141,8 @@ calcWeekList() // 新增：计算本周学习记录
 </script>
 
 <template>
-  <Dialog v-model="model" :close-on-click-bg="false" :header="false" :keyboard="false" :show-close="false">
-    <div class="p-8 pr-3 bg-[var(--bg-card-primary)] rounded-2xl space-y-6">
+  <Dialog :close-on-click-bg="false" :header="false" :keyboard="false" :show-close="false">
+    <div class="p-8 pr-3 bg-[var(--bg-card-primary)] rounded-2xl space-y-4">
       <!-- Header Section -->
       <div class="text-center relative">
         <div
@@ -178,6 +178,21 @@ calcWeekList() // 新增：计算本周学习记录
           <div class="text-xl font-bold">
             {{ statStore.reviewWordNumber }}
           </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="font-medium text-lg text-center mb-2">错词统计</div>
+        <div class="flex gap-space">
+          <span
+            class="bg-[var(--bg-card-secend)] py-1 px-2 rounded-md"
+            v-for="item in Object.entries(practiceData.wrongTimesMap)
+              .sort((a, b) => b[1] - a[1])
+              .slice(0, 20)"
+          >
+            {{ item[0] }}
+            {{ item[1] }}次
+          </span>
         </div>
       </div>
 

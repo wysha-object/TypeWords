@@ -97,7 +97,6 @@ export function getCurrentStudyWord(): TaskWords {
   let dict = store.sdict
   let isTest = false
   let words = dict.words.slice()
-  let list = []
   if (isTest) {
     words = Array.from({ length: 10 }).map((v, i) => {
       return getDefaultWord({ word: String(i) })
@@ -107,7 +106,6 @@ export function getCurrentStudyWord(): TaskWords {
   if (words?.length) {
     const settingStore = useSettingStore()
     //忽略列表：简单词或已掌握
-    const enableFSRS = settingStore.enableFSRS
     const ignoreSet = [store.allIgnoreWordsSet, store.knownWordsSet][settingStore.ignoreSimpleWord ? 0 : 1]
     const perDay = dict.perDayStudyNumber
     const start = isTest ? 1 : dict.lastLearnIndex
@@ -115,10 +113,18 @@ export function getCurrentStudyWord(): TaskWords {
     const isEnd = start >= dict.length - 1
     const reviewRatio = settingStore.wordReviewRatio
 
-    let index = 0;
-    let newWords = words.slice(start).filter(item => !ignoreSet.has(item.word)).slice(0, perDay)
-    let reviewWords = []
-    const end = start + index
+    let end = start
+    if (!isEnd) {
+      //从start往后取perDay个单词，作为新词
+      for (let i = start; i < words.length; i++) {
+        let item = words[i]
+        if (data.new.length >= perDay) break
+        if (!ignoreSet.has(item.word)) {
+          data.new.push(item)
+        }
+        end++
+      }
+    }
 
     //如果复习比大于等于1，或者已完成，才生成复习词
     if (reviewRatio >= 1 || complete || isEnd) {
@@ -128,58 +134,37 @@ export function getCurrentStudyWord(): TaskWords {
       const totalNeed = perDay * (isEnd ? reviewRatio || 1 : reviewRatio)
       const now = Date.now()
 
-      if (enableFSRS) { // FSRS 填充逻辑
-        //取 due 到期的单词
-        const words = Object.entries(store.fsrsData)
-          .filter(([word, card]) => {
-            //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
-            //2、要在当前学习这本词典里面
-            // console.log(`单词：${word},到期时间：${dayjs(card.due).format('YYYY-MM-DD HH:mm:ss')}`)
-            return dayjs(card.due).valueOf() <= now && wordMap.has(word) && !newWords.includes(wordMap.get(word))
-          })
-          .map(([word]) => word)
-          .sort((a, b) => dayjs(store.fsrsData[a].due).valueOf() - dayjs(store.fsrsData[b].due).valueOf())
+      //取 due 到期的单词
+      let reviewWordStrList = Object.entries(store.fsrsData)
+        .filter(([word, card]) => {
+          //1、这里的due字段被json序列化之后又恢复是字符串了，所以要用dayjs比较
+          //2、要在当前学习这本词典里面
+          // console.log(`单词：${word},到期时间：${dayjs(card.due).format('YYYY-MM-DD HH:mm:ss')}`)
+          return dayjs(card.due).valueOf() <= now && wordMap.has(word)
+        })
+        .sort((a, b) => dayjs(a[1].due).valueOf() - dayjs(b[1].due).valueOf())
+        .map(([word]) => word)
 
-        console.log('fsrs 里 due 到期单词', words)
+      // console.log('fsrs 里 due 到期单词', reviewWordStrList)
 
-        reviewWords = shuffle(
-          words
-            .slice(0, totalNeed)
-            .map(word => wordMap.get(word))
-            .filter(obj => obj)
-        )
+      data.review = shuffle(
+        reviewWordStrList
+          .slice(0, totalNeed)
+          .map(word => wordMap.get(word))
+          .filter(obj => obj)
+      )
+      //如果数量不够再填充
+      if (data.review.length < totalNeed) {
+        // 固定填充逻辑
+        let list = words.slice(0, start).reverse()
+        if (complete) list = list.concat(words.slice(end).reverse())
+        // 固定填充复习词需要过滤掉有FSRS记录的
+        let set = new Set(Array.from(ignoreSet).concat(Object.keys(store.fsrsData)))
+        list = list.filter(item => !set.has(item.word))
+        data.review = data.review.concat(list.slice(0, totalNeed - data.review.length))
       }
-
-      // 固定填充逻辑
-
-      let list = words.slice(0, start).reverse()
-      if (complete) {
-        list = list.concat(words.slice(end).reverse())
-      }
-      list = list.filter(item => !ignoreSet.has(item.word) && !reviewWords.includes(item) && !newWords.includes(item))
-      // 启用FSRS时的固定填充候选词需要过滤掉有FSRS记录的
-      if (enableFSRS) {
-        list = list.filter(item => !store.fsrsData[item.word])
-      }
-      const candidateWords = list
-
-      console.assert(reviewWords.length <= totalNeed)
-      reviewWords = reviewWords.concat(candidateWords.slice(0, totalNeed - reviewWords.length))
     }
-    data.new = newWords
-    data.review = reviewWords
   }
-
-  // console.log(
-  // 'data-new', 
-  // data.new.map(v => v.word)
-  // )
-
-  // console.log(
-  //   'data-review',
-  //   data.review.map(v => v.word)
-  // )
-
   return data
 }
 

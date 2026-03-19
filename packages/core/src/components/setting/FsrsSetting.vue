@@ -9,9 +9,9 @@ const router = useRouter()
 </script>
 
 <template>
-  <SettingItem :title="$t('enable_fsrs')" :desc="$t('enable_fsrs_desc')">
-    <Switch v-model="settingStore.enableFSRS" />
-  </SettingItem>
+  <p>
+    {{ $t('fsrs_desc') }}
+  </p>
 
   <BaseButton type="info" @click="router.push('/fsrs')"> 学习记录 </BaseButton>
 

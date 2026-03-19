@@ -61,7 +61,6 @@ export interface SettingState {
   ignoreSymbol: boolean // 过滤符号
   practiceSentence: boolean // 练习例句
 
-  enableFSRS: boolean // 启用FSRS
   fsrsEasyLimit: number // 小于等于fsrsEasyLimit的卡片会评估为Easy
   fsrsGoodLimit: number // 小于等于fsrsEasyLimit且小于等于fsrsHardLimit的卡片会评估为Good
   fsrsHardLimit: number // 小于等于fsrsHardLimit的卡片会评估为Hard
@@ -123,7 +122,6 @@ export const getDefaultSettingState = (): SettingState => ({
   ignoreSymbol: true,
   practiceSentence: false,
 
-  enableFSRS: false,
   fsrsEasyLimit: 0,
   fsrsGoodLimit: 3,
   fsrsHardLimit: 6,

@@ -9,7 +9,6 @@ import { detail } from '../apis'
 import { useRuntimeStore } from '../stores/runtime.ts'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from 'dayjs'
-import { assert } from '@vueuse/core'
 
 export function useWordOptions() {
   const store = useBaseStore()
@@ -177,6 +176,7 @@ export function getCurrentStudyWord(): TaskWords {
       reviewWords = reviewWords.concat(candidateWords.slice(0, totalNeed - reviewWords.length))
 
       data.review = reviewWords
+    }
   }
 
   // console.log(

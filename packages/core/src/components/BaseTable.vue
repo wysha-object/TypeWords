@@ -1,7 +1,17 @@
 <script setup lang="tsx">
 import { nextTick, onMounted, useSlots } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { BaseButton, BaseIcon, BaseInput, Checkbox, Pagination, PopConfirm, MiniDialog, BaseOptionButton } from '@typewords/base'
+import {
+  BaseButton,
+  BaseIcon,
+  BaseInput,
+  Checkbox,
+  Pagination,
+  PopConfirm,
+  MiniDialog,
+  BaseOptionButton,
+  UploadButton,
+} from '@typewords/base'
 import { debounce } from '../utils'
 import Empty from '../components/Empty.vue'
 import DeleteIcon from '../components/icon/DeleteIcon.vue'
@@ -227,13 +237,20 @@ defineRender(() => {
                 <BaseIcon onClick={() => (showImportDialog = true)} title={$t('import')}>
                   <IconSystemUiconsImport />
                 </BaseIcon>
-                <BaseOptionButton v-slots={{ 
-                    options: () => 
+                <BaseOptionButton
+                  v-slots={{
+                    options: () => (
                       <div class="flex flex-col gap-2">
-                        <BaseButton class="w-full" onClick={() => emit('exportXlsx')}>{props.exportXlsxLoading ? <IconEosIconsLoading /> : $t('export_as_xlsx')}</BaseButton>
-                        <BaseButton class="w-full" onClick={() => emit('exportJson')}>{props.exportJsonLoading ? <IconEosIconsLoading /> : $t('export_as_json')}</BaseButton>
-                      </div> 
-                  }}>
+                        <BaseButton class="w-full" onClick={() => emit('exportXlsx')}>
+                          {props.exportXlsxLoading ? <IconEosIconsLoading /> : $t('export_as_xlsx')}
+                        </BaseButton>
+                        <BaseButton class="w-full" onClick={() => emit('exportJson')}>
+                          {props.exportJsonLoading ? <IconEosIconsLoading /> : $t('export_as_json')}
+                        </BaseButton>
+                      </div>
+                    ),
+                  }}
+                >
                   <BaseIcon>
                     <IconPhExportLight />
                   </BaseIcon>
@@ -335,38 +352,16 @@ defineRender(() => {
             <a href={`${ENV.RESOURCE_URL}/libs/单词导入模板.xlsx`}>{$t('word_import_template')}</a>
           </div>
           <div class="mt-4">
-            <BaseButton
-              onClick={() => {
-                let d: HTMLDivElement = document.querySelector('#upload-xlsx-trigger')
-                d.click()
-              }}
+            <UploadButton
+              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              onChange={e => emit('importXlsx', e)}
               loading={props.importLoading}
             >
               {$t('import_xlsx')}
-            </BaseButton>
-            <BaseButton
-              onClick={() => {
-                let d: HTMLDivElement = document.querySelector('#upload-json-trigger')
-                d.click()
-              }}
-              loading={props.importLoading}
-            >
+            </UploadButton>
+            <UploadButton accept=".json" onChange={e => emit('importJson', e)} loading={props.importLoading}>
               {$t('import_json')}
-            </BaseButton>
-            <input
-              id="upload-xlsx-trigger"
-              type="file"
-              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-              onChange={e => emit('importXlsx', e)}
-              class="w-0 h-0 opacity-0"
-            />
-            <input
-              id="upload-json-trigger"
-              type="file"
-              accept=".json"
-              onChange={e => emit('importJson', e)}
-              class="w-0 h-0 opacity-0"
-            />
+            </UploadButton>
           </div>
         </div>
       </Dialog>

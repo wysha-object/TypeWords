@@ -17,7 +17,6 @@ export class MessageBox {
       container.remove()
       onClose?.()
     }
-
     const vNode = createVNode(Dialog, {
       title,
       content,
@@ -38,7 +37,7 @@ export class MessageBox {
     document.body.append(container)
   }
 
-  static notice(content: string, title: string) {
+  static notice(content: string, title: string, config: ModalProps = {}) {
     let container = document.createElement('div')
     let tempOnCancel = () => {
       render(null, container)
@@ -48,6 +47,7 @@ export class MessageBox {
       title,
       content,
       onCancel: tempOnCancel,
+      ...config,
     })
     // const appContext = getCurrentInstance()?.appContext;
     // // 补丁：Component中获取当前组件树的provides

@@ -9,7 +9,7 @@ import {
   isEmpty,
   loadJsLib,
 } from '@typewords/core/utils'
-import { BaseButton, BaseInput, Form, FormItem, type FormType, PopConfirm, Toast } from '@typewords/base'
+import { BaseButton, BaseInput, Form, FormItem, type FormType, PopConfirm, Toast, UploadButton } from '@typewords/base'
 import { getDefaultBaseState, useBaseStore } from '@typewords/core/stores/base'
 import {
   APP_NAME,
@@ -214,7 +214,7 @@ async function importJson(str: string) {
     debugger
     obj = JSON.parse(str)
     let data = obj.val
-    data.dict.val =await checkAndUpgradeSaveDict(data.dict)
+    data.dict.val = await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
     //老版本兼容逻辑
     if (obj.version === 4) {
@@ -358,7 +358,7 @@ async function restoreHistoryData() {
       [PRACTICE_WORD_CACHE.key]: JSON.parse(val[PRACTICE_WORD_CACHE.key]),
       [PRACTICE_ARTICLE_CACHE.key]: JSON.parse(val[PRACTICE_ARTICLE_CACHE.key]),
     }
-    data.dict.val =await checkAndUpgradeSaveDict(data.dict)
+    data.dict.val = await checkAndUpgradeSaveDict(data.dict)
     data.setting.val = await checkAndUpgradeSaveSetting(data.setting)
 
     //需在调同步方法前面，同步方法可能报错
@@ -774,17 +774,15 @@ function removeSbConfig() {
       >
         恢复此历史数据
       </BaseButton>
-      <div class="inline-block relative ml-4" v-else>
-        <BaseButton :disabled="disabled" :loading="importLoading">{{ $t('import_data_restore') }}</BaseButton>
-        <input
-          v-if="!disabled"
-          type="file"
-          id="import"
-          class="absolute left-0 top-0 w-full h-full opacity-0"
-          accept="application/json,.zip,application/zip"
-          @change="importData"
-        />
-      </div>
+      <UploadButton
+        @change="importData"
+        :disabled="disabled"
+        :loading="importLoading"
+        accept="application/json,.zip,application/zip"
+        v-else
+      >
+        {{ $t('import_data_restore') }}
+      </UploadButton>
     </template>
   </BackupGateDialog>
 

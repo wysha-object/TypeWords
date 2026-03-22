@@ -9,7 +9,17 @@ import {
   isEmpty,
   loadJsLib,
 } from '@typewords/core/utils'
-import { BaseButton, BaseInput, BasePage, Form, FormItem, type FormType, PopConfirm, Toast } from '@typewords/base'
+import {
+  BaseButton,
+  BaseInput,
+  BasePage,
+  Form,
+  FormItem,
+  type FormType,
+  PopConfirm,
+  Toast,
+  UploadButton,
+} from '@typewords/base'
 import { getDefaultBaseState, useBaseStore } from '@typewords/core/stores/base'
 import {
   APP_NAME,
@@ -632,7 +642,7 @@ function removeSbConfig() {
             <div class="line my-3"></div>
 
             <!--            导入数据-->
-            <SettingItem title="导出数据">
+            <SettingItem title="导入数据">
               <BaseButton @click="openGate('import')" :loading="importLoading">{{
                 $t('import_data_restore')
               }}</BaseButton>
@@ -775,17 +785,16 @@ function removeSbConfig() {
       >
         恢复此历史数据
       </BaseButton>
-      <div class="inline-block relative ml-4" v-else>
-        <BaseButton :disabled="disabled" :loading="importLoading">{{ $t('import_data_restore') }}</BaseButton>
-        <input
-          v-if="!disabled"
-          type="file"
-          id="import"
-          class="absolute left-0 top-0 w-full h-full opacity-0"
-          accept="application/json,.zip,application/zip"
-          @change="importData"
-        />
-      </div>
+
+      <UploadButton
+        @change="importData"
+        :disabled="disabled"
+        :loading="importLoading"
+        accept="application/json,.zip,application/zip"
+        v-else
+      >
+        {{ $t('import_data_restore') }}
+      </UploadButton>
     </template>
   </BackupGateDialog>
 

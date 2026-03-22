@@ -89,6 +89,7 @@ function formClose() {
 }
 
 const { data: book_list } = useFetch(resourceWrap(DICT_LIST.ARTICLE.ALL)).json()
+const { t } = useI18n()
 
 function reset() {
   MessageBox.confirm(
@@ -113,7 +114,10 @@ function reset() {
         }
       }
       Toast.error('恢复失败')
-    }
+    },
+    null,
+    null,
+    { t }
   )
 }
 

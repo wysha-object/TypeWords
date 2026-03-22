@@ -9,7 +9,15 @@ import { BaseButton, BaseIcon, Switch, Toast } from '@typewords/base'
 import { useRoute, useRouter } from 'vue-router'
 import EditBook from '@typewords/core/components/article/EditBook.vue'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
-import { _dateFormat, _getDictDataByUrl, _nextTick, msToHourMinute, resourceWrap, total, useNav } from '@typewords/core/utils'
+import {
+  _dateFormat,
+  _getDictDataByUrl,
+  _nextTick,
+  msToHourMinute,
+  resourceWrap,
+  total,
+  useNav,
+} from '@typewords/core/utils'
 import { getDefaultArticle, getDefaultDict } from '@typewords/core/types/func.ts'
 import ArticleAudio from '@typewords/core/components/article/ArticleAudio.vue'
 import { MessageBox } from '@typewords/core/utils/MessageBox.tsx'
@@ -18,6 +26,7 @@ import { useFetch } from '@vueuse/core'
 import { DICT_LIST } from '@typewords/core/config/env.ts'
 import { useGetDict } from '@typewords/core/hooks/dict.ts'
 import { DictType } from '@typewords/core/types/enum.ts'
+const { t } = useI18n()
 
 const runtimeStore = useRuntimeStore()
 const settingStore = useSettingStore()
@@ -113,7 +122,10 @@ function reset() {
         }
       }
       Toast.error('恢复失败')
-    }
+    },
+    null,
+    null,
+    { t }
   )
 }
 

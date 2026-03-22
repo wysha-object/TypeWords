@@ -28,6 +28,7 @@ import Pagination from './Pagination.vue'
 import Dialog from './Dialog.vue'
 import MiniDialog from './MiniDialog.vue'
 import BaseOptionButton from './BaseOptionButton.vue'
+import UploadButton from './UploadButton.vue'
 
 export {
   MiniDialog,
@@ -58,4 +59,5 @@ export {
   Textarea,
   Tooltip,
   BaseOptionButton,
+  UploadButton
 }

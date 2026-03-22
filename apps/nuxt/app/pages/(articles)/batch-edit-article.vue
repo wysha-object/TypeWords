@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Article } from '@typewords/core/types/types.ts'
-import { BaseButton, Toast, MiniDialog } from '@typewords/base'
+import { BaseButton, Toast, MiniDialog, UploadButton } from '@typewords/base'
 import { cloneDeep, loadJsLib } from '@typewords/core/utils'
 
 import List from '@typewords/core/components/list/List.vue'
@@ -14,6 +14,8 @@ import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
 import { onMounted } from 'vue'
 import { LIB_JS_URL } from '@typewords/core/config/env.ts'
 import { syncBookInMyStudyList } from '@typewords/core/hooks/article.ts'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 
 const runtimeStore = useRuntimeStore()
 
@@ -44,6 +46,7 @@ function checkDataChange() {
         editArticle.text !== article.text ||
         editArticle.textTranslate !== article.textTranslate
       ) {
+
         return MessageBox.confirm(
           '检测到数据有变动，是否保存？',
           '提示',
@@ -51,7 +54,9 @@ function checkDataChange() {
             let r = await editArticleRef.save('save')
             if (r) resolve(true)
           },
-          () => resolve(true)
+          () => resolve(true),
+          null,
+          {t}
         )
       }
     } else {
@@ -63,7 +68,9 @@ function checkDataChange() {
             let r = await editArticleRef.save('save')
             if (r) resolve(true)
           },
-          () => resolve(true)
+          () => resolve(true),
+          null,
+          {t}
         )
       }
     }
@@ -179,7 +186,8 @@ function importData(e: any) {
             importLoading = false
             syncBookInMyStudyList()
             Toast.success('导入成功！')
-          }
+          },
+          {t}
         )
       } else {
         syncBookInMyStudyList()
@@ -261,14 +269,13 @@ function updateList(e) {
       </List>
       <div class="add" v-if="!article.title">正在添加新文章...</div>
       <div class="footer">
-        <div class="import">
-          <BaseButton :loading="importLoading">导入</BaseButton>
-          <input
-            type="file"
-            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-            @change="importData"
-          />
-        </div>
+        <UploadButton
+          @change="importData"
+          :loading="importLoading"
+          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+        >
+          导入
+        </UploadButton>
         <div class="export" style="position: relative" @click.stop="null">
           <BaseButton @click="showExport = true">导出</BaseButton>
           <MiniDialog v-model="showExport" style="width: 8rem; bottom: calc(100% + 1rem); top: unset">

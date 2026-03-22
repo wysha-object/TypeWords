@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Tooltip from './Tooltip.vue'
 
-interface IProps {
+export type ButtonProps = {
   keyboard?: string
   active?: boolean
   disabled?: boolean
@@ -10,7 +10,7 @@ interface IProps {
   type?: 'primary' | 'info' | 'orange'
 }
 
-withDefaults(defineProps<IProps>(), {
+withDefaults(defineProps<ButtonProps>(), {
   type: 'primary',
   size: 'normal',
 })
@@ -77,6 +77,7 @@ html.dark {
     opacity: 0.6;
     cursor: not-allowed;
     user-select: none;
+    pointer-events: none;
     color: rgba(#fff, 0.4);
   }
 

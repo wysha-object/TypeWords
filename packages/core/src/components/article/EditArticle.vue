@@ -1,6 +1,17 @@
 <script setup lang="ts">
 import type { Article, Sentence } from '../../types'
-import { BaseButton, BaseIcon, InputNumber, Tooltip, Textarea, Toast, Option, Select,BaseInput } from '@typewords/base'
+import {
+  BaseButton,
+  BaseIcon,
+  InputNumber,
+  Tooltip,
+  Textarea,
+  Toast,
+  Option,
+  Select,
+  BaseInput,
+  UploadButton,
+} from '@typewords/base'
 import EditAbleText from '../../components/EditAbleText.vue'
 import { getNetworkTranslate, getSentenceAllText, getSentenceAllTranslateText } from '../../hooks/translate.ts'
 import { genArticleSectionData, splitCNArticle2, splitEnArticle2, usePlaySentenceAudio } from '../../hooks/article.ts'
@@ -667,24 +678,12 @@ function minusStartTime(val: Sentence) {
           {{ $t('audio_upload_notice') }}
         </div>
         <!--        <ArticleAudio ref="sentenceAudioRef" :article="editArticle" class="w-full"/>-->
-        <div class="upload relative">
-          <BaseButton>{{ $t('upload_audio') }}</BaseButton>
-          <input
-            type="file"
-            accept="audio/*"
-            @change="handleAudioChange"
-            class="w-full h-full absolute left-0 top-0 opacity-0"
-          />
-        </div>
-        <div class="upload relative">
-          <BaseButton>{{ $t('upload_lrc') }}</BaseButton>
-          <input
-            type="file"
-            accept=".lrc"
-            @change="handleChange"
-            class="w-full h-full absolute left-0 top-0 opacity-0"
-          />
-        </div>
+        <UploadButton accept="audio/*" @change="handleAudioChange">
+          {{ $t('upload_audio') }}
+        </UploadButton>
+        <UploadButton accept=".lrc" @change="handleChange">
+          {{ $t('upload_lrc') }}
+        </UploadButton>
       </div>
     </Dialog>
 

@@ -5,19 +5,20 @@ import {
   BaseButton,
   BaseIcon,
   BaseInput,
+  BaseOptionButton,
   Checkbox,
+  Dialog,
+  MiniDialog,
   Pagination,
   PopConfirm,
-  MiniDialog,
-  BaseOptionButton,
   UploadButton,
 } from '@typewords/base'
 import { debounce } from '../utils'
 import Empty from '../components/Empty.vue'
 import DeleteIcon from '../components/icon/DeleteIcon.vue'
-import { Dialog } from '@typewords/base'
 import { ENV } from '../config/env.ts'
 import { Sort } from '../types'
+import saveAs from 'file-saver'
 
 const { t: $t } = useI18n()
 
@@ -178,6 +179,94 @@ function handlePageNo(e) {
 onMounted(async () => {
   getData()
 })
+
+function downloadJsonTemplate() {
+  let data = {
+    word: 'remote',
+    phonetic0: ' rɪˈməʊt ',
+    phonetic1: ' rɪˈmoʊt ',
+    trans: [
+      {
+        pos: 'adj.',
+        cn: '边远的，偏僻的；（距离或空间上）遥远的；（时间上）久远的；（机会或可能性）渺茫的；差别很大的，很不相同的；不友好的，冷漠的；远亲关系的；（电子设备）遥控的；（计算机）远程的，远程连接的',
+      },
+      {
+        pos: 'n.',
+        cn: '遥控装置，遥控器',
+      },
+    ],
+    sentences: [
+      {
+        c: "I can't find the remote control.",
+        cn: '我找不到遥控器。',
+      },
+      {
+        c: 'It works by remote control.',
+        cn: '它通过遥控工作。',
+      },
+      {
+        c: 'The bomb was detonated by remote control.',
+        cn: '炸弹通过遥控引爆。',
+      },
+    ],
+    phrases: [
+      {
+        c: 'remote sensing',
+        cn: '遥感；远距离读出',
+      },
+      {
+        c: 'remote control',
+        cn: 'n. 遥控；遥控装置',
+      },
+      {
+        c: 'remote monitoring',
+        cn: '远距离遥控',
+      },
+    ],
+    synos: [
+      {
+        pos: 'adj.',
+        cn: '遥远的；偏僻的；疏远的',
+        ws: ['distant', 'lonely'],
+      },
+    ],
+    relWords: {
+      root: 'remote',
+      rels: [
+        {
+          pos: 'adv.',
+          words: [
+            {
+              c: 'remotely',
+              cn: '遥远地；偏僻地',
+            },
+          ],
+        },
+        {
+          pos: 'n.',
+          words: [
+            {
+              c: 'remoteness',
+              cn: '遥远；偏僻；细微；时间久远',
+            },
+          ],
+        },
+      ],
+    },
+    etymology: [
+      {
+        t: 'remote:遥远的；偏僻的',
+        d: '词根词缀： re-向后,相反 + -mot-移动 + -e',
+      },
+      {
+        t: 'remote:遥远的，远程的',
+        d: 're-,向后，往回，-mot,移动，词源同 motion,remove.比喻用法。',
+      },
+    ],
+  }
+  const blob = new Blob([JSON.stringify([data], null, 2)], { type: 'application/json' })
+  saveAs(blob, `单词json模板.json`)
+}
 
 defineRender(() => {
   const d = item => (
@@ -350,6 +439,12 @@ defineRender(() => {
           <div class="mt-6">
             {$t('xlsx_template_download')}：
             <a href={`${ENV.RESOURCE_URL}/libs/单词导入模板.xlsx`}>{$t('word_import_template')}</a>
+          </div>
+          <div class="mt-6">
+            json模板下载地址：
+            <a onClick={downloadJsonTemplate} class="cursor-pointer">
+              单词json模板
+            </a>
           </div>
           <div class="mt-4">
             <UploadButton

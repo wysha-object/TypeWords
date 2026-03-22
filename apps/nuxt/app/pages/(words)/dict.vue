@@ -33,6 +33,7 @@ import { wordDelete } from '@typewords/core/apis/words.ts'
 import { copyOfficialDict } from '@typewords/core/apis/dict.ts'
 import { PRACTICE_WORD_CACHE } from '@typewords/core/utils/cache.ts'
 import { Sort, WordPracticeMode } from '@typewords/core/types/enum.ts'
+import saveAs from 'file-saver'
 
 const runtimeStore = useRuntimeStore()
 const base = useBaseStore()
@@ -428,9 +429,11 @@ function importJsonData(e) {
       let data = s.target.result
       let res: any[] = JSON.parse(data.toString())
       console.log(res)
-      let words = res.filter(v => v.word).map(v => {
-        return getDefaultWord(v)
-      })
+      let words = res
+        .filter(v => v.word)
+        .map(v => {
+          return getDefaultWord(v)
+        })
 
       if (words.length) {
         let repeat = []
@@ -517,28 +520,13 @@ async function exportXlsxData() {
 async function exportJsonData() {
   if (exportJsonLoading) return
   exportJsonLoading = true
-  
-  let list = runtimeStore.editDict.words.map((w) => {
+  let list = runtimeStore.editDict.words.map(w => {
     delete w.custom
     delete w.id
     return w
   })
-  let filename = runtimeStore.editDict.name
-
-  let data = JSON.stringify(list, null, 2)
-
-  console.log(data)
-
-  const blob = new Blob([data], { type: 'application/json' })
-  const url = window.URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${filename}.json`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  window.URL.revokeObjectURL(url)
-
+  const blob = new Blob([JSON.stringify(list, null, 2)], { type: 'application/json' })
+  saveAs(blob, `${runtimeStore.editDict.name}.json`)
   exportJsonLoading = false
 }
 

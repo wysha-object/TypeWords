@@ -144,6 +144,7 @@ async function fetchServerMeta(types: SyncType[], client?: SupabaseClient | null
 async function fetchServerData(type: SyncType, client?: SupabaseClient | null): Promise<RemoteDataRow | null> {
   const sb = getSyncClient(client)
   if (!sb) return null
+  console.log('Fetching server data', type)
   try {
     const { data, error } = await sb
       .from('typewords_data')
@@ -189,6 +190,7 @@ async function upsertServerData(
 ): Promise<boolean> {
   const sb = getSyncClient(client)
   if (!sb) return false
+  console.log('Upserting server data', type)
   const data_version = getDataVersion(type)
   try {
     const { error } = await (sb as any)
@@ -233,7 +235,6 @@ async function applyRemoteDataByType(
   }
   await persistLocalState(type, row.data, row.updated_at ?? now)
 }
-
 
 type HashBackupIndexItem = {
   hash: string
@@ -373,7 +374,7 @@ export function useDataSyncPersistence() {
     return compareResult
   }
 
-  async function forcePushLocalDataToRemote(data: BackupData['val'],client?: SupabaseClient | null): Promise<boolean> {
+  async function forcePushLocalDataToRemote(data: BackupData['val'], client?: SupabaseClient | null): Promise<boolean> {
     let syncResult = true
     const updated_at = new Date().toISOString()
     const sb = getSyncClient(client)

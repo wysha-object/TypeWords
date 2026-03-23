@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { checkAndUpgradeSaveSetting, cloneDeep } from '../utils'
-import { get } from 'idb-keyval'
+import { get, set } from 'idb-keyval'
 import { APP_VERSION, AppEnv, DefaultShortcutKeyMap, SAVE_SETTING_KEY } from '../config/env'
 import { getSetting } from '../apis'
 import { WordPracticeMode, WordPracticeType } from '../types'
@@ -152,12 +152,28 @@ export const useSettingStore = defineStore('setting', {
       return new Promise(async resolve => {
         let configStr = await get(SAVE_SETTING_KEY.key)
         let data = await checkAndUpgradeSaveSetting(configStr)
+
+        //特殊处理
+        const shouldRefreshUpdatedAt = !!(data as any)?.__firstTimePatchedFromSnapshot ?? false
+        delete (data as any)?.__firstTimePatchedFromSnapshot
+        if (shouldRefreshUpdatedAt) {
+          await set(
+            SAVE_SETTING_KEY.key,
+            JSON.stringify({
+              val: data,
+              version: SAVE_SETTING_KEY.version,
+              updated_at: new Date().toISOString(),
+            })
+          )
+        }
+
         if (AppEnv.CAN_REQUEST) {
           let res = await getSetting()
           if (res.success) {
             Object.assign(data, res.data)
           }
         }
+
         this.setState({ ...data, load: true })
         resolve(true)
       })

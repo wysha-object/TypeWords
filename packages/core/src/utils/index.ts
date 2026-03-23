@@ -2,13 +2,21 @@ import type { BaseState } from '../stores/base'
 import { getDefaultBaseState, useBaseStore } from '../stores/base'
 import type { SettingState } from '../stores/setting'
 import { getDefaultSettingState } from '../stores/setting'
-import { Dict, ShortcutKey } from '../types'
 import type { DictResource } from '../types'
-import { CompareResult, DictType, getDefaultDict, getDefaultWord } from '../types'
+import { CompareResult, Dict, DictType, getDefaultDict, getDefaultWord, ShortcutKey } from '../types'
 import { useRouter } from 'vue-router'
 import { useRuntimeStore } from '../stores/runtime'
 import dayjs from 'dayjs'
-import { APP_VERSION, AppEnv, DefaultShortcutKeyMap, DictId, ENV, RESOURCE_PATH, SAVE_DICT_KEY } from '../config/env'
+import {
+  APP_VERSION,
+  AppEnv,
+  BACKUP_INDEX_KEY,
+  DefaultShortcutKeyMap,
+  DictId,
+  ENV,
+  RESOURCE_PATH,
+  SAVE_DICT_KEY,
+} from '../config/env'
 import { nextTick } from 'vue'
 import { Toast } from '@typewords/base'
 import duration from 'dayjs/plugin/duration'
@@ -121,6 +129,40 @@ export async function checkAndUpgradeSaveSetting(val: any) {
       if (version <= 18) {
         defaultState.shortcutKeyMap[ShortcutKey.Next] = DefaultShortcutKeyMap[ShortcutKey.Next]
       }
+      //3/20晚上10点25推的代码，这个地方出了一个bug，ShortcutKey没导入，导致抛异常后返回了默认值，所有的用户的setting都变成默认值了。
+      //在这里读取之前的快照，如果存在则从里面读取setting的firstTime，
+      //判断是否与当前值相等，不相等则取快照的值并将本地的update_at更新，以免被远程覆盖
+      if (version === 19) {
+        try {
+          let firstTimePatchedFromSnapshot = false
+          const snapshotCutoffTime = new Date('2026-03-20T22:25:00+08:00').getTime()
+          const rawIndex = (await get(BACKUP_INDEX_KEY)) as Array<{ key?: string; createdAt?: number }> | null
+          const index = Array.isArray(rawIndex) ? rawIndex : []
+          const targetSnapshot = index
+            .filter(item => typeof item?.key === 'string' && Number(item?.createdAt) <= snapshotCutoffTime)
+            .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))[0]
+          if (targetSnapshot?.key) {
+            const snapshot = await get(targetSnapshot.key)
+            const snapshotSettingRaw = snapshot?.data?.setting
+            let snapshotSettingState: any = null
+            if (typeof snapshotSettingRaw === 'string') {
+              snapshotSettingState = JSON.parse(snapshotSettingRaw)?.val ?? null
+            } else if (snapshotSettingRaw && typeof snapshotSettingRaw === 'object') {
+              snapshotSettingState = snapshotSettingRaw?.val ?? null
+            }
+            const snapshotFirstTime = Number(snapshotSettingState?.firstTime)
+            const currentFirstTime = Number(state?.firstTime)
+            if (Number.isFinite(snapshotFirstTime) && snapshotFirstTime > 0 && snapshotFirstTime !== currentFirstTime) {
+              state.firstTime = snapshotFirstTime
+              firstTimePatchedFromSnapshot = true
+            }
+            ;(defaultState as any).__firstTimePatchedFromSnapshot = firstTimePatchedFromSnapshot
+          }
+        } catch (e) {
+          console.warn('firstTime 快照回填跳过或失败，忽略并继续', e)
+        }
+      }
+
       //为了保持永远是最新的快捷键选项列表，但保留住用户的自定义设置，去掉无效的快捷键选项
       //例: 2版本，可能有快捷键A。3版本没有了
       checkRiskKey(defaultState.shortcutKeyMap, state.shortcutKeyMap)
@@ -128,6 +170,7 @@ export async function checkAndUpgradeSaveSetting(val: any) {
       checkRiskKey(defaultState, state)
       return defaultState
     } catch (e) {
+      await saveHashSnapshot('数据解析异常-自动备份', '')
       return defaultState
     }
   }

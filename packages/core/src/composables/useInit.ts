@@ -1,5 +1,5 @@
 import { APP_VERSION, AppEnv, DictId, LOCAL_FILE_KEY } from '../config/env.ts'
-import { debounce, shakeCommonDict } from '../utils'
+import { _dateFormat, debounce, shakeCommonDict } from '../utils'
 import { get, set } from 'idb-keyval'
 import { syncSetting } from '../apis'
 import { useBaseStore } from '../stores/base.ts'
@@ -9,6 +9,7 @@ import { useUserStore } from '../stores/user.ts'
 import { CompareResult } from '../types'
 import { Supabase } from '../utils/supabase.ts'
 import { ensureHashGuardBeforeInit, useDataSyncPersistence } from './useDataSyncPersistence'
+import dayjs from 'dayjs'
 
 let unsub = null
 let unsub2 = null
@@ -122,6 +123,7 @@ export function useInit() {
     await dataSync.pullRemoteIfNewer(['setting', 'dict'])
     console.timeEnd('init')
     store.load = true
+    console.log('注册时间', _dateFormat(settingStore.firstTime))
     isInitializing = false // 初始化完成，允许保存数据
 
     runtimeStore.isNew = APP_VERSION.version > Number(settingStore.webAppVersion)

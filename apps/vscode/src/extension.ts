@@ -88,8 +88,8 @@ class ChatPanel {
     <title>New Agent</title>
 
 
-  <script type="module" src="${cdnUrl}/${r.js}.js"></script>
-  <link rel="stylesheet" href="${cdnUrl}/${r.css}.css">
+  <script type="module" src="${cdnUrl}/${r.js}"></script>
+  <link rel="stylesheet" href="${cdnUrl}/${r.css}">
 </head>
 <body>
     <div id="app"></div>

@@ -9,9 +9,11 @@ import VolumeSettingMiniDialog from './VolumeSettingMiniDialog.vue'
 import StageProgress from '../StageProgress.vue'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '../../types'
 import { WordPracticeModeNameMap, WordPracticeStageNameMap } from '../../config/env'
+import { useI18n } from 'vue-i18n'
 
 const statStore = usePracticeStore()
 const settingStore = useSettingStore()
+const { t: $t } = useI18n()
 
 defineProps<{
   showEdit?: boolean
@@ -266,7 +268,11 @@ const stages = $computed(() => {
       <span class="shrink-0">{{ status }}</span>
       <StageProgress :stages="stages" />
       <Tooltip title="进度 / 错误数 / 单词数">
-        <div class="shrink-0">{{ `${practiceData.index + 1} / ${format(practiceData.wrongWords.length, '', 0)} / ${practiceData.words.length}` }}</div>
+        <div class="shrink-0">
+          {{
+            `${practiceData.index + 1} / ${format(practiceData.wrongWords.length, '', 0)} / ${practiceData.words.length}`
+          }}
+        </div>
       </Tooltip>
     </div>
   </div>

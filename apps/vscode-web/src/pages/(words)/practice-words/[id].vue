@@ -803,6 +803,7 @@ useEvents([
   [ShortcutKey.ToggleDictation, () => (settingStore.dictation = !settingStore.dictation)],
   [ShortcutKey.ToggleTheme, toggleTheme],
   [ShortcutKey.ToggleConciseMode, toggleConciseMode],
+  [ShortcutKey.ToggleToolbar,  () => (settingStore.showToolbar = !settingStore.showToolbar)],
   [ShortcutKey.TogglePanel, () => (settingStore.showPanel = !settingStore.showPanel)],
   [ShortcutKey.RandomWrite, randomWrite],
 ])

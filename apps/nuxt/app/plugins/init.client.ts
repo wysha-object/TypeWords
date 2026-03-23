@@ -22,39 +22,6 @@ export default defineNuxtPlugin(async nuxtApp => {
       document.head.appendChild(script)
     })()
 
-    // Cloudflare
-    ;(function () {
-      var cf = document.createElement('script')
-      cf.src = 'https://static.cloudflareinsights.com/beacon.min.js'
-      cf.setAttribute('data-cf-beacon', '{"token": "e5119992696d4155814400dd69781d68"}')
-      document.head.appendChild(cf)
-    })()
-
-    // google
-    ;(function () {
-      var ana = document.createElement('script')
-      ana.src = 'https://www.googletagmanager.com/gtag/js?id=G-50T6DRD837'
-      ana.onload = function () {
-        window.dataLayer = window.dataLayer || []
-        function gtag() {
-          window.dataLayer.push(arguments)
-        }
-        //@ts-ignore
-        gtag('js', new Date())
-        //@ts-ignore
-        gtag('config', 'G-50T6DRD837')
-      }
-      document.head.appendChild(ana)
-    })()
-
-    // baidu
-    var _hmt = _hmt || []
-    ;(function () {
-      var hm = document.createElement('script')
-      hm.src = 'https://hm.baidu.com/hm.js?3dae52fcd5375a19905462e4ad3eb54e'
-      document.head.appendChild(hm)
-    })()
-
     // umami-saas
     ;(function () {
       var umami2 = document.createElement('script')

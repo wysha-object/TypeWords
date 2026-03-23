@@ -73,8 +73,8 @@ watch(
           <BaseInput class="target-number" v-model="tempLastLearnIndex" />
         </div>
         <span>{{ $t('start_daily') }}</span>
-        <div class="w-16">
-          <BaseInput class="target-number" v-model="tempPerDayStudyNumber" />
+        <div class="target-number mx-2">
+          {{ tempPerDayStudyNumber }}
         </div>
         <span>{{ $t('new_words_count2') }}</span>
         <span>，{{ $t('review') }}</span>
@@ -105,7 +105,7 @@ watch(
 
       <div class="flex mb-4 gap-space">
         <span class="shrink-0 w-20">{{ $t('daily_learning') }}</span>
-        <Slider :min="10" :step="10" show-text class="mt-1" :max="200" v-model="tempPerDayStudyNumber" />
+        <Slider :min="5" :step="5" show-text class="mt-1" :max="200" v-model="tempPerDayStudyNumber" />
       </div>
       <div class="flex gap-space">
         <span class="shrink-0 w-20">{{ $t('learning_progress') }}</span>

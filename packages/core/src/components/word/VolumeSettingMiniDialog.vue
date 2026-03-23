@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { BaseIcon, Switch, Option, Select, MiniDialog } from '@typewords/base'
-import VolumeIcon from '../icon/VolumeIcon.vue'
+import { BaseIcon, MiniDialog, Option, Select, Switch, VolumeIcon } from '@typewords/base'
 import { SoundFileOptions } from '../../config/env.ts'
 import { useWindowClick } from '../../hooks/event.ts'
 import { getAudioFileUrl, usePlayAudio } from '../../hooks/sound.ts'

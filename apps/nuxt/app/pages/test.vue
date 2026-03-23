@@ -2,7 +2,7 @@
 import { BaseIcon, BasePage, PopConfirm } from '@typewords/base'
 import { ref } from 'vue'
 import axios from 'axios'
-import DeleteIcon from '@typewords/core/components/icon/DeleteIcon.vue'
+import {DeleteIcon} from '@typewords/base'
 import BaseTable from '@typewords/core/components/BaseTable.vue'
 import WordItem from '@typewords/core/components/word/WordItem.vue'
 

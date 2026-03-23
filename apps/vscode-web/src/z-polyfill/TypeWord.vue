@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Word } from '@typewords/core/types/types.ts'
-import VolumeIcon from '@typewords/core/components/icon/VolumeIcon.vue'
 import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { useBaseStore } from '@typewords/core/stores/base.ts'
 import {
@@ -15,7 +14,7 @@ import { onMounted, onUnmounted, watch } from 'vue'
 import SentenceHightLightWord from '@typewords/core/components/word/SentenceHightLightWord.vue'
 import { getDefaultWord } from '@typewords/core/types/func.ts'
 import { _nextTick, last } from '@typewords/core/utils'
-import { BaseButton, BaseIcon, Toast, ToastComponent, Tooltip } from '@typewords/base'
+import { BaseButton, Toast, Tooltip, VolumeIcon } from '@typewords/base'
 import Space from '@typewords/core/components/article/Space.vue'
 import { ShortcutKey, WordPracticeType } from '@typewords/core/types/enum.ts'
 import { useI18n } from 'vue-i18n'

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { BaseButton } from './index'
 import type { ButtonProps } from './BaseButton.vue'
-import { computed, useAttrs, onMounted } from 'vue'
+import BaseButton from './BaseButton.vue'
+import { computed, useAttrs } from 'vue'
 
 /** 声明 props：编辑器有提示；与 attrs 合并后再传给子组件（仅 v-bind="$attrs" 拿不到已声明的 props） */
 defineOptions({ inheritAttrs: false })

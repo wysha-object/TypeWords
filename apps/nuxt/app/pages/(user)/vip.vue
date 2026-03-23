@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BaseButton, BasePage, InputNumber, PopConfirm, Radio, RadioGroup, Toast } from '@typewords/base'
+import { BaseButton, BaseInput, BasePage, InputNumber, PopConfirm, Radio, RadioGroup, Toast } from '@typewords/base'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@typewords/core/stores/user.ts'
 import type { User } from '@typewords/core/apis/user.ts'
@@ -15,7 +15,6 @@ import {
   setAutoRenewApi,
 } from '@typewords/core/apis/member.ts'
 import { _dateFormat, _nextTick } from '@typewords/core/utils'
-import { BaseInput } from '@typewords/base'
 
 const router = useRouter()
 const userStore = useUserStore()

@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
 import Empty from '@typewords/core/components/Empty.vue'
 import ArticleList from '@typewords/core/components/list/ArticleList.vue'
 import { useBaseStore } from '@typewords/core/stores/base.ts'
 import type { Article, Dict } from '@typewords/core/types/types.ts'
 import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
-import { BaseButton, BaseIcon, Switch, Toast } from '@typewords/base'
+import { BaseButton, BaseIcon, Switch, Toast, BackIcon } from '@typewords/base'
 import { useRoute, useRouter } from 'vue-router'
 import EditBook from '@typewords/core/components/article/EditBook.vue'
 import { computed, onMounted, onUnmounted, watch } from 'vue'

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { Word } from '../../types'
-import VolumeIcon from '../icon/VolumeIcon.vue'
 import { usePlayWordAudio } from '../../hooks/sound.ts'
-import { BaseIcon, Tooltip } from '@typewords/base'
+import { BaseIcon, Tooltip, VolumeIcon } from '@typewords/base'
 import { useWordOptions } from '../../hooks/dict.ts'
 import SentenceHightLightWord from './SentenceHightLightWord.vue'
 

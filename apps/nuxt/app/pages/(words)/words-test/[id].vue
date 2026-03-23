@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { BaseButton, BasePage, Toast } from '@typewords/base'
-import VolumeIcon from '@typewords/core/components/icon/VolumeIcon.vue'
+import { BaseButton, BasePage, Toast, VolumeIcon } from '@typewords/base'
 import { useRoute, useRouter } from 'vue-router'
 import { useBaseStore } from '@typewords/core/stores/base.ts'
 import type { Dict, TaskWords, Word } from '@typewords/core/types/types.ts'

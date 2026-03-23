@@ -1,11 +1,20 @@
 <script setup lang="tsx">
 import { detail } from '@typewords/core/apis'
-import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
-import { BaseButton, BaseIcon, BasePage, Form, FormItem, PopConfirm, Textarea, Toast } from '@typewords/base'
+import {
+  BackIcon,
+  BaseButton,
+  BaseIcon,
+  BaseInput,
+  BasePage,
+  DeleteIcon,
+  Form,
+  FormItem,
+  PopConfirm,
+  Textarea,
+  Toast,
+} from '@typewords/base'
 import BaseTable from '@typewords/core/components/BaseTable.vue'
 import WordItem from '@typewords/core/components/word/WordItem.vue'
-import { BaseInput } from '@typewords/base'
-import DeleteIcon from '@typewords/core/components/icon/DeleteIcon.vue'
 import { AppEnv, DictId, LIB_JS_URL, TourConfig } from '@typewords/core/config/env.ts'
 import { getCurrentStudyWord } from '@typewords/core/hooks/dict.ts'
 import EditBook from '@typewords/core/components/article/EditBook.vue'

@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import {ref, useAttrs, watch, computed} from 'vue';
-import Close from "@typewords/core/components/icon/Close.vue";
-import {useDisableEventListener} from "@typewords/core/hooks/event.ts";
-
-defineOptions({
-  name: "BaseInput",
-})
+import { ref, useAttrs, watch, computed } from 'vue'
+import Close from './icon/Close.vue'
+import { useDisableEventListener } from '@typewords/core/hooks/event.ts'
 
 const props = defineProps({
   modelValue: [String, Number],
@@ -29,14 +25,14 @@ const props = defineProps({
   size: {
     type: String,
     default: 'normal',
-    validator: (value: string) => ['normal', 'large'].includes(value)
+    validator: (value: string) => ['normal', 'large'].includes(value),
   },
-});
+})
 
-const emit = defineEmits(['update:modelValue', 'input', 'change', 'focus', 'blur', 'validation', 'enter']);
-const attrs = useAttrs();
+const emit = defineEmits(['update:modelValue', 'input', 'change', 'focus', 'blur', 'validation', 'enter'])
+const attrs = useAttrs()
 
-const inputValue = ref(props.modelValue);
+const inputValue = ref(props.modelValue)
 let focus = $ref(false)
 let inputEl = $ref<HTMLDivElement>()
 const passwordVisible = ref(false)
@@ -52,40 +48,43 @@ const togglePasswordVisibility = () => {
   passwordVisible.value = !passwordVisible.value
 }
 
-watch(() => props.modelValue, (val) => {
-  inputValue.value = val;
-});
+watch(
+  () => props.modelValue,
+  val => {
+    inputValue.value = val
+  }
+)
 
 const onInput = (e: Event) => {
-  const target = e.target as HTMLInputElement;
-  inputValue.value = target.value;
-  emit('update:modelValue', target.value);
-  emit('input', e);
-  emit('change', e);
-};
+  const target = e.target as HTMLInputElement
+  inputValue.value = target.value
+  emit('update:modelValue', target.value)
+  emit('input', e)
+  emit('change', e)
+}
 
 const onChange = (e: Event) => {
-  emit('change', e);
-};
+  emit('change', e)
+}
 
 const onFocus = (e: FocusEvent) => {
   focus = true
-  emit('focus', e);
-};
+  emit('focus', e)
+}
 
 const onBlur = (e: FocusEvent) => {
   focus = false
-  emit('blur', e);
-};
+  emit('blur', e)
+}
 
 const onEnter = (e: KeyboardEvent) => {
-  emit('enter', e);
-};
+  emit('enter', e)
+}
 
 const clearInput = () => {
-  inputValue.value = '';
-  emit('update:modelValue', '');
-};
+  inputValue.value = ''
+  emit('update:modelValue', '')
+}
 
 //当聚焦时，禁用输入监听
 useDisableEventListener(() => focus)
@@ -94,26 +93,27 @@ const vFocus = {
   mounted: (el, bind) => {
     if (bind.value) {
       el.focus()
-      setTimeout(() => focus = true)
+      setTimeout(() => (focus = true))
     }
-  }
+  },
 }
-
 </script>
 
 <template>
-  <div class="base-input"
-       ref="inputEl"
-       :class="{ 'is-disabled': disabled, 'error': props.error, focus, [`base-input--${size}`]: true }">
+  <div
+    class="base-input"
+    ref="inputEl"
+    :class="{ 'is-disabled': disabled, error: props.error, focus, [`base-input--${size}`]: true }"
+  >
     <slot name="subfix"></slot>
     <!-- PreIcon slot -->
     <div v-if="$slots.preIcon" class="pre-icon">
       <slot name="preIcon"></slot>
     </div>
-    <IconFluentLockClosed20Regular class="pre-icon" v-if="type === 'password'"/>
-    <IconFluentMail20Regular class="pre-icon" v-if="type === 'email'"/>
-    <IconFluentPhone20Regular class="pre-icon" v-if="type === 'tel'"/>
-    <IconFluentNumberSymbol20Regular class="pre-icon" v-if="type === 'code'"/>
+    <IconFluentLockClosed20Regular class="pre-icon" v-if="type === 'password'" />
+    <IconFluentMail20Regular class="pre-icon" v-if="type === 'email'" />
+    <IconFluentPhone20Regular class="pre-icon" v-if="type === 'tel'" />
+    <IconFluentNumberSymbol20Regular class="pre-icon" v-if="type === 'code'" />
 
     <input
       v-bind="attrs"
@@ -131,17 +131,16 @@ const vFocus = {
       :maxlength="maxLength"
     />
     <slot name="prefix"></slot>
-    <Close
-      v-if="clearable && inputValue && !disabled"
-      @click="clearInput"/>
+    <Close v-if="clearable && inputValue && !disabled" @click="clearInput" />
     <!-- Password visibility toggle -->
     <div
       v-if="type === 'password' && !disabled"
       class="password-toggle"
       @click="togglePasswordVisibility"
-      :title="passwordVisible ? '隐藏密码' : '显示密码'">
-      <IconFluentEye16Regular v-if="!passwordVisible"/>
-      <IconFluentEyeOff16Regular v-else/>
+      :title="passwordVisible ? '隐藏密码' : '显示密码'"
+    >
+      <IconFluentEye16Regular v-if="!passwordVisible" />
+      <IconFluentEyeOff16Regular v-else />
     </div>
   </div>
 </template>
@@ -155,8 +154,8 @@ const vFocus = {
   border: 1px solid var(--color-input-border);
   border-radius: 6px;
   overflow: hidden;
-  padding: .2rem .3rem;
-  transition: all .3s;
+  padding: 0.2rem 0.3rem;
+  transition: all 0.3s;
   align-items: center;
   background: var(--color-input-bg);
 
@@ -167,7 +166,7 @@ const vFocus = {
 
   // normal size (default)
   &--normal {
-    padding: .2rem .3rem;
+    padding: 0.2rem 0.3rem;
 
     .inner {
       height: 1.5rem;
@@ -177,8 +176,8 @@ const vFocus = {
 
   // large size
   &--large {
-    padding: .4rem .6rem;
-    border-radius: .5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 0.5rem;
 
     .inner {
       height: 2rem;
@@ -228,7 +227,7 @@ const vFocus = {
     outline: none;
     border: none;
     box-sizing: border-box;
-    transition: all .3s;
+    transition: all 0.3s;
     height: 1.5rem;
     color: var(--color-input-color);
     background: transparent;

@@ -7,6 +7,7 @@ import {
   BaseInput,
   BaseOptionButton,
   Checkbox,
+  DeleteIcon,
   Dialog,
   MiniDialog,
   Pagination,
@@ -15,7 +16,6 @@ import {
 } from '@typewords/base'
 import { debounce } from '../utils'
 import Empty from '../components/Empty.vue'
-import DeleteIcon from '../components/icon/DeleteIcon.vue'
 import { ENV } from '../config/env.ts'
 import { Sort } from '../types'
 import saveAs from 'file-saver'

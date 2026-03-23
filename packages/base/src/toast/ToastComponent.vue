@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import Close from '@typewords/core/components/icon/Close.vue'
+import { Close } from '../icon'
 
 interface Props {
   message: string

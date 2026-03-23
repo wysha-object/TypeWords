@@ -5,8 +5,10 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./Dialog": "./src/Dialog.vue",
-    "./Dialog.vue": "./src/Dialog.vue"
+    "./Dialog": "./src/dialog/Dialog.vue",
+    "./dialog": "./src/dialog/index.ts",
+    "./icon": "./src/icon/index.ts",
+    "./Dialog.vue": "./src/dialog/Dialog.vue"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

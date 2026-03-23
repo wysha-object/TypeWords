@@ -1,7 +1,7 @@
 import { onMounted, watchEffect } from 'vue'
 import { useSettingStore } from '../stores/setting'
 
-import { ENV, PronunciationApi, SoundFileOptions } from '@typewords/core/config/env'
+import { ENV, PronunciationApi, SoundFileOptions } from '../config/env'
 
 export function useSound(audioSrcList?: string[], audioFileLength?: number) {
   let audioList: HTMLAudioElement[] = $ref([])

@@ -21,23 +21,20 @@ import ToastComponent from './toast/ToastComponent.vue'
 export * from './toast/type.ts'
 import Audio from './Audio.vue'
 import BasePage from './BasePage.vue'
-import Option from './select/Option.vue'
-import Select from './select/Select.vue'
 import BaseInput from './BaseInput.vue'
 import Pagination from './Pagination.vue'
-import Dialog from './Dialog.vue'
 import MiniDialog from './MiniDialog.vue'
 import BaseOptionButton from './BaseOptionButton.vue'
 import UploadButton from './UploadButton.vue'
+export * from './select'
+export * from './icon'
+export * from './dialog'
 
 export {
   MiniDialog,
-  Dialog,
   BaseInput,
   Pagination,
   BasePage,
-  Option,
-  Select,
   Audio,
   Checkbox,
   Form,
@@ -59,5 +56,5 @@ export {
   Textarea,
   Tooltip,
   BaseOptionButton,
-  UploadButton
+  UploadButton,
 }

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { SoundFileOptions } from '../../config/env.ts'
 import { getAudioFileUrl, usePlayAudio } from '../../hooks/sound.ts'
-import VolumeIcon from '../icon/VolumeIcon.vue'
-import { Slider, Switch, Textarea, Option, Select } from '@typewords/base'
+import { Option, Select, Slider, Switch, Textarea, VolumeIcon } from '@typewords/base'
 import SettingItem from './SettingItem.vue'
 import { useSettingStore } from '../../stores/setting.ts'
 import { useBaseStore } from '../../stores/base.ts'

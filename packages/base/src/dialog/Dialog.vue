@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from 'vue'
-import Tooltip from './Tooltip.vue'
-import BaseButton from './BaseButton.vue'
-import { useEventListener } from '@typewords/core/hooks/event'
+import Tooltip from '../Tooltip.vue'
+import BaseButton from '../BaseButton.vue'
+import { useEventListener } from '@typewords/core/hooks/event.ts'
 import { useI18n } from 'vue-i18n'
-import { useRuntimeStore } from '@typewords/core/stores/runtime'
+import { modalStack } from './stack.ts'
 
 export interface ModalProps {
   modelValue?: boolean
@@ -51,7 +51,6 @@ let visible = $ref(false)
 let openTime = $ref(Date.now())
 let maskRef = $ref<HTMLDivElement>(null)
 let modalRef = $ref<HTMLDivElement>(null)
-const runtimeStore = useRuntimeStore()
 let id = Date.now()
 
 async function close() {
@@ -80,9 +79,9 @@ async function close() {
       emit('close')
       visible = false
       resolve(true)
-      let rIndex = runtimeStore.modalList.findIndex(item => item.id === id)
+      let rIndex = modalStack.findIndex(item => item.id === id)
       if (rIndex > -1) {
-        runtimeStore.modalList.splice(rIndex, 1)
+        modalStack.splice(rIndex, 1)
       }
     }, closeTime)
   })
@@ -93,8 +92,8 @@ watch(
   n => {
     if (n) {
       id = Date.now()
-      runtimeStore.modalList.push({ id, close })
-      zIndex = 999 + runtimeStore.modalList.length
+      modalStack.push({ id, close })
+      zIndex = 999 + modalStack.length
       visible = true
     } else {
       close()
@@ -106,24 +105,24 @@ onMounted(() => {
   if (props.modelValue === undefined) {
     visible = true
     id = Date.now()
-    runtimeStore.modalList.push({ id, close })
-    zIndex = 999 + runtimeStore.modalList.length
+    modalStack.push({ id, close })
+    zIndex = 999 + modalStack.length
   }
 })
 
 onUnmounted(() => {
   if (props.modelValue === undefined) {
     visible = false
-    let rIndex = runtimeStore.modalList.findIndex(item => item.id === id)
+    let rIndex = modalStack.findIndex(item => item.id === id)
     if (rIndex > -1) {
-      runtimeStore.modalList.splice(rIndex, 1)
+      modalStack.splice(rIndex, 1)
     }
   }
 })
 
 useEventListener('keyup', async (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.keyboard) {
-    let lastItem = runtimeStore.modalList[runtimeStore.modalList.length - 1]
+    let lastItem = modalStack[modalStack.length - 1]
     if (lastItem?.id === id) {
       await cancel()
     }

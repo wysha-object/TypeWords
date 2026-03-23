@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Article } from '@typewords/core/types/types.ts'
-import { BaseButton, Toast, MiniDialog, UploadButton } from '@typewords/base'
+import { BaseButton, Toast, MiniDialog, UploadButton ,BackIcon} from '@typewords/base'
 import { cloneDeep, loadJsLib } from '@typewords/core/utils'
 
 import List from '@typewords/core/components/list/List.vue'
@@ -10,7 +10,6 @@ import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import { nanoid } from 'nanoid'
 import EditArticle from '@typewords/core/components/article/EditArticle.vue'
 import { getDefaultArticle } from '@typewords/core/types/func.ts'
-import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
 import { onMounted } from 'vue'
 import { LIB_JS_URL } from '@typewords/core/config/env.ts'
 import { syncBookInMyStudyList } from '@typewords/core/hooks/article.ts'

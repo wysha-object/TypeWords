@@ -47,6 +47,8 @@ import { useDataSyncPersistence } from '@typewords/core/composables/useDataSyncP
 import SettingItem from '@typewords/core/components/setting/SettingItem.vue'
 import { Supabase } from '@typewords/core/utils/supabase.ts'
 import BackupGateDialog from '@typewords/core/components/dialog/BackupGateDialog.vue'
+
+
 import { createClient } from '@supabase/supabase-js'
 import { useRoute } from 'vue-router'
 import type { BackupData, Snapshot } from '@typewords/core'

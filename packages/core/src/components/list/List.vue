@@ -1,8 +1,7 @@
 <script setup lang="ts" generic="T extends Article">
-import { BaseIcon, BaseInput } from '@typewords/base'
+import { BaseIcon, BaseInput, DeleteIcon } from '@typewords/base'
 import { cloneDeep, throttle } from '../../utils'
 import type { Article } from '../../types'
-import DeleteIcon from '../icon/DeleteIcon.vue'
 
 interface IProps {
   list: T[]

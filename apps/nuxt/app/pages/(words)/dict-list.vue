@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { _nextTick, groupBy, isMobile, loadJsLib, resourceWrap, useNav } from '@typewords/core/utils'
-import { BaseButton, BaseIcon, BasePage } from '@typewords/base'
+import { BackIcon, BaseButton, BaseIcon, BaseInput, BasePage } from '@typewords/base'
 import type { DictResource } from '@typewords/core/types/types.ts'
 import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import Empty from '@typewords/core/components/Empty.vue'
 import DictList from '@typewords/core/components/list/DictList.vue'
-import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
 import DictGroup from '@typewords/core/components/list/DictGroup.vue'
 import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { useRouter } from 'vue-router'
@@ -13,7 +12,6 @@ import { computed, watch } from 'vue'
 import { getDefaultDict } from '@typewords/core/types/func.ts'
 import { useFetch } from '@vueuse/core'
 import { DICT_LIST, LIB_JS_URL, TourConfig } from '@typewords/core/config/env.ts'
-import { BaseInput } from '@typewords/base'
 import { useSettingStore } from '@typewords/core/stores/setting.ts'
 
 const { nav } = useNav()

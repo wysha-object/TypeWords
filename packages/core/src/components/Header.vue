@@ -1,18 +1,16 @@
 <script setup lang="ts">
-
-import BackIcon from "../components/icon/BackIcon.vue";
-import { useAttrs } from "vue";
+import { BackIcon } from '@typewords/base'
+import { useAttrs } from 'vue'
 
 interface IProps {
-  title: string;
-  showBackIcon?: boolean;
+  title: string
+  showBackIcon?: boolean
 }
 
 withDefaults(defineProps<IProps>(), {
   title: '',
   showBackIcon: true,
 })
-
 
 const attrs = useAttrs()
 </script>
@@ -24,6 +22,4 @@ const attrs = useAttrs()
   </div>
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

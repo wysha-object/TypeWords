@@ -1,5 +1,7 @@
 import { offset } from '@floating-ui/dom'
-import { ShortcutKey, WordPracticeMode, WordPracticeStage } from '@typewords/core/types/enum'
+import { WordPracticeMode, WordPracticeStage } from '../types'
+//这里合并导入，打包会报错
+import { ShortcutKey } from '../types/enum.ts'
 
 export const GITHUB = 'https://github.com/zyronon/TypeWords'
 export const Host = 'typewords.cc'

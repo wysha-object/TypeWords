@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Tooltip } from '@typewords/base'
+import Tooltip from '../Tooltip.vue'
 
 defineEmits(['click'])
 defineProps<{
@@ -8,11 +8,9 @@ defineProps<{
 </script>
 
 <template>
-  <div class="close"
-       @click="$emit('click')"
-  >
+  <div class="close" @click="$emit('click')">
     <Tooltip :title="title">
-      <IconFluentDismissCircle16Regular/>
+      <IconFluentDismissCircle16Regular />
     </Tooltip>
   </div>
 </template>

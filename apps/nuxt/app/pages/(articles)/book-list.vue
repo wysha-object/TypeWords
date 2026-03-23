@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { resourceWrap, useNav } from '@typewords/core/utils'
-import { BaseButton, BaseIcon, BasePage } from '@typewords/base'
+import { BaseButton, BaseIcon, BasePage, BackIcon } from '@typewords/base'
 import type { DictResource } from '@typewords/core/types/types.ts'
 import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import Empty from '@typewords/core/components/Empty.vue'
 import DictList from '@typewords/core/components/list/DictList.vue'
-import BackIcon from '@typewords/core/components/icon/BackIcon.vue'
 import { useRouter } from 'vue-router'
 import { computed } from 'vue'
 import { getDefaultDict } from '@typewords/core/types/func.ts'

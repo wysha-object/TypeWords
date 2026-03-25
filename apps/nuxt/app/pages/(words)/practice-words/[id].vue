@@ -844,14 +844,14 @@ useEvents([
 <template>
   <PracticeLayout v-loading="loading" panelLeft="var(--word-panel-margin-left)">
     <template v-slot:practice>
-      <div class="practice-word mb-50">
+      <div class="practice-word">
         <WordMarkPickList
           v-if="settingStore.wordPracticeType === WordPracticeType.Identify && data.wrongWords.length === 0"
           :words="data.words"
           @complete="onWordMarkPickComplete"
         />
 
-        <template v-else>
+        <div class="mb-50" v-else>
           <!--        前后单词-->
           <div
             class="fixed z-1 top-4 w-full"
@@ -893,7 +893,7 @@ useEvents([
             @skip="skip"
             @toggle-simple="toggleWordSimpleWrapper"
           />
-        </template>
+        </div>
       </div>
     </template>
     <template v-slot:panel>

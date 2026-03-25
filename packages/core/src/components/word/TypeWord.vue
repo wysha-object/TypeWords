@@ -175,7 +175,9 @@ function know(e) {
 function mastered(e) {
   if (settingStore.wordPracticeType === WordPracticeType.Identify) {
     emit('mastered')
+    return
   }
+  onTyping(e)
 }
 
 function unknown(e) {
@@ -501,6 +503,7 @@ useEvents([
   [ShortcutKey.KnowWord, know],
   [ShortcutKey.UnknownWord, unknown],
   [ShortcutKey.MasteredWord, mastered],
+  [ShortcutKey.ChooseD, onTyping],
 ])
 
 const notice = $computed(() => {

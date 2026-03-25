@@ -76,8 +76,9 @@ function onComplete() {
 </script>
 
 <template>
-  <div class="word-mark-pick-list text-xl flex flex-col gap-3 w-full mt-10">
-    <div class="flex flex-wrap gap-2">
+  <div class="word-mark-pick-list text-xl flex flex-col gap-3 w-full pt-10">
+    <div class="flex flex-wrap gap-2 items-center">
+      <div>标记分类:</div>
       <button
         v-for="mode in ['know', 'unknown', 'mastered'] as const"
         :key="mode"
@@ -88,6 +89,12 @@ function onComplete() {
       >
         {{ modeLabels[mode] }}
       </button>
+    </div>
+    <div>
+      说明：点词标记，重复点击取消；切换分类继续标记。未标记与“不认识”将进入后续练习。
+    </div>
+    <div class="text-sm color-[var(--color-font-3)]">
+      小提示：如果认识的多，建议切换为“不认识”进行标记；反之，切换为“我认识”进行标记
     </div>
 
     <div class="word-grid" role="list" aria-label="单词列表">
@@ -104,12 +111,16 @@ function onComplete() {
     </div>
 
     <div class="center pt-1">
-      <BaseButton type="primary" size="large" @click="onComplete">完成</BaseButton>
+      <BaseButton type="primary" size="large" @click="onComplete">标记完成</BaseButton>
     </div>
   </div>
 </template>
 
 <style scoped lang="scss">
+.word-mark-pick-list {
+  max-height: calc(100vh - 12rem);
+}
+
 .mode-btn {
   padding: 0.35rem 0.85rem;
   border-radius: 0.375rem;
@@ -123,12 +134,18 @@ function onComplete() {
     border-color: var(--el-color-primary, #646cff);
   }
   &.know.active {
+    background: rgba(34, 197, 94, 0.14);
+    border-color: rgba(34, 197, 94, 0.35);
     color: #15803d;
   }
   &.unknown.active {
+    background: rgba(239, 68, 68, 0.14);
+    border-color: rgba(239, 68, 68, 0.35);
     color: #b91c1c;
   }
   &.mastered.active {
+    background: rgba(59, 130, 246, 0.14);
+    border-color: rgba(59, 130, 246, 0.35);
     color: #1d4ed8;
   }
 }
@@ -137,10 +154,10 @@ function onComplete() {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  max-height: min(80vh, 36rem);
   overflow: auto;
   align-content: flex-start;
   padding: 0.125rem;
+  flex: 1;
   -webkit-overflow-scrolling: touch;
 }
 

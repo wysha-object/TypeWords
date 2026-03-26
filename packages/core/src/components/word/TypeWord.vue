@@ -94,7 +94,7 @@ function reset() {
   clearJumpTimer()
   wrong = input = ''
   wordRepeatCount = 0
-  showWordResult.value = inputLock = false
+  showWordResult.value = inputLock = completeSelect = showAllCandidates = false
   currentPracticeSentenceIndex = -1
   wordCompletedTime = 0 // 重置时间戳
   wrongTimes.value = 0
@@ -203,14 +203,27 @@ function unknown(e) {
   onTyping(e)
 }
 
+let completeSelect = false
 function select(e, index: number) {
+  if (completeSelect) return
   if (isWordTest) {
-    if (!showWordResult.value) {
-      inputLock = showWordResult.value = true
+    completeSelect = true
+    if (index == props.question.correctIndex) {
       input = props.word.word
+      playCorrect()
       emit('know')
-      return
+    } else {
+      wrong = props.word.word
+      playBeep()
+      play()
+      emit('wrong')
     }
+    
+    if (!showNotice) {
+      Toast.info("按空格继续", { duration: 5000 })
+      showNotice = true
+    }
+    return
   }
   onTyping(e)
 }
@@ -218,6 +231,13 @@ function select(e, index: number) {
 let currentPracticeSentenceIndex = $ref(-1)
 
 async function onTyping(e: KeyboardEvent) {
+  if (isWordTest) {
+    if (e.code === 'Space') {
+      completeTypeWord(false)
+    }
+    return
+  }
+
   // debugger
   let target
   let targetVolumeIcon
@@ -707,7 +727,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
 
       <div
         v-if="isWordTest && !showWordResult"
-        class="flex gap-8 flex-col mt-16 mb-8"
+        class="flex gap-8 flex-col mt-16 mb-8 w-full"
       >
         <div 
           v-for="(value, index) in question.candidates"
@@ -720,7 +740,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
             {{ ['A', 'B', 'C', 'D'][index] }}
           </BaseButton>
           <span class="ml-2">
-            <div class="min-h-10" :class="{'word-shadow': !showAllCandidates}">
+            <div class="min-h-10" :class="{'word-shadow': !showAllCandidates && !completeSelect}">
               {{ value.word }}
             </div>
             <div>{{ value.label }}</div>

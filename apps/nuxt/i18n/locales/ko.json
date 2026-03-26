@@ -401,7 +401,7 @@
 	"increase_03s": "+0.3초 증가",
 	"record": "기록",
 	"end_time": "종료 시간",
-	"audio_upload_notice": "1. 업로드된 파일은 로컬에 저장되며, 컴퓨터를 변경하면 데이터가 손실됩니다. 적시에 백업하세요\n2. mp3, wav, m4a 등 일반적인 오디오 형식 지원",
+	"audio_upload_notice": "1. 업로드된 파일은 로컬에 저장되며, 컴퓨터를 변경하면 데이터가 손실됩니다. 적시에 백업하세요\r\n2. mp3, wav, m4a 등 일반적인 오디오 형식 지원",
 	"upload_audio": "오디오 업로드",
 	"upload_lrc": "LRC 파일 업로드",
 	"name_management": "이름 관리",
@@ -508,7 +508,7 @@
 	"qa13_q4": "github/issues에서도 제출할 수 있습니다",
 	"random_words_test": "random words test",
 	"practice_sentence": "练习例句",
-	"fsrs_desc": "基于“艾宾浩斯遗忘曲线”设计，系统会根据你的记忆情况，自动安排最合适的复习时间。\n不再机械重复，让你用更少时间记住更多单词。\n记得越牢，复习间隔越长；容易忘的内容，会更频繁出现。",
+	"fsrs_desc": "基于“艾宾浩斯遗忘曲线”设计，系统会根据你的记忆情况，自动安排最合适的复习时间。\r\n不再机械重复，让你用更少时间记住更多单词。\r\n记得越牢，复习间隔越长；容易忘的内容，会更频繁出现。",
 	"fsrs_settings": "遗忘曲线设置",
 	"fsrs_limit_desc": "在学习过程中对每个单词错误次数进行评级，共有四个评级，Again,Hard,Good,Easy，遗忘曲线算法会使用评级来计算这个单词下一次需要复习的时间。",
 	"fsrs_easy_limit": "Easy评级判定标准",
@@ -527,5 +527,8 @@
 	"export_as_json": "导出为json文件",
 	"xlsx_template_download": "xlsx模板下载地址",
 	"import_xlsx": "导入xlsx文件",
-	"import_json": "导入json文件"
+	"import_json": "导入json文件",
+	"self_assessment": "自我评估",
+	"word_test": "单词测试",
+	"identify_method": "自测方式"
 }

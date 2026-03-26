@@ -220,7 +220,7 @@ function select(e, index: number) {
     }
     
     if (!showNotice) {
-      Toast.info("按空格继续", { duration: 5000 })
+      Toast.info($t('press_space_continue'), { duration: 5000 })
       showNotice = true
     }
     return

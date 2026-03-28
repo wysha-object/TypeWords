@@ -117,3 +117,11 @@ export enum WordPracticeStage {
   Shuffle = 12,
   Complete = 13,
 }
+
+// 自测方法
+export enum IdentifyMethod {
+  // 自我评估
+  SelfAssessment = 0,
+  // 单词测试
+  WordTest = 1,
+}

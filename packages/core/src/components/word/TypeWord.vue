@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Word } from '../../types'
-import { getDefaultWord, ShortcutKey, WordPracticeType } from '../../types'
+import type { Question, Word } from '../../types'
+import { getDefaultWord, IdentifyMethod, ShortcutKey, WordPracticeType } from '../../types'
 import { useSettingStore } from '../../stores/setting'
 import { useBaseStore } from '../../stores/base'
 import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio, useTTsPlayAudio } from '../../hooks/sound'
-import { emitter, EventKey, useEvents } from '../../utils/eventBus'
+import { emitter, EventKey, useEventsByWatch } from '../../utils/eventBus'
 import { onMounted, onUnmounted, watch } from 'vue'
 import SentenceHightLightWord from './SentenceHightLightWord.vue'
 import { _nextTick, last } from '../../utils'
@@ -17,6 +17,7 @@ const { t: $t } = useI18n()
 
 interface IProps {
   word: Word
+  question: Question
 }
 
 const props = withDefaults(defineProps<IProps>(), {
@@ -60,11 +61,27 @@ const sentenceVolumeIconsRefs: any = $ref([])
 const typingWordRef = $ref<HTMLDivElement>()
 // const volumeTranslateIconRef: any = $ref()
 
+let showAllCandidates = $ref(false)
+
 let displayWord = $computed(() => {
   return props.word.word.slice(input.length + wrong.length)
 })
 let displaySentence = $computed(() => {
   return props.word.sentences[currentPracticeSentenceIndex].c.slice(input.length + wrong.length)
+})
+
+let isSelfAssessment = $computed(() => {
+  return (
+    settingStore.wordPracticeType === WordPracticeType.Identify &&
+    settingStore.identifyMethod === IdentifyMethod.SelfAssessment
+  )
+})
+
+let isWordTest = $computed(() => {
+  return (
+    settingStore.wordPracticeType === WordPracticeType.Identify &&
+    settingStore.identifyMethod === IdentifyMethod.WordTest
+  )
 })
 
 // 在全局对象中存储当前单词信息，以便其他模块可以访问
@@ -83,7 +100,7 @@ function reset() {
   clearJumpTimer()
   wrong = input = ''
   wordRepeatCount = 0
-  showWordResult.value = inputLock = false
+  showWordResult.value = inputLock = completeSelect = showAllCandidates = false
   currentPracticeSentenceIndex = -1
   wordCompletedTime = 0 // 重置时间戳
   wrongTimes.value = 0
@@ -157,7 +174,7 @@ const right = $computed(() => {
 let showNotice = false
 
 function know(e) {
-  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
+  if (isSelfAssessment) {
     if (!showWordResult.value) {
       inputLock = showWordResult.value = true
       input = props.word.word
@@ -173,7 +190,7 @@ function know(e) {
 }
 
 function mastered(e) {
-  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
+  if (isSelfAssessment) {
     emit('mastered')
     return
   }
@@ -181,7 +198,7 @@ function mastered(e) {
 }
 
 function unknown(e) {
-  if (settingStore.wordPracticeType === WordPracticeType.Identify) {
+  if (isSelfAssessment) {
     if (!showWordResult.value) {
       showWordResult.value = true
       typo()
@@ -192,9 +209,41 @@ function unknown(e) {
   onTyping(e)
 }
 
+let completeSelect = false
+function select(e, index: number) {
+  if (completeSelect) return
+  if (isWordTest) {
+    completeSelect = true
+    if (index == props.question.correctIndex) {
+      input = props.word.word
+      playCorrect()
+      emit('know')
+    } else {
+      wrong = props.word.word
+      playBeep()
+      play()
+      emit('wrong')
+    }
+
+    if (!showNotice) {
+      Toast.info($t('press_space_continue'), { duration: 5000 })
+      showNotice = true
+    }
+    return
+  }
+  onTyping(e)
+}
+
 let currentPracticeSentenceIndex = $ref(-1)
 
 async function onTyping(e: KeyboardEvent) {
+  if (isWordTest) {
+    if (e.code === 'Space') {
+      completeTypeWord(false)
+    }
+    return
+  }
+
   // debugger
   let target
   let targetVolumeIcon
@@ -281,7 +330,7 @@ async function onTyping(e: KeyboardEvent) {
     updateCurrentWordInfo()
     inputLock = false
   } else if (settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult.value) {
-    //当自测模式下，按1和2会单独处理，如果按其他键则自动默认为不认识
+    //当自测模式下，按其他键则自动默认为不认识
     showWordResult.value = true
     typo()
     if (settingStore.wordSound) targetVolumeIcon?.play()
@@ -431,11 +480,19 @@ function showWord() {
     if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite || settingStore.dictation) {
       typo()
     }
+    if (
+      settingStore.wordPracticeType === WordPracticeType.Identify &&
+      settingStore.identifyMethod === IdentifyMethod.WordTest
+    ) {
+      showAllCandidates = true
+      return
+    }
     showFullWord = true
   }
 }
 
 function hideWord() {
+  showAllCandidates = false
   showFullWord = false
 }
 
@@ -446,7 +503,10 @@ function typo() {
 
 function play() {
   if (settingStore.wordPracticeType === WordPracticeType.Dictation || settingStore.dictation) {
-    typo()
+    if (!showWordResult.value && !right) {
+      //输入完成，或者已显示的情况下，不记入错误
+      typo()
+    }
   }
   volumeIconRef?.play()
 }
@@ -499,12 +559,24 @@ function checkCursorPosition() {
   })
 }
 
-useEvents([
-  [ShortcutKey.KnowWord, know],
-  [ShortcutKey.UnknownWord, unknown],
-  [ShortcutKey.MasteredWord, mastered],
-  [ShortcutKey.ChooseD, onTyping],
-])
+useEventsByWatch(
+  [
+    [ShortcutKey.KnowWord, know],
+    [ShortcutKey.UnknownWord, unknown],
+    [ShortcutKey.MasteredWord, mastered],
+  ],
+  () => isSelfAssessment
+)
+
+useEventsByWatch(
+  [
+    [ShortcutKey.ChooseA, e => select(e, 0)],
+    [ShortcutKey.ChooseB, e => select(e, 1)],
+    [ShortcutKey.ChooseC, e => select(e, 2)],
+    [ShortcutKey.ChooseD, e => select(e, 3)],
+  ],
+  () => isWordTest
+)
 
 const notice = $computed(() => {
   let text =
@@ -650,10 +722,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
         </BaseIcon>
       </div>
 
-      <div
-        class="mt-4 flex gap-2"
-        v-if="settingStore.wordPracticeType === WordPracticeType.Identify && !showWordResult"
-      >
+      <div class="mt-4 flex gap-2" v-if="isSelfAssessment && !showWordResult">
         <BaseButton
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
@@ -672,6 +741,23 @@ const isCollect = $computed(() => isWordCollect(props.word))
           @click="mastered"
           >已掌握
         </BaseButton>
+      </div>
+
+      <div v-if="isWordTest && !showWordResult" class="flex gap-8 flex-col mt-16 mb-8 w-full">
+        <div v-for="(value, index) in question.candidates" class="flex gap-2 min-h-20">
+          <BaseButton
+            :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[[ShortcutKey.ChooseA, ShortcutKey.ChooseB, ShortcutKey.ChooseC, ShortcutKey.ChooseD][index]]})`"
+            @click="e => select(e, index)"
+          >
+            {{ ['A', 'B', 'C', 'D'][index] }}
+          </BaseButton>
+          <span class="ml-2">
+            <div class="min-h-10" :class="{ 'word-shadow': !showAllCandidates && !completeSelect }">
+              {{ value.word }}
+            </div>
+            <div>{{ value.label }}</div>
+          </span>
+        </div>
       </div>
 
       <div class="center mt-3" v-if="notice.show && settingStore.showUsageTips">

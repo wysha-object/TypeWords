@@ -9,7 +9,11 @@ import SettingDialog from '@typewords/core/components/setting/SettingDialog.vue'
 import { AppEnv, DICT_LIST } from '@typewords/core/config/env.ts'
 import { genArticleSectionData, usePlaySentenceAudio } from '@typewords/core/hooks/article.ts'
 import { useArticleOptions } from '@typewords/core/hooks/dict.ts'
-import { useDisableEventListener, useOnKeyboardEventListener, useStartKeyboardEventListener } from '@typewords/core/hooks/event.ts'
+import {
+  useDisableEventListener,
+  useOnKeyboardEventListener,
+  useStartKeyboardEventListener,
+} from '@typewords/core/hooks/event.ts'
 import useTheme from '@typewords/core/hooks/theme.ts'
 import ArticleAudio from '@typewords/core/components/article/ArticleAudio.vue'
 import EditSingleArticleModal from '@typewords/core/components/article/EditSingleArticleModal.vue'
@@ -20,7 +24,7 @@ import { useRuntimeStore } from '@typewords/core/stores/runtime.ts'
 import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { getDefaultArticle, getDefaultDict, getDefaultWord } from '@typewords/core/types/func.ts'
 import type { Article, ArticleItem, ArticleWord, Dict, Statistics, Word } from '@typewords/core/types/types.ts'
-import { _getDictDataByUrl, _nextTick, cloneDeep, msToMinute, resourceWrap, total, } from '@typewords/core/utils'
+import { _getDictDataByUrl, _nextTick, cloneDeep, msToMinute, resourceWrap, total } from '@typewords/core/utils'
 import { getPracticeArticleCacheLocal } from '@typewords/core/utils/cache.ts'
 import { usePracticeArticlePersistence } from '@typewords/core/composables/usePracticePersistence'
 import { useEvents, emitter, EventKey } from '@typewords/core/utils/eventBus'
@@ -496,7 +500,9 @@ provide('currentPractice', currentPractice)
     <template v-slot:footer>
       <div class="footer pb-3">
         <div class="center h-10">
-          <Tooltip :title="settingStore.showToolbar ? '收起' : '展开'">
+          <Tooltip
+            :title="`${settingStore.showToolbar ? $t('collapse') : $t('expand')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleToolbar]})`"
+          >
             <IconFluentChevronLeft20Filled
               @click="settingStore.showToolbar = !settingStore.showToolbar"
               :class="!settingStore.showToolbar && 'down'"

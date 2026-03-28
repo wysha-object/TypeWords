@@ -151,6 +151,7 @@ export interface PracticeData {
   wrongTimesMap: Record<string, number>
   wrongTimes: number
   ratingMap: Record<string, Rating>
+  question: Question
 }
 
 export interface TaskWords {
@@ -188,4 +189,14 @@ export interface BackupData {
     [PRACTICE_ARTICLE_CACHE.key]: SaveData
     [APP_VERSION.key]: number
   }
+}
+
+export type Candidate = { word: string; wordObj?: Word; label: string }
+
+export type Question = {
+  stem: Word
+  candidates: Candidate[]
+  correctIndex: number
+  selectedIndex: number
+  submitted: boolean
 }

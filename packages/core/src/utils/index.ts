@@ -122,7 +122,7 @@ export async function checkAndUpgradeSaveSetting(val: any) {
       let state: SettingState & { [key: string]: any } = data.val
       if (typeof state !== 'object') return defaultState
       state.load = false
-      debugger
+      // debugger
       let version = Number(data.version)
       //为了保持永远是最新的快捷键选项列表，但保留住用户的自定义设置，去掉无效的快捷键选项
       //例: 2版本，可能有快捷键A。3版本没有了

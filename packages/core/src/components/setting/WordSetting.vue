@@ -2,6 +2,7 @@
 import { InputNumber, Slider, Switch, Radio, RadioGroup } from '@typewords/base'
 import SettingItem from './SettingItem.vue'
 import { useSettingStore } from '../../stores/setting.ts'
+import { IdentifyMethod } from '../../types';
 
 const settingStore = useSettingStore()
 </script>
@@ -36,6 +37,13 @@ const settingStore = useSettingStore()
 
     <SettingItem :title="$t('review_ratio')" :desc="$t('review_ratio_desc')">
       <InputNumber :min="0" :max="10" v-model="settingStore.wordReviewRatio" />
+    </SettingItem>
+
+    <SettingItem :title="$t('identify_method')">
+      <RadioGroup v-model="settingStore.identifyMethod">
+        <Radio :value="IdentifyMethod.SelfAssessment" size="default">{{ $t('self_assessment') }}</Radio>
+        <Radio :value="IdentifyMethod.WordTest" size="default">{{ $t('word_test') }}</Radio>
+      </RadioGroup>
     </SettingItem>
 
     <!--          发音-->

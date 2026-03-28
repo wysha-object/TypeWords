@@ -3,7 +3,7 @@ import { checkAndUpgradeSaveSetting, cloneDeep } from '../utils'
 import { get, set } from 'idb-keyval'
 import { APP_VERSION, AppEnv, DefaultShortcutKeyMap, SAVE_SETTING_KEY } from '../config/env'
 import { getSetting } from '../apis'
-import { WordPracticeMode, WordPracticeType } from '../types'
+import { IdentifyMethod, WordPracticeMode, WordPracticeType } from '../types'
 import type { FSRSParameters } from 'ts-fsrs'
 
 export interface SettingState {
@@ -65,6 +65,8 @@ export interface SettingState {
   fsrsGoodLimit: number // 小于等于fsrsEasyLimit且小于等于fsrsHardLimit的卡片会评估为Good
   fsrsHardLimit: number // 小于等于fsrsHardLimit的卡片会评估为Hard
   fsrsParameters: FSRSParameters
+
+  identifyMethod: IdentifyMethod
 }
 
 export const getDefaultSettingState = (): SettingState => ({
@@ -138,6 +140,8 @@ export const getDefaultSettingState = (): SettingState => ({
     learning_steps: ['1m', '10m'],
     relearning_steps: ['10m'],
   },
+
+  identifyMethod: IdentifyMethod.SelfAssessment,
 })
 
 export const useSettingStore = defineStore('setting', {

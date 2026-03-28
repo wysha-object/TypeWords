@@ -184,7 +184,7 @@ const stages = $computed(() => {
 
 <template>
   <div class="footer">
-    <Tooltip :title="settingStore.showToolbar ? $t('collapse') : $t('expand')">
+    <Tooltip :title="`${settingStore.showToolbar ? $t('collapse') : $t('expand')}(${settingStore.shortcutKeyMap[ShortcutKey.ToggleToolbar]})`">
       <IconFluentChevronLeft20Filled
         @click="settingStore.showToolbar = !settingStore.showToolbar"
         class="arrow"
@@ -227,7 +227,7 @@ const stages = $computed(() => {
           </div>
         </div>
         <div class="flex gap-2 justify-center items-center" id="toolbar-icons">
-<!--          <BaseButton>快速批量标记</BaseButton>-->
+          <!--          <BaseButton>快速批量标记</BaseButton>-->
 
           <SettingDialog type="word" />
 

@@ -1,5 +1,5 @@
 import mitt from 'mitt'
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 
 export const emitter = mitt()
 export const EventKey = {
@@ -18,20 +18,33 @@ export const EventKey = {
   stateInitEnd: 'stateInitEnd',
 }
 
-export function useEvent(key: string, func: any) {
-  onMounted(() => {
-    emitter.on(key, func)
-  })
-
-  onUnmounted(() => {
-    emitter.off(key, func)
-  })
-}
-
 export function useEvents(arrs: any[]) {
   onMounted(() => {
     arrs.map(arr => emitter.on(arr[0], arr[1]))
   })
+
+  onUnmounted(() => {
+    arrs.map(arr => emitter.off(arr[0], arr[1]))
+  })
+}
+
+//特定条件才监听
+export function useEventsByWatch(arrs: any[], watchVal: any) {
+  watch(
+    watchVal,
+    newVal => {
+      console.log('watch', newVal)
+      if (newVal) {
+        arrs.map(arr => emitter.on(arr[0], arr[1]))
+      } else {
+        arrs.map(arr => emitter.off(arr[0], arr[1]))
+      }
+      console.log('emitter-all', emitter.all)
+    },
+    {
+      immediate: true,
+    }
+  )
 
   onUnmounted(() => {
     arrs.map(arr => emitter.off(arr[0], arr[1]))

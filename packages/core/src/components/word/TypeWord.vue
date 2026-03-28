@@ -4,7 +4,7 @@ import { getDefaultWord, IdentifyMethod, ShortcutKey, WordPracticeType } from '.
 import { useSettingStore } from '../../stores/setting'
 import { useBaseStore } from '../../stores/base'
 import { usePlayBeep, usePlayCorrect, usePlayKeyboardAudio, usePlayWordAudio, useTTsPlayAudio } from '../../hooks/sound'
-import { emitter, EventKey, useEvents } from '../../utils/eventBus'
+import { emitter, EventKey, useEventsByWatch } from '../../utils/eventBus'
 import { onMounted, onUnmounted, watch } from 'vue'
 import SentenceHightLightWord from './SentenceHightLightWord.vue'
 import { _nextTick, last } from '../../utils'
@@ -16,7 +16,7 @@ import { useWordOptions } from '../../hooks/dict.ts'
 const { t: $t } = useI18n()
 
 interface IProps {
-  word: Word,
+  word: Word
   question: Question
 }
 
@@ -71,11 +71,17 @@ let displaySentence = $computed(() => {
 })
 
 let isSelfAssessment = $computed(() => {
-  return settingStore.wordPracticeType === WordPracticeType.Identify && settingStore.identifyMethod === IdentifyMethod.SelfAssessment
+  return (
+    settingStore.wordPracticeType === WordPracticeType.Identify &&
+    settingStore.identifyMethod === IdentifyMethod.SelfAssessment
+  )
 })
 
 let isWordTest = $computed(() => {
-  return settingStore.wordPracticeType === WordPracticeType.Identify && settingStore.identifyMethod === IdentifyMethod.WordTest
+  return (
+    settingStore.wordPracticeType === WordPracticeType.Identify &&
+    settingStore.identifyMethod === IdentifyMethod.WordTest
+  )
 })
 
 // 在全局对象中存储当前单词信息，以便其他模块可以访问
@@ -218,7 +224,7 @@ function select(e, index: number) {
       play()
       emit('wrong')
     }
-    
+
     if (!showNotice) {
       Toast.info($t('press_space_continue'), { duration: 5000 })
       showNotice = true
@@ -474,7 +480,10 @@ function showWord() {
     if (settingStore.wordPracticeType !== WordPracticeType.FollowWrite || settingStore.dictation) {
       typo()
     }
-    if (settingStore.wordPracticeType === WordPracticeType.Identify && settingStore.identifyMethod === IdentifyMethod.WordTest) {
+    if (
+      settingStore.wordPracticeType === WordPracticeType.Identify &&
+      settingStore.identifyMethod === IdentifyMethod.WordTest
+    ) {
       showAllCandidates = true
       return
     }
@@ -547,15 +556,24 @@ function checkCursorPosition() {
   })
 }
 
-useEvents([
-  [ShortcutKey.KnowWord, know],
-  [ShortcutKey.UnknownWord, unknown],
-  [ShortcutKey.MasteredWord, mastered],
-  [ShortcutKey.ChooseA, (e) => select(e, 0)],
-  [ShortcutKey.ChooseB, (e) => select(e, 1)],
-  [ShortcutKey.ChooseC, (e) => select(e, 2)],
-  [ShortcutKey.ChooseD, (e) => select(e, 3)],
-])
+useEventsByWatch(
+  [
+    [ShortcutKey.KnowWord, know],
+    [ShortcutKey.UnknownWord, unknown],
+    [ShortcutKey.MasteredWord, mastered],
+  ],
+  () => isSelfAssessment
+)
+
+useEventsByWatch(
+  [
+    [ShortcutKey.ChooseA, e => select(e, 0)],
+    [ShortcutKey.ChooseB, e => select(e, 1)],
+    [ShortcutKey.ChooseC, e => select(e, 2)],
+    [ShortcutKey.ChooseD, e => select(e, 3)],
+  ],
+  () => isWordTest
+)
 
 const notice = $computed(() => {
   let text =
@@ -701,10 +719,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
         </BaseIcon>
       </div>
 
-      <div
-        class="mt-4 flex gap-2"
-        v-if="isSelfAssessment && !showWordResult"
-      >
+      <div class="mt-4 flex gap-2" v-if="isSelfAssessment && !showWordResult">
         <BaseButton
           :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[ShortcutKey.KnowWord]})`"
           size="large"
@@ -725,22 +740,16 @@ const isCollect = $computed(() => isWordCollect(props.word))
         </BaseButton>
       </div>
 
-      <div
-        v-if="isWordTest && !showWordResult"
-        class="flex gap-8 flex-col mt-16 mb-8 w-full"
-      >
-        <div 
-          v-for="(value, index) in question.candidates"
-          class="flex gap-2 min-h-20"
-        >
+      <div v-if="isWordTest && !showWordResult" class="flex gap-8 flex-col mt-16 mb-8 w-full">
+        <div v-for="(value, index) in question.candidates" class="flex gap-2 min-h-20">
           <BaseButton
             :keyboard="`${$t('shortcut')}(${settingStore.shortcutKeyMap[[ShortcutKey.ChooseA, ShortcutKey.ChooseB, ShortcutKey.ChooseC, ShortcutKey.ChooseD][index]]})`"
-            @click="(e) => select(e, index)"
+            @click="e => select(e, index)"
           >
             {{ ['A', 'B', 'C', 'D'][index] }}
           </BaseButton>
           <span class="ml-2">
-            <div class="min-h-10" :class="{'word-shadow': !showAllCandidates && !completeSelect}">
+            <div class="min-h-10" :class="{ 'word-shadow': !showAllCandidates && !completeSelect }">
               {{ value.word }}
             </div>
             <div>{{ value.label }}</div>

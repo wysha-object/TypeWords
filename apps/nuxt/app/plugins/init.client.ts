@@ -25,8 +25,10 @@ export default defineNuxtPlugin(async nuxtApp => {
     // umami-saas
     ;(function () {
       var umami2 = document.createElement('script')
-      umami2.src = ENV.RESOURCE_URL + 'libs/my-um.js'
-      umami2.setAttribute('data-website-id', '03102800-e8e8-40a2-addf-9999d5e5c525')
+      // umami2.src = ENV.RESOURCE_URL + 'libs/my-um.js'
+      // umami2.setAttribute('data-website-id', '03102800-e8e8-40a2-addf-9999d5e5c525')
+      umami2.src = 'https://stat.typewords.cc/script.js'
+      umami2.setAttribute('data-website-id', 'e725f66a-1f63-4c53-a96b-ba073edecac8')
       document.head.appendChild(umami2)
     })()
   }

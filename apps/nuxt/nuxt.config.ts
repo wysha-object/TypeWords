@@ -159,7 +159,7 @@ export default defineNuxtConfig({
   },
   // 构建配置
   build: {
-    transpile: ['vue-virtual-scroller'],
+    transpile: ['vue-virtual-scroller', 'vxe-table'],
   },
   // 实验性功能
   experimental: {

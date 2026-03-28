@@ -288,6 +288,11 @@ function onSelectCalendarDate(dateKey: string) {
       }
     }
   }
+  const st = practiceData.statStoreData
+  if (st?.spend && dayjs(st.startDate).format('YYYY-MM-DD') === dateKey) {
+    rows.push({ ...st, new: st.newWordNumber, review: st.reviewWordNumber, dictName: store.sdict.name })
+  }
+  if (!rows.length) return Toast.info('无学习记录')
   studyDayRecords = rows
   showStudyDayDialog = true
 }
@@ -637,11 +642,9 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="card flex flex-col md:flex-row gap-space p-4 md:p-6">
-      <div class="shrink-0">
-        <Calendar :highlighted-dates="calendarHighlightDates" @select-date="onSelectCalendarDate" />
-      </div>
+    <div class="card flex flex-col md:flex-row gap-20 p-4 md:p-6">
       <div class="flex-1 flex flex-col gap-3 min-w-0">
+        <div class="title">统计</div>
         <div class="flex flex-col sm:flex-row gap-3 items-center w-full">
           <div
             class="w-full sm:flex-1 rounded-xl p-4 box-border relative bg-[var(--bg-history)] border border-gray-200"
@@ -662,6 +665,14 @@ onUnmounted(() => {
             <div class="text-gray-500">{{ $t('total_study_time') }}</div>
           </div>
         </div>
+      </div>
+      <div class="shrink-0 flex items-center">
+        <Calendar
+          :highlighted-dates="calendarHighlightDates"
+          @select-date="onSelectCalendarDate"
+          :weekHeaderTitle="$t('this_week_record')"
+        >
+        </Calendar>
       </div>
     </div>
 
@@ -740,12 +751,6 @@ onUnmounted(() => {
   />
 
   <Dialog v-model="showStudyDayDialog" :title="studyDayDialogTitle" :footer="false" :padding="true">
-    <div
-      v-if="isStudyDayKeyToday(selectedStudyDateKey) && todayCacheMs > 0"
-      class="text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100"
-    >
-      进行中（本地缓存）：{{ msToHourMinute(todayCacheMs) }}
-    </div>
     <div
       v-if="!studyDayRecords.length && !(isStudyDayKeyToday(selectedStudyDateKey) && todayCacheMs > 0)"
       class="text-gray-500 py-6 text-center"

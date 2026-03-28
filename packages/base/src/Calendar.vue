@@ -2,9 +2,14 @@
 import { computed, ref } from 'vue'
 import BaseButton from './BaseButton.vue'
 
-const props = defineProps<{
-  highlightedDates: string[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    highlightedDates: string[]
+    /** 周模式标题（无 weekHeader 插槽时使用） */
+    weekHeaderTitle?: string
+  }>(),
+  { weekHeaderTitle: '' }
+)
 
 const emit = defineEmits<{
   selectDate: [dateKey: string]
@@ -57,19 +62,6 @@ const weekEnd = computed(() => {
   return d
 })
 
-const weekTitle = computed(() => {
-  const a = weekStart.value
-  const b = weekEnd.value
-  const y = a.getFullYear()
-  if (a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()) {
-    return `${y}年${pad2(a.getMonth() + 1)}月${a.getDate()}日 - ${b.getDate()}日`
-  }
-  if (a.getFullYear() === b.getFullYear()) {
-    return `${y}年${pad2(a.getMonth() + 1)}月${a.getDate()}日 - ${pad2(b.getMonth() + 1)}月${b.getDate()}日`
-  }
-  return `${a.getFullYear()}年${pad2(a.getMonth() + 1)}月${a.getDate()}日 - ${b.getFullYear()}年${pad2(b.getMonth() + 1)}月${b.getDate()}日`
-})
-
 const weekCells = computed((): Cell[] => {
   const out: Cell[] = []
   const tKey = todayKey.value
@@ -114,18 +106,22 @@ const monthTitle = computed(() => `${viewYear.value}年${pad2(viewMonth.value + 
 
 const displayCells = computed(() => (viewMode.value === 'week' ? weekCells.value : cells.value))
 
-const headerTitle = computed(() => (viewMode.value === 'week' ? weekTitle.value : monthTitle.value))
-
-function prevWeek() {
-  const d = new Date(viewWeekAnchor.value)
-  d.setDate(d.getDate() - 7)
-  viewWeekAnchor.value = d
+/** 从月模式回到周模式：始终定位到「今天」所在周 */
+function applyAnchorWhenLeavingMonthView() {
+  const calNow = new Date()
+  viewWeekAnchor.value = new Date(calNow.getFullYear(), calNow.getMonth(), calNow.getDate())
 }
 
-function nextWeek() {
-  const d = new Date(viewWeekAnchor.value)
-  d.setDate(d.getDate() + 7)
-  viewWeekAnchor.value = d
+function toggleViewMode() {
+  if (viewMode.value === 'week') {
+    const w = weekStart.value
+    viewYear.value = w.getFullYear()
+    viewMonth.value = w.getMonth()
+    viewMode.value = 'month'
+  } else {
+    applyAnchorWhenLeavingMonthView()
+    viewMode.value = 'week'
+  }
 }
 
 function prevMonth() {
@@ -146,18 +142,6 @@ function nextMonth() {
   }
 }
 
-function toggleViewMode() {
-  if (viewMode.value === 'week') {
-    const w = weekStart.value
-    viewYear.value = w.getFullYear()
-    viewMonth.value = w.getMonth()
-    viewMode.value = 'month'
-  } else {
-    viewWeekAnchor.value = new Date(viewYear.value, viewMonth.value, 15)
-    viewMode.value = 'week'
-  }
-}
-
 function onSelectCell(cell: Cell) {
   emit('selectDate', cell.dateKey)
 }
@@ -166,10 +150,18 @@ function onSelectCell(cell: Cell) {
 <template>
   <div class="study-calendar">
     <div class="cal-header">
-      <BaseButton type="info" size="small" @click="viewMode === 'week' ? prevWeek() : prevMonth()" aria-label="上一段">
+      <BaseButton v-if="viewMode === 'month'" type="info" size="small" @click="prevMonth" aria-label="上月">
         ‹
       </BaseButton>
-      <div class="cal-title">{{ headerTitle }}</div>
+      <div v-else class="cal-header-lead" aria-hidden="true" />
+
+      <div class="text-lg font-bold">
+        <div v-if="viewMode === 'week'" class="">
+          {{ weekHeaderTitle }}
+        </div>
+        <template v-else>{{ monthTitle }}</template>
+      </div>
+
       <div class="cal-header-actions">
         <BaseButton
           type="info"
@@ -180,7 +172,7 @@ function onSelectCell(cell: Cell) {
         >
           {{ viewMode === 'week' ? '月' : '周' }}
         </BaseButton>
-        <BaseButton type="info" size="small" @click="viewMode === 'week' ? nextWeek() : nextMonth()" aria-label="下一段">
+        <BaseButton v-if="viewMode === 'month'" type="info" size="small" @click="nextMonth" aria-label="下月">
           ›
         </BaseButton>
       </div>
@@ -221,6 +213,11 @@ function onSelectCell(cell: Cell) {
   gap: 8px;
 }
 
+.cal-header-lead {
+  width: 2rem;
+  flex-shrink: 0;
+}
+
 .cal-title {
   flex: 1;
   min-width: 0;
@@ -234,6 +231,7 @@ function onSelectCell(cell: Cell) {
   display: flex;
   align-items: center;
   gap: 4px;
+  flex-shrink: 0;
 }
 
 .cal-toggle {

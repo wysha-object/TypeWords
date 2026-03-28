@@ -33,13 +33,11 @@ export function useEventsByWatch(arrs: any[], watchVal: any) {
   watch(
     watchVal,
     newVal => {
-      console.log('watch', newVal)
       if (newVal) {
         arrs.map(arr => emitter.on(arr[0], arr[1]))
       } else {
         arrs.map(arr => emitter.off(arr[0], arr[1]))
       }
-      console.log('emitter-all', emitter.all)
     },
     {
       immediate: true,

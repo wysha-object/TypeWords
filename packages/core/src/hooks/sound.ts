@@ -116,6 +116,16 @@ export function usePlayWordAudio() {
   return playAudio
 }
 
+function getVoicesAsync() {
+  return new Promise(resolve => {
+    const voices = speechSynthesis.getVoices()
+    if (voices.length) return resolve(voices)
+
+    speechSynthesis.onvoiceschanged = () => {
+      resolve(speechSynthesis.getVoices())
+    }
+  })
+}
 export function useTTsPlayAudio() {
   const settingStore = useSettingStore()
 
@@ -126,11 +136,13 @@ export function useTTsPlayAudio() {
     msg.volume = settingStore.wordSoundVolume / 100
     msg.pitch = 1
     msg.lang = 'en-US'
-    let voiceList = speechSynthesis.getVoices().filter(v => v.lang === 'en-US')
-    if (voiceList && voiceList.length) {
-      msg.voice = voiceList.find(v => v.name.includes('Emma ')) || voiceList[0]
-    }
-    speechSynthesis.speak(msg)
+    getVoicesAsync().then(voices => {
+      let voiceList = voices.filter(v => v.lang === 'en-US')
+      if (voiceList && voiceList.length) {
+        msg.voice = voiceList.find(v => v.name.includes('Emma') || v.name.includes('US')) ?? voiceList[0]
+      }
+      speechSynthesis.speak(msg)
+    })
   }
 
   return play

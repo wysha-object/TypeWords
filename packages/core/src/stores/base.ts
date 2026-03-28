@@ -4,7 +4,7 @@ import { getDefaultDict } from '../types'
 import { _getStudyProgress, checkAndUpgradeSaveDict } from '../utils'
 import { shallowReactive } from 'vue'
 import { get } from 'idb-keyval'
-import { AppEnv, DictId, SAVE_DICT_KEY } from '../config/env'
+import { AppEnv, DictId, IS_DEV, SAVE_DICT_KEY } from '../config/env'
 import { add2MyDict, dictListVersion, myDictList } from '../apis'
 import { Toast } from '@typewords/base'
 import type { Card } from 'ts-fsrs'
@@ -169,7 +169,13 @@ export const useBaseStore = defineStore('base', {
       })
       //必须先 reset, 只 $patch 无法将 state 恢复到默认值
       this.$reset()
-      this.$patch(obj)
+      console.time('$patch')
+      if (IS_DEV) {
+        this.$state = obj
+      } else {
+        this.$patch(obj)
+      }
+      console.timeEnd('$patch')
     },
     async init() {
       return new Promise(async resolve => {

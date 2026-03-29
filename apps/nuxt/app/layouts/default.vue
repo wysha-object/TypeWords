@@ -146,7 +146,7 @@ const showIcon = $computed(() => {
     <IeDialog />
 
     <div class="flex-1 z-1 relative main-content overflow-x-hidden">
-      <div class="mt-3 center relative z-9999" @click="router.push('/setting?index=6 ')" v-if="runtimeStore.isError">
+      <div class="mt-3 center relative z-9999 pointer-events-none" @click="router.push('/setting?index=6 ')" v-if="runtimeStore.isError">
         <ToastComponent type="error" :duration="0" :shadow="false" :showClose="false" message="同步失败" />
       </div>
       <!--      <slot></slot>-->

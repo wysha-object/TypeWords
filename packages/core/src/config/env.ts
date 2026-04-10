@@ -1,7 +1,7 @@
 import { offset } from '@floating-ui/dom'
 import { WordPracticeMode, WordPracticeStage } from '../types'
 //这里合并导入，打包会报错
-import { ShortcutKey } from '../types/enum'
+import { ShortcutKey } from '../types/enum.ts'
 
 export const GITHUB = 'https://github.com/zyronon/TypeWords'
 export const Host = 'typewords.cc'
@@ -19,6 +19,7 @@ const map = {
     // RESOURCE_URL: 'https://dicts.2study.top/',
     // RESOURCE_URL: '/',
     RESOURCE_URL: 'https://files.typewords.cc/',
+    LIBS_URL: 'https://libs.typewords.cc/',
   },
 }
 

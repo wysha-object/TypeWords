@@ -29,5 +29,5 @@ export default defineNuxtPlugin(nuxtApp => {
 
 function reportError(data) {
   console.log('统一上报:', data)
-  window?.umami?.track('global-error', data)
+  window?.umami?.track('global-error', { data })
 }

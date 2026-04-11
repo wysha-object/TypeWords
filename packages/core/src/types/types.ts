@@ -1,5 +1,5 @@
 import { DictType, PracticeArticleWordType } from './enum'
-import type { Card, Rating } from 'ts-fsrs'
+import type { Rating } from 'ts-fsrs'
 import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '../utils/cache'
 import { APP_VERSION } from '../config/env'
 

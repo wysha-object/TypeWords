@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Toast } from '@typewords/base'
-import { useRuntimeStore } from '../stores/runtime.ts'
+import { useRuntimeStore } from '../stores'
 
 export const SUPABASE_CONFIG_KEY = 'supabase_config'
 
@@ -51,6 +51,7 @@ export class Supabase {
   static instance: ReturnType<typeof createClient> | null = null
   static supabaseUrl = ''
   static supabaseKey = ''
+  static errorCount = 0
 
   /** 是否允许执行同步：仅当 config 存在、url/key 有值且 status === 'success' 时返回 true */
   static check(): boolean {
@@ -115,6 +116,13 @@ export class Supabase {
   }
 
   static setStatus(status: SupabaseStatus, statusMessage?: string): void {
+    if (status === 'error') {
+      //如果是请求错误，则可重试3次再报错，因为会有很多误判
+      if ('TypeError: Failed to fetch' === statusMessage && this.errorCount < 3) {
+        this.errorCount++
+        return
+      }
+    }
     const runtimeStore = useRuntimeStore()
     runtimeStore.isError = status === 'error'
     setConfig({ status, statusMessage })

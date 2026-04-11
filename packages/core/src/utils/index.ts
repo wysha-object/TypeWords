@@ -1,12 +1,20 @@
-import type { BaseState } from '../stores/base'
-import { getDefaultBaseState, useBaseStore } from '../stores/base'
-import type { SettingState } from '../stores/setting'
-import { getDefaultSettingState } from '../stores/setting'
-import type { DictResource } from '../types'
-import { CompareResult, Dict, DictType, getDefaultDict, getDefaultWord, ShortcutKey } from '../types'
+import type { BaseState, SettingState } from '../stores'
+import { getDefaultBaseState, getDefaultSettingState, useBaseStore, useRuntimeStore } from '../stores'
+import {
+  CompareResult,
+  Dict,
+  DictResource,
+  DictType,
+  getDefaultDict,
+  getDefaultWord,
+  SaveData,
+  ShortcutKey,
+} from '../types'
 import { useRouter } from 'vue-router'
-import { useRuntimeStore } from '../stores/runtime'
+//@ts-ignore
 import dayjs from 'dayjs'
+//@ts-ignore
+import duration from 'dayjs/plugin/duration'
 import {
   APP_VERSION,
   AppEnv,
@@ -19,7 +27,6 @@ import {
 } from '../config/env'
 import { nextTick } from 'vue'
 import { Toast } from '@typewords/base'
-import duration from 'dayjs/plugin/duration'
 import { get } from 'idb-keyval'
 import { saveHashSnapshot } from '../composables/useDataSyncPersistence'
 
@@ -111,6 +118,13 @@ export async function checkAndUpgradeSaveDict(val: any) {
     }
   }
   return defaultState
+}
+
+// 带版本、时间，用于同步时附带，这样不用再保存到本地一次
+export async function parseJsonStr(val: any, cb: any): Promise<SaveData> {
+  let result: SaveData = JSON.parse(val)
+  result.val = await cb(result)
+  return result
 }
 
 export async function checkAndUpgradeSaveSetting(val: any) {
@@ -211,6 +225,7 @@ export function shakeCommonDict(n: BaseState): BaseState {
 }
 
 export function isMobile(): boolean {
+  //@ts-ignore
   if (import.meta.server) return false
   return /Mobi|iPhone|Android|ipad|tablet/i.test(window.navigator.userAgent)
 }

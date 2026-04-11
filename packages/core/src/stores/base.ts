@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
-import type { Dict, Word } from '../types'
-import { getDefaultDict } from '../types'
-import { _getStudyProgress, checkAndUpgradeSaveDict } from '../utils'
+import { Dict, getDefaultDict, SaveData, Word } from '../types'
+import { _getStudyProgress, checkAndUpgradeSaveDict, parseJsonStr } from '../utils'
 import { shallowReactive } from 'vue'
 import { get } from 'idb-keyval'
 import { AppEnv, DictId, IS_DEV, SAVE_DICT_KEY } from '../config/env'
@@ -177,33 +176,34 @@ export const useBaseStore = defineStore('base', {
       }
       console.timeEnd('$patch')
     },
-    async init() {
+    async init(): Promise<SaveData | null> {
       return new Promise(async resolve => {
         try {
           let configStr: string = await get(SAVE_DICT_KEY.key)
-          let data = await checkAndUpgradeSaveDict(configStr)
+          let result = await parseJsonStr(configStr, checkAndUpgradeSaveDict)
           if (AppEnv.IS_OFFICIAL) {
             let r = await dictListVersion()
             if (r.success) {
-              data.dictListVersion = r.data
+              result.val.dictListVersion = r.data
             }
           }
           if (AppEnv.CAN_REQUEST) {
             let res = await myDictList()
             if (res.success) {
               //只保留未同步的
-              data.word.bookList = data.word.bookList.filter(v => !v.sync)
-              data.article.bookList = data.article.bookList.filter(v => !v.sync)
+              result.val.word.bookList = result.val.word.bookList.filter(v => !v.sync)
+              result.val.article.bookList = result.val.article.bookList.filter(v => !v.sync)
               //这里看看是否要 shallowReactive
-              Object.assign(data, res.data)
+              Object.assign(result.val, res.data)
             }
           }
           // console.log('data', data)
-          this.setState(data)
+          this.setState(result.val)
+          resolve(result)
         } catch (e) {
           console.error('读取本地dict数据失败', e)
+          resolve(null)
         }
-        resolve(true)
       })
     },
     //改变词典

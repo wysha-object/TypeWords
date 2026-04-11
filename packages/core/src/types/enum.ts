@@ -125,3 +125,10 @@ export enum IdentifyMethod {
   // 单词测试
   WordTest = 1,
 }
+
+export enum SyncDataType {
+  dict = 'dict',
+  setting = 'setting',
+  practice_word = 'practice_word',
+  practice_article = 'practice_article',
+}

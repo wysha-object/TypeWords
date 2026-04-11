@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import { checkAndUpgradeSaveSetting, cloneDeep } from '../utils'
+import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, parseJsonStr } from '../utils'
 import { get, set } from 'idb-keyval'
 import { APP_VERSION, AppEnv, DefaultShortcutKeyMap, SAVE_SETTING_KEY } from '../config/env'
 import { getSetting } from '../apis'
-import { IdentifyMethod, WordPracticeMode, WordPracticeType } from '../types'
+import { IdentifyMethod, SaveData, WordPracticeMode, WordPracticeType } from '../types'
 import type { FSRSParameters } from 'ts-fsrs'
 
 export interface SettingState {
@@ -154,34 +154,32 @@ export const useSettingStore = defineStore('setting', {
     setState(obj: any) {
       this.$patch(obj)
     },
-    init() {
+    async init(): Promise<SaveData | null> {
       return new Promise(async resolve => {
-        let configStr = await get(SAVE_SETTING_KEY.key)
-        let data = await checkAndUpgradeSaveSetting(configStr)
+        try {
+          let configStr = await get(SAVE_SETTING_KEY.key)
+          let result = await parseJsonStr(configStr, checkAndUpgradeSaveSetting)
 
-        //如果升级了，那么要保持本地比线上新，不然会被覆盖
-        const shouldRefreshUpdatedAt = (data as any)?.__updateLocalData ?? false
-        delete (data as any)?.__updateLocalData
-        if (shouldRefreshUpdatedAt) {
-          await set(
-            SAVE_SETTING_KEY.key,
-            JSON.stringify({
-              val: data,
-              version: SAVE_SETTING_KEY.version,
-              updated_at: new Date().toISOString(),
-            })
-          )
-        }
-
-        if (AppEnv.CAN_REQUEST) {
-          let res = await getSetting()
-          if (res.success) {
-            Object.assign(data, res.data)
+          //如果升级了，那么要保持本地比线上新，不然会被覆盖
+          const shouldRefreshUpdatedAt = (result.val as any)?.__updateLocalData ?? false
+          delete (result.val as any)?.__updateLocalData
+          if (shouldRefreshUpdatedAt) {
+            await set(SAVE_SETTING_KEY.key, JSON.stringify(result))
           }
-        }
 
-        this.setState({ ...data, load: true })
-        resolve(true)
+          if (AppEnv.CAN_REQUEST) {
+            let res = await getSetting()
+            if (res.success) {
+              Object.assign(result.val, res.data)
+            }
+          }
+
+          this.setState({ ...result.val, load: true })
+          resolve(result)
+        } catch (e) {
+          console.error('读取本地设置数据失败', e)
+          resolve(null)
+        }
       })
     },
   },

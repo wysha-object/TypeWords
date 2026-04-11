@@ -1,8 +1,8 @@
 import {
+  _getDictDataByUrl,
   checkAndUpgradeSaveDict,
   checkAndUpgradeSaveSetting,
   shakeCommonDict,
-  _getDictDataByUrl,
   shouldFetchRemote,
 } from '../utils'
 import {
@@ -12,19 +12,25 @@ import {
   getPracticeWordCacheLocalWithMeta,
   PRACTICE_ARTICLE_CACHE,
   PRACTICE_WORD_CACHE,
-  setPracticeArticleCacheLocal,
-  setPracticeWordCacheLocal,
   type PracticeArticleCache,
   type PracticeWordCacheStored,
+  setPracticeArticleCacheLocal,
+  setPracticeWordCacheLocal,
 } from '../utils/cache'
-import { BACKUP_INDEX_KEY, BACKUP_KEY, SAVE_DICT_KEY, SAVE_SETTING_KEY, WEBSITE_VERSION_HASH } from '../config/env'
-import { getDefaultBaseState, useBaseStore } from '../stores/base'
-import { useSettingStore } from '../stores/setting'
-import { DictType, CompareResult, SaveData, BackupData, Snapshot } from '../types'
+import {
+  BACKUP_INDEX_KEY,
+  BACKUP_KEY,
+  DictId,
+  LOCAL_FILE_KEY,
+  SAVE_DICT_KEY,
+  SAVE_SETTING_KEY,
+  WEBSITE_VERSION_HASH,
+} from '../config/env'
+import { type BaseState, useBaseStore, useRuntimeStore, useSettingStore } from '../stores'
+import { BackupData, CompareResult, DictType, Snapshot } from '../types'
 import { Supabase } from '../utils/supabase'
 import { del, get, set } from 'idb-keyval'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { useRuntimeStore } from '../stores/runtime'
 
 export type SyncType = 'dict' | 'setting' | 'practice_word' | 'practice_article'
 
@@ -46,6 +52,7 @@ type LocalPersistMeta = {
 type SaveLocalAndSyncOptions = {
   client?: SupabaseClient | null
   pullWhenRemoteNewer?: boolean
+  canSyncRemote?: boolean
 }
 
 const ALL_SYNC_TYPES: SyncType[] = ['dict', 'setting', 'practice_word', 'practice_article']
@@ -163,11 +170,14 @@ async function fetchServerData(type: SyncType, client?: SupabaseClient | null): 
 
 async function compareResultByType(
   type: SyncType,
-  remoteMetaMap: Map<SyncType, RemoteMetaRow>
+  remoteMetaMap: Map<SyncType, RemoteMetaRow>,
+  localMeta?: LocalPersistMeta
 ): Promise<CompareResult> {
   const remoteMeta = remoteMetaMap.get(type)
   if (!remoteMeta) return CompareResult.NoRemote
-  const localMeta = await getLocalPersistMeta(type)
+  if (localMeta == null) {
+    localMeta = await getLocalPersistMeta(type)
+  }
   if (!localMeta) {
     if (remoteMeta.data_version == null) {
       return CompareResult.NoRemote
@@ -220,6 +230,7 @@ async function applyRemoteDataByType(
       val: row.data,
       version: row.data_version,
     })
+    normalized.load = true
     settingStore.setState(normalized)
     await persistLocalState('setting', normalized, row.updated_at ?? now)
     return
@@ -229,6 +240,7 @@ async function applyRemoteDataByType(
       val: row.data,
       version: row.data_version,
     })
+    normalized.load = true
     applyDictData(store, normalized)
     await persistLocalState('dict', normalized, row.updated_at ?? now)
     return
@@ -266,7 +278,7 @@ export async function ensureHashGuardBeforeInit() {
   }
 }
 
-export async function saveHashSnapshot(currentHash: string, previousHash: string | null): Promise<void> {
+export async function saveHashSnapshot(currentHash: string, previousHash: string | null): Promise<boolean> {
   const backupKey = `${BACKUP_KEY}${currentHash}`
   const createdAt = Date.now()
 
@@ -342,36 +354,71 @@ export function useDataSyncPersistence() {
     }
   }
 
+  async function syncData(types) {
+    const remoteMetas = await fetchServerMeta(types)
+    if (!remoteMetas) return CompareResult.NoRemote
+
+    // const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
+    // const compareResult = await compareResultByType(type, remoteMetaMap, localMeta)
+    // console.log('syncData-compareResult', CompareResult[compareResult], type, pullWhenRemoteNewer)
+    // if (compareResult === CompareResult.RemoteNewer) {
+    //   const remoteData = await fetchServerData(type, options?.client)
+    //   if (remoteData) {
+    //     await applyRemoteDataByType(type, remoteData, store, settingStore)
+    //   }
+    // }
+    // if (Supabase.getStatus().status !== 'error') {
+    //   Supabase.setStatus('success')
+    // }
+    //
+    // const pullWhenRemoteNewer = options?.pullWhenRemoteNewer !== false
+    // if (pullWhenRemoteNewer) {
+    //
+    //   return compareResult
+    // } else {
+    //   console.log('saveLocalAndSync-强制上传')
+    //   let res = await upsertServerData(type, data, updated_at, options?.client)
+    //   if (res && Supabase.getStatus()?.status !== 'error') {
+    //     Supabase.setStatus('success')
+    //   }
+    // }
+  }
+
   async function saveLocalAndSync(
     type: SyncType,
     data: unknown,
     options?: SaveLocalAndSyncOptions
   ): Promise<CompareResult> {
     const updated_at = new Date().toISOString()
-    const pullWhenRemoteNewer = options?.pullWhenRemoteNewer !== false
+    let localMeta = await getLocalPersistMeta(type)
+    await persistLocalState(type, data, updated_at)
+
+    const canSyncRemote = options?.canSyncRemote !== false
+    if (!canSyncRemote) return CompareResult.NoRemote
     const remoteMetas = await fetchServerMeta([type], options?.client)
-    if (!remoteMetas) {
-      await persistLocalState(type, data, updated_at)
-      return CompareResult.NoRemote
-    }
-    const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
-    const compareResult = await compareResultByType(type, remoteMetaMap)
-    console.log('saveLocalAndSync-compareResult', CompareResult[compareResult], type)
-    if (compareResult === CompareResult.RemoteNewer) {
-      if (pullWhenRemoteNewer) {
+    if (!remoteMetas) return CompareResult.NoRemote
+    const pullWhenRemoteNewer = options?.pullWhenRemoteNewer !== false
+    if (pullWhenRemoteNewer) {
+      const remoteMetaMap = new Map(remoteMetas.map(item => [item.type, item]))
+      const compareResult = await compareResultByType(type, remoteMetaMap, localMeta)
+      console.log('saveLocalAndSync-compareResult', CompareResult[compareResult], type, pullWhenRemoteNewer)
+      if (compareResult === CompareResult.RemoteNewer) {
         const remoteData = await fetchServerData(type, options?.client)
         if (remoteData) {
           await applyRemoteDataByType(type, remoteData, store, settingStore)
         }
       }
+      if (Supabase.getStatus().status !== 'error') {
+        Supabase.setStatus('success')
+      }
       return compareResult
+    } else {
+      console.log('saveLocalAndSync-强制上传')
+      let res = await upsertServerData(type, data, updated_at, options?.client)
+      if (res && Supabase.getStatus()?.status !== 'error') {
+        Supabase.setStatus('success')
+      }
     }
-    await persistLocalState(type, data, updated_at)
-    await upsertServerData(type, data, updated_at, options?.client)
-    if (Supabase.getStatus().status !== 'error') {
-      Supabase.setStatus('success')
-    }
-    return compareResult
   }
 
   async function forcePushLocalDataToRemote(data: BackupData['val'], client?: SupabaseClient | null): Promise<boolean> {
@@ -441,6 +488,47 @@ export function useDataSyncPersistence() {
     }
   }
 
+  async function prepareDictState(
+    state: BaseState = store.$state
+  ): Promise<{ data: BaseState; canSyncRemote: boolean }> {
+    const data = shakeCommonDict(state)
+    const bookList = data.article.bookList.filter(v => v.custom || [DictId.articleCollect].includes(v.id))
+    const audioFileIdList: string[] = []
+
+    bookList.forEach(v => {
+      v.articles
+        .filter(s => !s.audioSrc && s.audioFileId)
+        .forEach(a => {
+          audioFileIdList.push(a.audioFileId)
+        })
+    })
+
+    if (audioFileIdList.length) {
+      const result: Array<{ id: string; file: Blob }> = []
+      const fileList = (await get(LOCAL_FILE_KEY)) as Array<{ id: string; file: Blob }> | undefined
+      const files = fileList ?? []
+      audioFileIdList.forEach(id => {
+        const item = files.find(file => file.id === id)
+        item && result.push(item)
+      })
+      await set(LOCAL_FILE_KEY, result)
+      if (Supabase.check()) {
+        Supabase.setStatus('error', '检测到自定义文章里面有自定义音频，无法使用同步功能')
+      }
+      return { data, canSyncRemote: false }
+    }
+
+    return { data, canSyncRemote: true }
+  }
+
+  async function saveDictState(
+    state: BaseState = store.$state,
+    options?: SaveLocalAndSyncOptions
+  ): Promise<CompareResult> {
+    const { data, canSyncRemote } = await prepareDictState(state)
+    return saveLocalAndSync('dict', data, { ...options, canSyncRemote })
+  }
+
   function getLocalCompactDataByType(type: SyncType): unknown {
     if (type === 'practice_word') return getPracticeWordCacheLocal()
     if (type === 'practice_article') return getPracticeArticleCacheLocal()
@@ -452,6 +540,7 @@ export function useDataSyncPersistence() {
     pullIfRemoteNewer,
     pullRemoteIfNewer,
     saveLocalAndSync,
+    saveDictState,
     forcePushLocalDataToRemote,
     pullAllRemoteToLocal,
     getLocalCompactDataByType,

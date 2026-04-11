@@ -6,10 +6,7 @@ import type {
   PracticeWordCacheCompact,
   PracticeWordCacheStored,
 } from '../utils/cache'
-import {
-  getPracticeArticleCacheLocal,
-  getPracticeWordCacheLocal,
-} from '../utils/cache'
+import { getPracticeArticleCacheLocal, getPracticeWordCacheLocal } from '../utils/cache'
 import { useDataSyncPersistence } from './useDataSyncPersistence'
 
 function isCompactPracticeWordCache(data: PracticeWordCacheStored | null): data is PracticeWordCacheCompact {
@@ -99,7 +96,7 @@ export function usePracticeWordPersistence() {
   }
 
   async function clear() {
-    await dataSync.saveLocalAndSync('practice_word', null)
+    await dataSync.saveLocalAndSync('practice_word', null, { pullWhenRemoteNewer: false })
   }
 
   return { load, save, clear, fetch, getLocalDataCompact }

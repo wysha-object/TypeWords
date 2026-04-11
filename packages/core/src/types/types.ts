@@ -169,7 +169,7 @@ export interface Snapshot {
   meta: {
     currentHash: string
     previousHash: string
-    createdAt: string
+    createdAt: number
   }
   data: {
     dict: string

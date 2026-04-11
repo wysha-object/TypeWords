@@ -238,18 +238,18 @@ export function _dateFormat(val: any, format: string = 'YYYY/MM/DD HH:mm'): stri
   return dayjs(d).format(format)
 }
 
-export function msToHourMinute(ms: number) {
+export function msToHourMinute(ms: number, en: boolean = false) {
   const d = dayjs.duration(ms)
   const totalMinutes = Math.floor(d.asMinutes())
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-  if (hours) return `${hours}小时${minutes}分钟`
-  if (minutes) return `${minutes}分钟`
+  if (hours) return `${hours}${en ? 'h' : '小时'}${minutes}${en ? 'm' : '分钟'}`
+  if (minutes) return `${minutes}${en ? 'm' : '分钟'}`
   return `${Math.floor(d.asSeconds())}秒`
 }
 
-export function msToMinute(ms) {
-  return `${Math.floor(dayjs.duration(ms).asMinutes())}分钟`
+export function msToMinute(ms, en: boolean = false) {
+  return `${Math.floor(dayjs.duration(ms).asMinutes())}${en ? 'm' : '分钟'}`
 }
 
 //获取完成天数

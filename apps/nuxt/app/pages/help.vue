@@ -25,6 +25,17 @@ useSeoMeta({
       <div class="card-white qa w-2/3">
         <div class="font-bold text-2xl mb-6">{{ $t('faq') }}</div>
         <div class="list">
+          <Collapse
+            q="数据丢失/被清空/不在了"
+            :a="[
+              'C盘如果被占满了，是无法保存数据的',
+              '无痕模式无法保存数据，关闭浏览器之后数据就没了',
+              '开户了“自动清除历史记录”选项也无法保存数据，关闭浏览器之后数据就没了',
+            ]"
+          >
+          </Collapse>
+
+          <div class="line"></div>
           <Collapse :q="$t('qa2_a')">
             <ConflictNoticeText type="keyboard" />
           </Collapse>

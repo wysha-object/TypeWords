@@ -37,9 +37,10 @@ import ConflictNotice from '@typewords/core/components/dialog/ConflictNotice.vue
 import PracticeLayout from '@typewords/core/components/PracticeLayout.vue'
 import { AppEnv, DICT_LIST, LIB_JS_URL, TourConfig, WordPracticeModeStageMap } from '@typewords/core/config/env.ts'
 import { watchOnce } from '@vueuse/core'
-import { setUserDictProp } from '@typewords/core/apis'
+import { addStat, setUserDictProp } from '@typewords/core/apis'
 import GroupList from '@typewords/core/components/word/GroupList.vue'
 import { getPracticeWordCacheLocal } from '@typewords/core/utils/cache.ts'
+import { useDataSyncPersistence } from '@typewords/core/composables/useDataSyncPersistence'
 import { usePracticeWordPersistence } from '@typewords/core/composables/usePracticePersistence'
 import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@typewords/core/types/enum.ts'
 import ConflictNotice2 from '@typewords/core/components/dialog/ConflictNotice2.vue'
@@ -56,6 +57,7 @@ const router = useRouter()
 const route = useRoute()
 const store = useBaseStore()
 const statStore = usePracticeStore()
+const dataSync = useDataSyncPersistence()
 const wordPersistence = usePracticeWordPersistence()
 let { getGradeByWrongTimes } = useGetGradeByWrongTimes()
 let { nextCard } = useNextCard()
@@ -64,6 +66,7 @@ let showConflictNotice = $ref(false)
 let showConflictNotice2 = $ref(false)
 let isComplete = $ref(false)
 let loading = $ref(false)
+let settling = $ref(false)
 let timer = $ref<any>(-1)
 /** 仅用于 visibilitychange 内 fetch：与 `!document.hidden` 一致 */
 let isFocus = true
@@ -182,6 +185,7 @@ const onvisibilitychange = async () => {
     if (runtimeStore.globalLoading) return
     runtimeStore.globalLoading = true
     try {
+      //todo 这里如果另一台机器学完了，这里的d可能为空
       const d = await wordPersistence.fetch()
       if (d) {
         taskWords = Object.assign(taskWords, d.taskWords)
@@ -263,7 +267,6 @@ let allWords: Word[]
 
 let isIniting = ref(true)
 async function initData(initVal?: TaskWords, init: boolean = false) {
-  console.log('initData')
   isIniting.value = true
   //只有初始化时，才读取缓存（本地 + 可选 Supabase）
   if (init) {
@@ -279,11 +282,13 @@ async function initData(initVal?: TaskWords, init: boolean = false) {
       initData(d.taskWords)
       return
     }
+    console.log('initData')
     taskWords = Object.assign(taskWords, d.taskWords)
     //这里直接赋值的话，provide后的inject获取不到最新值
     data = getDefaultPracticeData(data, d.practiceData)
     statStore.$patch(d.statStoreData)
   } else {
+    console.log('initData')
     // taskWords = initVal
     //不能直接赋值，会导致 inject 的数据为默认值
     taskWords = Object.assign(taskWords, initVal)
@@ -361,6 +366,7 @@ async function initData(initVal?: TaskWords, init: boolean = false) {
     statStore.spend += 1000
   }, 1000)
   isIniting.value = false
+  settling = isComplete = false
 }
 
 const word = $computed<Word>(() => {
@@ -458,9 +464,14 @@ function nextStage(originList: Word[], log: string = '', toast: boolean = false)
   }
 }
 
-function complete() {
+async function complete() {
   if (!isComplete) {
+    let start = Date.now()
     console.log('全完学完了')
+    isComplete = true
+    settling = true
+    runtimeStore.globalLoading = true
+    clearInterval(timer)
 
     //如果 shuffle 数组不为空，就说明是复习，不用修改 lastLearnIndex
     if (settingStore.wordPracticeMode !== WordPracticeMode.Shuffle) {
@@ -478,22 +489,57 @@ function complete() {
       }
     }
 
-    //用异步，不然会很卡，因为要设置很多卡片
-    setTimeout(() => {
-      for (const [word, wrongTimes] of Object.entries(data.wrongTimesMap)) {
-        let rating = data.ratingMap[word]
-        if (rating !== undefined) {
-          setWordCard(rating, word)
-        } else {
-          // 则根据错误次数生成评级
-          setWordCard(getGradeByWrongTimes(wrongTimes), word, wrongTimes)
-        }
-      }
-    })
+    let statistics = {
+      spend: statStore.spend,
+      //不需要修正计时，startDate+spend!=Date.now()对不止是正常的，因为会暂停
+      startDate: statStore.startDate,
+      total: statStore.total,
+      wrong: statStore.wrong,
+      new: statStore.newWordNumber,
+      review: statStore.reviewWordNumber,
+    }
+    store.sdict.statistics.push(statistics)
 
-    clearInterval(timer)
-    setTimeout(() => wordPersistence.clear(), 300)
-    isComplete = true
+    for (const [word, wrongTimes] of Object.entries(data.wrongTimesMap)) {
+      let rating = data.ratingMap[word]
+      if (rating !== undefined) {
+        setWordCard(rating, word)
+      } else {
+        // 则根据错误次数生成评级
+        setWordCard(getGradeByWrongTimes(wrongTimes), word, wrongTimes)
+      }
+    }
+
+    if (AppEnv.CAN_REQUEST) {
+      let res = await addStat({
+        ...data,
+        type: 'word',
+        perDayStudyNumber: store.sdict.perDayStudyNumber,
+        lastLearnIndex: store.sdict.lastLearnIndex,
+        complete: store.sdict.complete,
+      })
+      if (!res.success) {
+        Toast.error(res.msg)
+      }
+    }
+
+    await dataSync.saveDictState(store.$state, { pullWhenRemoteNewer: false })
+    await wordPersistence.clear()
+
+    let trackData = {
+      funSpend: Date.now() - start,
+      name: store.sdict.name,
+      spend: Number(statStore.spend / 1000 / 60).toFixed(1),
+      index: store.sdict.lastLearnIndex,
+      per: store.sdict.perDayStudyNumber,
+      custom: store.sdict.custom,
+      complete: store.sdict.complete,
+      str: '',
+    }
+    trackData.str = `name:${trackData.name},per:${trackData.per},spend:${trackData.spend},index:${trackData.index},funSpend:${trackData.funSpend}`
+    window.umami?.track('endStudyWord', trackData)
+    settling = false
+    runtimeStore.globalLoading = false
   }
 }
 
@@ -787,7 +833,6 @@ async function continueStudy() {
       0,
       runtimeStore.routeData.total ?? temp.review.length
     )
-    if (isComplete) isComplete = false
   } else {
     //这里判断是否显示结算弹框，如果显示了结算弹框的话，就不用加进度了
     if (!isComplete) {
@@ -802,7 +847,6 @@ async function continueStudy() {
       }
     } else {
       console.log('学完了，正常下一组')
-      isComplete = false
     }
 
     temp = getCurrentStudyWord()
@@ -1035,7 +1079,7 @@ useEvents([
       <Footer @skipStep="skipStep" />
     </template>
   </PracticeLayout>
-  <Statistics v-model="isComplete" />
+  <Statistics v-model="isComplete" :loading="settling" />
   <ConflictNotice v-if="showConflictNotice" />
   <ConflictNotice2 v-model="showConflictNotice2" />
 </template>

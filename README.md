@@ -25,7 +25,7 @@
 
 ## Online Access
 
-[https://typewords.cc](https://typewords.cc)
+<https://typewords.cc>
 
 <img width="1920" height="1440" alt="practice words" src="/apps/nuxt/public/imgs/words.png" />
 <img width="1920" height="1440" alt="practice articles" src="/apps/nuxt/public/imgs/articles.png" />
@@ -131,4 +131,3 @@ If you're interested in this project, we welcome your contributions and will pro
 Before contributing, please communicate with the developers to avoid code conflicts.
 
 Thank you again for your contributions!
-

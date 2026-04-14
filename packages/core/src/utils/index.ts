@@ -1,12 +1,20 @@
-import type { BaseState } from '../stores/base'
-import { getDefaultBaseState, useBaseStore } from '../stores/base'
-import type { SettingState } from '../stores/setting'
-import { getDefaultSettingState } from '../stores/setting'
-import type { DictResource } from '../types'
-import { CompareResult, Dict, DictType, getDefaultDict, getDefaultWord, ShortcutKey } from '../types'
+import type { BaseState, SettingState } from '../stores'
+import { getDefaultBaseState, getDefaultSettingState, useBaseStore, useRuntimeStore } from '../stores'
+import {
+  CompareResult,
+  Dict,
+  DictResource,
+  DictType,
+  getDefaultDict,
+  getDefaultWord,
+  SaveData,
+  ShortcutKey,
+} from '../types'
 import { useRouter } from 'vue-router'
-import { useRuntimeStore } from '../stores/runtime'
+//@ts-ignore
 import dayjs from 'dayjs'
+//@ts-ignore
+import duration from 'dayjs/plugin/duration'
 import {
   APP_VERSION,
   AppEnv,
@@ -19,7 +27,6 @@ import {
 } from '../config/env'
 import { nextTick } from 'vue'
 import { Toast } from '@typewords/base'
-import duration from 'dayjs/plugin/duration'
 import { get } from 'idb-keyval'
 import { saveHashSnapshot } from '../composables/useDataSyncPersistence'
 import { withAppBaseURL } from './base-url'
@@ -112,6 +119,13 @@ export async function checkAndUpgradeSaveDict(val: any) {
     }
   }
   return defaultState
+}
+
+// 带版本、时间，用于同步时附带，这样不用再保存到本地一次
+export async function parseJsonStr(val: any, cb: any): Promise<SaveData> {
+  let result: SaveData = JSON.parse(val)
+  result.val = await cb(result)
+  return result
 }
 
 export async function checkAndUpgradeSaveSetting(val: any) {
@@ -212,6 +226,7 @@ export function shakeCommonDict(n: BaseState): BaseState {
 }
 
 export function isMobile(): boolean {
+  //@ts-ignore
   if (import.meta.server) return false
   return /Mobi|iPhone|Android|ipad|tablet/i.test(window.navigator.userAgent)
 }
@@ -239,18 +254,18 @@ export function _dateFormat(val: any, format: string = 'YYYY/MM/DD HH:mm'): stri
   return dayjs(d).format(format)
 }
 
-export function msToHourMinute(ms: number) {
+export function msToHourMinute(ms: number, en: boolean = false) {
   const d = dayjs.duration(ms)
   const totalMinutes = Math.floor(d.asMinutes())
   const hours = Math.floor(totalMinutes / 60)
   const minutes = totalMinutes % 60
-  if (hours) return `${hours}小时${minutes}分钟`
-  if (minutes) return `${minutes}分钟`
+  if (hours) return `${hours}${en ? 'h' : '小时'}${minutes}${en ? 'm' : '分钟'}`
+  if (minutes) return `${minutes}${en ? 'm' : '分钟'}`
   return `${Math.floor(d.asSeconds())}秒`
 }
 
-export function msToMinute(ms) {
-  return `${Math.floor(dayjs.duration(ms).asMinutes())}分钟`
+export function msToMinute(ms, en: boolean = false) {
+  return `${Math.floor(dayjs.duration(ms).asMinutes())}${en ? 'm' : '分钟'}`
 }
 
 //获取完成天数

@@ -1,15 +1,12 @@
-import { useBaseStore } from '../stores/base.ts'
-import type { PracticeData, TaskWords, Word } from '../types'
+import { useBaseStore } from '../stores'
+import { PracticeData, SyncDataType, TaskWords, Word } from '../types'
 import type {
   PracticeArticleCache,
   PracticeWordCache,
   PracticeWordCacheCompact,
   PracticeWordCacheStored,
 } from '../utils/cache'
-import {
-  getPracticeArticleCacheLocal,
-  getPracticeWordCacheLocal,
-} from '../utils/cache'
+import { getPracticeArticleCacheLocal, getPracticeWordCacheLocal } from '../utils/cache'
 import { useDataSyncPersistence } from './useDataSyncPersistence'
 
 function isCompactPracticeWordCache(data: PracticeWordCacheStored | null): data is PracticeWordCacheCompact {
@@ -81,7 +78,7 @@ export function usePracticeWordPersistence() {
   }
 
   async function fetch(): Promise<PracticeWordCache | null> {
-    const remote = await dataSync.pullIfRemoteNewer('practice_word')
+    const remote = await dataSync.pullIfRemoteNewer(SyncDataType.practice_word)
     if (remote) {
       const remoteData = remote?.data as PracticeWordCacheStored
       return restorePracticeWordCache(remoteData)
@@ -95,11 +92,11 @@ export function usePracticeWordPersistence() {
 
   async function save(data: PracticeWordCache | null) {
     const compactData = serializePracticeWordCache(data)
-    await dataSync.saveLocalAndSync('practice_word', compactData)
+    await dataSync.saveLocalAndSync(SyncDataType.practice_word, compactData)
   }
 
   async function clear() {
-    await dataSync.saveLocalAndSync('practice_word', null)
+    await dataSync.saveLocalAndSync(SyncDataType.practice_word, null, { pullWhenRemoteNewer: false })
   }
 
   return { load, save, clear, fetch, getLocalDataCompact }
@@ -118,7 +115,7 @@ export function usePracticeArticlePersistence() {
   }
 
   async function fetch(): Promise<PracticeArticleCache | null> {
-    const remote = await dataSync.pullIfRemoteNewer('practice_article')
+    const remote = await dataSync.pullIfRemoteNewer(SyncDataType.practice_article)
     if (remote) {
       const remoteData = remote?.data as PracticeArticleCache
       return remoteData
@@ -127,11 +124,11 @@ export function usePracticeArticlePersistence() {
   }
 
   async function save(data: PracticeArticleCache | null): Promise<void> {
-    await dataSync.saveLocalAndSync('practice_article', data ?? null)
+    await dataSync.saveLocalAndSync(SyncDataType.practice_article, data ?? null)
   }
 
   async function clear() {
-    await dataSync.saveLocalAndSync('practice_article', null)
+    await dataSync.saveLocalAndSync(SyncDataType.practice_article, null)
   }
 
   return { load, save, clear, fetch, getLocalDataCompact }

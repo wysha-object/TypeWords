@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useBaseStore } from '../../stores/base.ts'
-import { BaseButton, Progress, Toast } from '@typewords/base'
-import type { PracticeData, Statistics, TaskWords } from '../../types'
-import { useEvents, emitter, EventKey } from '../../utils/eventBus'
+import { BaseButton, Loading, Progress } from '@typewords/base'
+import type { PracticeData } from '../../types'
+import { ShortcutKey, WordPracticeMode } from '../../types'
+import { emitter, EventKey, useEvents } from '../../utils/eventBus'
 import { useSettingStore } from '../../stores/setting.ts'
 import { usePracticeStore } from '../../stores/practice.ts'
 import dayjs from 'dayjs'
@@ -11,22 +12,21 @@ import { defineAsyncComponent, inject, watch } from 'vue'
 import isoWeek from 'dayjs/plugin/isoWeek'
 import { msToHourMinute } from '../../utils'
 import ChannelIcons from '../channel-icons/ChannelIcons.vue'
-import { AppEnv } from '../../config/env.ts'
-import { addStat } from '../../apis'
-import { ShortcutKey, WordPracticeMode } from '../../types'
 import { useI18n } from 'vue-i18n'
 
 dayjs.extend(isoWeek)
-const { t: $t } = useI18n()
 dayjs.extend(isBetween)
+const { t: $t } = useI18n()
 const Dialog = defineAsyncComponent(() => import('@typewords/base/Dialog'))
 
+const props = defineProps({
+  loading: Boolean,
+})
 const store = useBaseStore()
 const settingStore = useSettingStore()
 const statStore = usePracticeStore()
 const model = defineModel({ default: false })
 let list = $ref([])
-let dictIsEnd = $ref(false)
 let practiceData = inject<PracticeData>('practiceData')
 
 function calcWeekList() {
@@ -54,45 +54,10 @@ function calcWeekList() {
 }
 
 // 监听 model 弹窗打开时重新计算
-watch(model, async newVal => {
-  if (newVal) {
-    dictIsEnd = false
-    let data: Statistics = {
-      spend: statStore.spend,
-      //不需要修正计时，startDate+spend!=Date.now()对不止是正常的，因为会暂停
-      startDate: statStore.startDate,
-      total: statStore.total,
-      wrong: statStore.wrong,
-      new: statStore.newWordNumber,
-      review: statStore.reviewWordNumber,
-    }
-    window.umami?.track('endStudyWord', {
-      name: store.sdict.name,
-      spend: Number(statStore.spend / 1000 / 60).toFixed(1),
-      index: store.sdict.lastLearnIndex,
-      perDayStudyNumber: store.sdict.perDayStudyNumber,
-      custom: store.sdict.custom,
-      complete: store.sdict.complete,
-      str: `name:${store.sdict.name},per:${store.sdict.perDayStudyNumber},spend:${Number(statStore.spend / 1000 / 60).toFixed(1)},index:${store.sdict.lastLearnIndex}`,
-    })
-
-    dictIsEnd = store.sdict.complete
-
-    if (AppEnv.CAN_REQUEST) {
-      let res = await addStat({
-        ...data,
-        type: 'word',
-        perDayStudyNumber: store.sdict.perDayStudyNumber,
-        lastLearnIndex: store.sdict.lastLearnIndex,
-        complete: store.sdict.complete,
-      })
-      if (!res.success) {
-        Toast.error(res.msg)
-      }
-    }
-
-    store.sdict.statistics.push(data as any)
-    calcWeekList() // 新增：计算本周学习记录
+watch([model, () => props.loading], async newVal => {
+  if (newVal && !props.loading) {
+    console.log('计算本周学习记录')
+    calcWeekList() // 计算本周学习记录
   }
 })
 
@@ -130,19 +95,11 @@ const encouragementText = $computed(() => {
   if (rate >= 70) return '💪 ' + $t('encouragement_70')
   return '🌟 ' + $t('encouragement_default')
 })
-
-// 格式化学习时间
-const formattedStudyTime = $computed(() => {
-  const time = msToHourMinute(statStore.spend)
-  return time.replace('小时', 'h ').replace('分钟', 'm')
-})
-
-calcWeekList() // 新增：计算本周学习记录
 </script>
 
 <template>
   <Dialog v-model="model" :close-on-click-bg="false" :header="false" :keyboard="false" :show-close="false">
-    <div class="p-8 pr-3 bg-[var(--bg-card-primary)] rounded-2xl space-y-4">
+    <div class="p-8 pr-3 bg-[var(--bg-card-primary)] rounded-2xl">
       <!-- Header Section -->
       <div class="text-center relative">
         <div
@@ -153,114 +110,123 @@ calcWeekList() // 新增：计算本周学习记录
         <p class="font-medium text-lg">{{ encouragementText }}</p>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="item">
-          <IconFluentClock20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">{{ $t('study_duration') }}</div>
-          <div class="text-xl font-bold">{{ formattedStudyTime }}</div>
-        </div>
-
-        <div class="item">
-          <IconFluentTarget20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">{{ $t('accuracy_rate') }}</div>
-          <div class="text-xl font-bold">{{ accuracyRate }}%</div>
-        </div>
-
-        <div class="item">
-          <IconFluentSparkle20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">{{ $t('new_words') }}</div>
-          <div class="text-xl font-bold">{{ statStore.newWordNumber }}</div>
-        </div>
-
-        <div class="item">
-          <IconFluentBook20Regular class="text-purple-500" />
-          <div class="text-sm mb-1 font-medium">{{ $t('review') }}</div>
-          <div class="text-xl font-bold">
-            {{ statStore.reviewWordNumber }}
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="font-medium text-lg text-center mb-2">错词统计</div>
-        <div class="flex gap-space flex-wrap max-w-150">
-          <span
-            class="bg-[var(--bg-card-secend)] py-1 px-2 rounded-md"
-            v-for="item in Object.entries(practiceData.wrongTimesMap)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 20)"
-          >
-            {{ item[0] }}
-            {{ item[1] }}次
-          </span>
-        </div>
-      </div>
-
-      <div class="w-full gap-3 flex">
-        <div class="space-y-6 flex-1">
-          <!-- Weekly Progress -->
-          <div class="bg-[--bg-card-secend] rounded-xl p-2">
-            <div class="text-center mb-4">
-              <div class="text-xl font-semibold mb-1">{{ $t('weekly_record') }}</div>
+      <div class="relative">
+        <div class="space-y-4" v-opacity="!loading">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="item">
+              <IconFluentClock20Regular class="text-purple-500" />
+              <div class="text-sm mb-1 font-medium">{{ $t('study_duration') }}</div>
+              <div class="text-xl font-bold">{{ msToHourMinute(statStore.spend, true) }}</div>
             </div>
-            <div class="flex justify-between gap-4">
-              <div
-                v-for="(item, i) in list"
-                :key="i"
-                class="flex-1 text-center px-2 py-3 rounded-lg"
-                :class="item ? 'bg-green-500 text-white shadow-lg' : 'bg-white text-gray-700'"
-              >
-                <div class="font-semibold mb-1">{{ i + 1 }}</div>
-                <div
-                  class="w-2 h-2 rounded-full mx-auto mb-1"
-                  :class="item ? 'bg-white bg-opacity-30' : 'bg-gray-300'"
-                ></div>
+
+            <div class="item">
+              <IconFluentTarget20Regular class="text-purple-500" />
+              <div class="text-sm mb-1 font-medium">{{ $t('accuracy_rate') }}</div>
+              <div class="text-xl font-bold">{{ accuracyRate }}%</div>
+            </div>
+
+            <div class="item">
+              <IconFluentSparkle20Regular class="text-purple-500" />
+              <div class="text-sm mb-1 font-medium">{{ $t('new_words') }}</div>
+              <div class="text-xl font-bold">{{ statStore.newWordNumber }}</div>
+            </div>
+
+            <div class="item">
+              <IconFluentBook20Regular class="text-purple-500" />
+              <div class="text-sm mb-1 font-medium">{{ $t('review') }}</div>
+              <div class="text-xl font-bold">
+                {{ statStore.reviewWordNumber }}
               </div>
             </div>
           </div>
 
-          <!-- Progress Overview -->
-          <div class="bg-[var(--bg-card-secend)] rounded-xl py-2 px-6">
-            <div class="flex justify-between items-center mb-3">
-              <div class="text-xl font-semibold">{{ $t('study_progress') }}</div>
-              <div class="text-2xl font-bold text-purple-600">{{ studyProgress }}%</div>
+          <div>
+            <div class="font-medium text-lg text-center mb-2">错词统计</div>
+            <div class="flex gap-space flex-wrap max-w-150">
+              <span
+                class="bg-[var(--bg-card-secend)] py-1 px-2 rounded-md"
+                v-for="item in Object.entries(practiceData.wrongTimesMap)
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 20)"
+              >
+                {{ item[0] }}
+                {{ item[1] }}次
+              </span>
             </div>
-            <Progress :percentage="studyProgress" size="large" :show-text="false" />
-            <div class="flex justify-between text-sm font-medium mt-4">
-              <span>{{ $t('learned') }}: {{ store.sdict.lastLearnIndex }}</span>
-              <span>{{ $t('total_words') }}: {{ store.sdict.length }}</span>
+          </div>
+
+          <div class="w-full gap-3 flex">
+            <div class="space-y-6 flex-1">
+              <!-- Weekly Progress -->
+              <div class="bg-[--bg-card-secend] rounded-xl p-2">
+                <div class="text-center mb-4">
+                  <div class="text-xl font-semibold mb-1">{{ $t('weekly_record') }}</div>
+                </div>
+                <div class="flex justify-between gap-4">
+                  <div
+                    v-for="(item, i) in list"
+                    :key="i"
+                    class="flex-1 text-center px-2 py-3 rounded-lg"
+                    :class="item ? 'bg-green-500 text-white shadow-lg' : 'bg-white text-gray-700'"
+                  >
+                    <div class="font-semibold mb-1">{{ i + 1 }}</div>
+                    <div
+                      class="w-2 h-2 rounded-full mx-auto mb-1"
+                      :class="item ? 'bg-white bg-opacity-30' : 'bg-gray-300'"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progress Overview -->
+              <div class="bg-[var(--bg-card-secend)] rounded-xl py-2 px-6">
+                <div class="flex justify-between items-center mb-3">
+                  <div class="text-xl font-semibold">{{ $t('study_progress') }}</div>
+                  <div class="text-2xl font-bold text-purple-600">{{ studyProgress }}%</div>
+                </div>
+                <Progress :percentage="studyProgress" size="large" :show-text="false" />
+                <div class="flex justify-between text-sm font-medium mt-4">
+                  <span>{{ $t('learned') }}: {{ store.sdict.lastLearnIndex }}</span>
+                  <span>{{ $t('total_words') }}: {{ store.sdict.length }}</span>
+                </div>
+              </div>
             </div>
+            <ChannelIcons />
+          </div>
+          <!-- Action Buttons -->
+          <div class="flex min-w-130 justify-center">
+            <BaseButton
+              :keyboard="settingStore.shortcutKeyMap[ShortcutKey.RepeatChapter]"
+              @click="options(EventKey.repeatStudy)"
+            >
+              <div class="center gap-2">
+                <IconFluentArrowClockwise20Regular />
+                {{ $t('relearn') }}
+              </div>
+            </BaseButton>
+            <BaseButton
+              v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
+              :keyboard="settingStore.shortcutKeyMap[ShortcutKey.NextChapter]"
+              @click="options(EventKey.continueStudy)"
+            >
+              <div class="center gap-2">
+                <IconFluentPlay20Regular />
+                {{ store.sdict.complete ? $t('start_from_beginning') : $t('another_group') }}
+              </div>
+            </BaseButton>
+            <BaseButton @click="$router.back">
+              <div class="center gap-2">
+                <IconFluentHome20Regular />
+                {{ $t('back_to_home') }}
+              </div>
+            </BaseButton>
           </div>
         </div>
-        <ChannelIcons />
-      </div>
-      <!-- Action Buttons -->
-      <div class="flex min-w-130 justify-center">
-        <BaseButton
-          :keyboard="settingStore.shortcutKeyMap[ShortcutKey.RepeatChapter]"
-          @click="options(EventKey.repeatStudy)"
-        >
-          <div class="center gap-2">
-            <IconFluentArrowClockwise20Regular />
-            {{ $t('relearn') }}
-          </div>
-        </BaseButton>
-        <BaseButton
-          v-if="settingStore.wordPracticeMode !== WordPracticeMode.Review"
-          :keyboard="settingStore.shortcutKeyMap[ShortcutKey.NextChapter]"
-          @click="options(EventKey.continueStudy)"
-        >
-          <div class="center gap-2">
-            <IconFluentPlay20Regular />
-            {{ dictIsEnd ? $t('start_from_beginning') : $t('another_group') }}
-          </div>
-        </BaseButton>
-        <BaseButton @click="$router.back">
-          <div class="center gap-2">
-            <IconFluentHome20Regular />
-            {{ $t('back_to_home') }}
-          </div>
-        </BaseButton>
+        <div class="h-full w-full center flex-col absolute top-0 left-0 space-y-2" v-if="loading">
+          <IconEosIconsLoading class="text-3xl" />
+          <div>结算中...</div>
+          <div>请耐心等待，刷新页面可能导致数据丢失</div>
+        </div>
       </div>
     </div>
   </Dialog>

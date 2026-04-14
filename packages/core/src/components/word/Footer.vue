@@ -289,9 +289,9 @@ const stages = $computed(() => {
       <StageProgress :stages="stages" />
       <Tooltip title="进度 / 错误数 / 单词数">
         <div class="shrink-0">
-          {{
-            `${practiceData.index + 1} / ${format(practiceData.wrongWords.length, '', 0)} / ${practiceData.words.length}`
-          }}
+          <span> {{ practiceData.index + 1 }}</span> /
+          <span class="color-red"> {{ format(practiceData.wrongWords.length, '', 0) }}</span> /
+          <span>{{ practiceData.words.length }}</span>
         </div>
       </Tooltip>
     </div>

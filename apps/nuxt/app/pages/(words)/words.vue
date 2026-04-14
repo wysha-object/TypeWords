@@ -226,19 +226,38 @@ const cacheSpendMs = $computed(() => practiceData.statStoreData?.spend ?? 0)
 
 const todayDateKey = $computed(() => dayjs().format('YYYY-MM-DD'))
 
-const todayCacheMs = $computed(() => {
+/**
+ * 缓存记录中每一天对应的学习毫秒数 Map<'YYYY-MM-DD', spendMs>
+ * 有 segments 时按片段精确分组，否则退回到 startDate + spend 整体归一天
+ */
+const cacheDaySpendMap = $computed((): Map<string, number> => {
   const st = practiceData.statStoreData
-  if (!st?.spend) return 0
-  return dayjs(st.startDate).isSame(dayjs(), 'day') ? st.spend : 0
+  const map = new Map<string, number>()
+  if (!st?.spend) return map
+  if (Array.isArray(st.segments) && st.segments.length > 0) {
+    for (const [segStart, segEnd] of st.segments) {
+      const key = dayjs(segStart).format('YYYY-MM-DD')
+      map.set(key, (map.get(key) ?? 0) + (segEnd - segStart))
+    }
+  } else {
+    // 老数据 / 无 segments：全部归到 startDate 那天
+    map.set(dayjs(st.startDate).format('YYYY-MM-DD'), st.spend)
+  }
+  console.log('map',map,practiceData.statStoreData)
+  return map
 })
+
+
+const todayCacheMs = $computed(() => cacheDaySpendMap.get(todayDateKey) ?? 0)
 
 const calendarHighlightDates = $computed(() => {
   const set = new Set<string>()
   for (const s of allWordStatistics) {
     set.add(dayjs(s.startDate).format('YYYY-MM-DD'))
   }
-  if (todayCacheMs > 0) {
-    set.add(todayDateKey)
+  // 把缓存记录中所有出现过的天都高亮（支持跨天）
+  for (const key of cacheDaySpendMap.keys()) {
+    set.add(key)
   }
   return [...set]
 })
@@ -264,8 +283,9 @@ const todayTotalSpend = $computed(() => {
 
 const totalDay = $computed(() => {
   const set = new Set(allWordStatistics.map(v => dayjs(v.startDate).format('YYYY-MM-DD')))
-  if (todayCacheMs > 0) {
-    set.add(todayDateKey)
+  // 把缓存记录中所有出现过的天都计入（支持跨天）
+  for (const key of cacheDaySpendMap.keys()) {
+    set.add(key)
   }
   return set.size
 })
@@ -289,8 +309,31 @@ function onSelectCalendarDate(dateKey: string) {
     }
   }
   const st = practiceData.statStoreData
-  if (st?.spend && dayjs(st.startDate).format('YYYY-MM-DD') === dateKey) {
-    rows.push({ ...st, new: st.newWordNumber, review: st.reviewWordNumber, dictName: store.sdict.name })
+  // 缓存记录跨天时，只要该天在 cacheDaySpendMap 中有记录就展示
+  if (st?.spend && cacheDaySpendMap.has(dateKey)) {
+    const daySpend = cacheDaySpendMap.get(dateKey)!
+    const cacheKeys = [...cacheDaySpendMap.keys()]
+    const keyIdx = cacheKeys.indexOf(dateKey)
+    const isMultiDay = cacheKeys.length > 1
+    // 推算该天在整次练习中的角色（练习未结束，最后一天标为"学习中"而非"学习结束"）
+    let sessionRole: StudyDayRow['sessionRole']
+    if (!isMultiDay) {
+      sessionRole = 'single'
+    } else if (keyIdx === 0) {
+      sessionRole = 'start'
+    } else if (keyIdx === cacheKeys.length - 1) {
+      sessionRole = 'middle' // 最后一天仍在进行中，用 middle 表示
+    } else {
+      sessionRole = 'middle'
+    }
+    rows.push({
+      ...st,
+      spend: daySpend,
+      new: st.newWordNumber,
+      review: st.reviewWordNumber,
+      dictName: store.sdict.name,
+      sessionRole,
+    })
   }
   if (!rows.length) return Toast.info('无学习记录')
   studyDayRecords = rows
@@ -757,7 +800,20 @@ onUnmounted(() => {
     </div>
     <ul v-if="studyDayRecords.length" class="study-day-list max-h-70vh overflow-y-auto space-y-3">
       <li v-for="(row, idx) in studyDayRecords" :key="idx" class="border-b border-gray-200 pb-3 last:border-0">
-        <div class="font-medium">{{ row.dictName }}</div>
+        <div class="flex items-center gap-2">
+          <span class="font-medium">{{ row.dictName }}</span>
+          <span
+            v-if="row.sessionRole && row.sessionRole !== 'single'"
+            class="text-xs px-1.5 py-0.5 rounded-full"
+            :class="{
+              'bg-green-100 text-green-700': row.sessionRole === 'start',
+              'bg-blue-100 text-blue-700': row.sessionRole === 'middle',
+              'bg-orange-100 text-orange-700': row.sessionRole === 'end',
+            }"
+          >
+            {{ { start: '学习开始', middle: '学习中', end: '学习结束' }[row.sessionRole] }}
+          </span>
+        </div>
         <div class="text-sm text-gray-600 mt-1">
           时长 {{ msToHourMinute(row.spend) }} · 新学 {{ row.new }} · 复习 {{ row.review }} · 错词 {{ row.wrong }}
           <template v-if="row.total"> · 共 {{ row.total }} 词</template>

@@ -99,6 +99,16 @@ export interface Statistics {
   review: number //复习单词数量
   wrong: number //错误数
   title?: string //文章标题
+  /** 本日实际学习的时间片段列表，每项为 [startMs, endMs] */
+  segments?: [number, number][]
+  /**
+   * 本条记录在整次练习中的角色（仅跨天练习时有意义）：
+   * - 'single'：整次练习仅一天（含老数据默认情况）
+   * - 'start'  ：多天练习的第一天
+   * - 'middle' ：多天练习的中间日
+   * - 'end'    ：多天练习的最后一天
+   */
+  sessionRole?: 'single' | 'start' | 'middle' | 'end'
 }
 
 export type DictResource = {

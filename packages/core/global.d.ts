@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 declare global {
   interface Console {
     parse(v: any): void

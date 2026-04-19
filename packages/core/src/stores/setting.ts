@@ -3,7 +3,7 @@ import { checkAndUpgradeSaveDict, checkAndUpgradeSaveSetting, cloneDeep, parseJs
 import { get, set } from 'idb-keyval'
 import { APP_VERSION, AppEnv, DefaultShortcutKeyMap, SAVE_SETTING_KEY } from '../config/env'
 import { getSetting } from '../apis'
-import { IdentifyMethod, SaveData, WordPracticeMode, WordPracticeType } from '../types'
+import { IdentifyMethod, type SaveData, WordPracticeMode, WordPracticeType } from '../types'
 import type { FSRSParameters } from 'ts-fsrs'
 
 export interface SettingState {

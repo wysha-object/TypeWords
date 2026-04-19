@@ -1,12 +1,13 @@
 import { onMounted, watchEffect } from 'vue'
 import { useSettingStore } from '../stores/setting'
+import { ref } from 'vue'
 
 import { ENV, PronunciationApi, SoundFileOptions } from '../config/env'
 
 export function useSound(audioSrcList?: string[], audioFileLength?: number) {
-  let audioList: HTMLAudioElement[] = $ref([])
-  let audioLength = $ref(1)
-  let index = $ref(0)
+  let audioList = ref<HTMLAudioElement[]>([])
+  let audioLength = ref(1)
+  let index = ref(0)
 
   onMounted(() => {
     if (audioSrcList) setAudio(audioSrcList, audioFileLength)
@@ -16,24 +17,24 @@ export function useSound(audioSrcList?: string[], audioFileLength?: number) {
   function setAudio(audioSrcList2: string[], audioFileLength2?: number) {
     //@ts-ignore
     if (import.meta.server) return
-    if (audioFileLength2) audioLength = audioFileLength2
-    audioList = []
-    for (let i = 0; i < audioLength; i++) {
-      audioSrcList2.map(src => audioList.push(new Audio(ENV.RESOURCE_URL + src)))
+    if (audioFileLength2) audioLength.value = audioFileLength2
+    audioList.value = []
+    for (let i = 0; i < audioLength.value; i++) {
+      audioSrcList2.map(src => audioList.value.push(new Audio(ENV.RESOURCE_URL + src)))
     }
-    index = 0
+    index.value = 0
   }
 
   function play(volume: number = 100) {
-    index++
-    if (audioList.length > 1 && audioList.length !== audioLength) {
-      let htmlAudioElement = audioList[index % audioList.length]
+    index.value++
+    if (audioList.value.length > 1 && audioList.value.length !== audioLength.value) {
+      let htmlAudioElement = audioList[index.value % audioList.value.length]
       if (htmlAudioElement) {
         htmlAudioElement.volume = volume / 100
         htmlAudioElement.play()
       }
     } else {
-      let htmlAudioElement1 = audioList[index % audioLength]
+      let htmlAudioElement1 = audioList[index.value % audioLength.value]
       if (htmlAudioElement1) {
         htmlAudioElement1.volume = volume / 100
         htmlAudioElement1.play()
@@ -93,10 +94,10 @@ export function usePlayCorrect() {
 
 export function usePlayWordAudio() {
   const settingStore = useSettingStore()
-  let audio = $ref<HTMLAudioElement>(null)
+  let audio = ref<HTMLAudioElement>(null)
 
   onMounted(() => {
-    audio = new Audio()
+    audio.value = new Audio()
   })
 
   function playAudio(word: string) {
@@ -105,11 +106,11 @@ export function usePlayWordAudio() {
     if (settingStore.soundType === 'uk') {
       url = `${PronunciationApi}${word}&type=1`
     }
-    audio.src = url
-    audio.volume = settingStore.wordSoundVolume / 100
-    audio.playbackRate = settingStore.wordSoundSpeed
-    audio.play()
-    audio.onerror = e => {
+    audio.value.src = url
+    audio.value.volume = settingStore.wordSoundVolume / 100
+    audio.value.playbackRate = settingStore.wordSoundSpeed
+    audio.value.play()
+    audio.value.onerror = e => {
       const ttsPlay = useTTsPlayAudio()
       ttsPlay(word)
     }
@@ -138,7 +139,7 @@ export function useTTsPlayAudio() {
     msg.volume = settingStore.wordSoundVolume / 100
     msg.pitch = 1
     msg.lang = 'en-US'
-    getVoicesAsync().then((voices:any[]) => {
+    getVoicesAsync().then((voices: any[]) => {
       let voiceList = voices.filter(v => v.lang === 'en-US')
       if (voiceList && voiceList.length) {
         msg.voice = voiceList.find(v => v.name.includes('Emma') || v.name.includes('US')) ?? voiceList[0]

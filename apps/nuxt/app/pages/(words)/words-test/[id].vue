@@ -135,15 +135,15 @@ onMounted(init)
       <div class="line my-2"></div>
 
       <div v-if="questions.length" class="flex flex-col gap-4">
-        <div class="text-2xl en-article-family flex items-center gap-2">
-          <span>题目：{{ questions[index].stem.word }}</span>
+        <div class="text-4xl en-article-family flex items-center gap-2">
+          <span>{{ questions[index].stem.word }}</span>
           <VolumeIcon :simple="true" :title="'发音'" :cb="() => playWordAudio(questions[index].stem.word)" />
         </div>
-        <div class="grid gap-2">
+        <div class="grid gap-6">
           <div
             v-for="(opt, i) in questions[index].candidates"
             :key="i"
-            class="option border rounded p-2 cursor-pointer"
+            class="option border rounded cursor-pointer"
             :class="{
               'text-green-600': questions[index].submitted && i === questions[index].correctIndex,
               'text-red-600':
@@ -158,7 +158,7 @@ onMounted(init)
               <span class="mx-2">[{{ [aShortcutKey, bShortcutKey, cShortcutKey, dShortcutKey][i] }}]</span>
               <span>{{ opt.label }}</span>
             </span>
-            <div class="mt-2" v-opacity="questions[index].submitted">{{ opt.word }}</div>
+            <div class="" v-opacity="questions[index].submitted">{{ opt.word }}</div>
           </div>
         </div>
 
@@ -176,6 +176,6 @@ onMounted(init)
   background: var(--color-second);
 }
 .option {
-  min-height: 100px;
+  //min-height: 80px;
 }
 </style>

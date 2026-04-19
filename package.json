@@ -11,8 +11,6 @@
     "build-dev-web": "pnpm -F @typewords/nuxt generate-dev",
     "build-vscode-web": "pnpm -F @typewords/vscode-web build",
     "dev-vscode-web": "pnpm -F @typewords/vscode-web dev",
-    "copy:core": "rimraf apps/mini-app/src/core && cpx \"packages/core/src/**/*\" apps/mini-app/src/core",
-    "copy:watch": "chokidar \"packages/core/src/**/*\" -c \"pnpm copy:core\"",
     "test": ""
   },
   "dependencies": {
@@ -73,9 +71,7 @@
     "@vue-macros/nuxt": "^3.1.1",
     "@vue/compiler-sfc": "^3.5.17",
     "ali-oss": "^6.23.0",
-    "chokidar-cli": "^3.0.0",
     "commitizen": "^4.3.1",
-    "cpx": "^1.5.0",
     "cz-conventional-changelog": "^3.3.0",
     "edgeone": "^1.2.27",
     "esm": "^3.2.25",
@@ -83,7 +79,6 @@
     "gulp": "^5.0.1",
     "husky": "^8.0.3",
     "prettier": "^3.7.4",
-    "rimraf": "^6.1.3",
     "rollup-plugin-visualizer": "^5.14.0",
     "sass": "^1.89.2",
     "sitemap": "^8.0.0",

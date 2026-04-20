@@ -265,7 +265,7 @@ watchOnce(
   }
 )
 
-let allWords: Word[]
+let allWords: Word[] = []
 
 let isIniting = ref(true)
 async function initData(initVal?: TaskWords, init: boolean = false) {

@@ -252,7 +252,6 @@ watchOnce(
         tour.addStep({
           id: 'step5',
           text: '这里可以练习拼写单词，只需要按下键盘上对应的按键即可，没有输入框！',
-          attachTo: { element: '#word', on: 'bottom' },
           buttons: [
             {
               text: `关闭`,

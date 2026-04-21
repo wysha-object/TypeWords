@@ -60,9 +60,9 @@ class ChatPanel {
 
   private async _getHtmlForWebview(webview: vscode.Webview) {
     const cdnUrl = 'https://vs.typewords.cc'
-    const fileUrl = 'https://files.typewords.cc'
+    const ALLURL = 'https://*.typewords.cc'
 
-    let s = await fetch('https://vs.typewords.cc/vs.json')
+    let s = await fetch(`${cdnUrl}/vs.json`)
     let r:any = await s.json()
 
     // 生成 nonce 用于 CSP
@@ -70,14 +70,14 @@ class ChatPanel {
 
     // CSP 配置：允许内联脚本（使用 nonce）和外部资源
     const csp = [
-      "default-src 'none'",
-      `script-src 'nonce-${nonce}' ${cdnUrl} 'unsafe-inline'`,
-      `style-src ${cdnUrl} 'unsafe-inline'`,
-      `connect-src ${cdnUrl} ${fileUrl} https://*.supabase.co`,
+      `default-src ${ALLURL}`,
+      `script-src 'nonce-${nonce}' ${ALLURL} 'unsafe-inline'`,
+      `style-src ${ALLURL} 'unsafe-inline'`,
+      `connect-src ${ALLURL} https://*.supabase.co`,
       'img-src data: https:',
       'media-src https://dict.youdao.com',
       'font-src data:',
-    ].join('; ')
+    ].join('; ');
 
     return `<!DOCTYPE html>
 <html lang="zh-CN" style="width: 100%!important; height: 100%!important;">

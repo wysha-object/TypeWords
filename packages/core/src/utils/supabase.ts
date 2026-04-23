@@ -123,6 +123,7 @@ export class Supabase {
         this.errorCount++
         return
       }
+      window?.umami?.track('sp-error', { error: statusMessage })
     }
     if (status !== 'error') {
       this.errorCount = 0

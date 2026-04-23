@@ -6,6 +6,7 @@ import { Supabase } from '../utils/supabase'
 import { ensureHashGuardBeforeInit, useDataSyncPersistence } from './useDataSyncPersistence'
 import { SyncDataType } from '../types'
 import { SubscriptionCallbackMutation } from 'pinia'
+import { onUnmounted } from 'vue'
 
 let unsub = null
 let unsub2 = null

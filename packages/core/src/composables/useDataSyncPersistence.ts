@@ -170,7 +170,7 @@ async function fetchServerDatas(
     if (error) {
       console.log('sp-error', error)
       Supabase.setStatus('error', error?.message ?? String(error))
-      return null
+      return []
     }
     return (data ?? []) as RemoteDataRow[]
   } catch (error) {
@@ -374,7 +374,7 @@ export function useDataSyncPersistence() {
     console.log('pullIfRemoteNewer-compareResult', CompareResult[compareResult], type)
     if (compareResult === CompareResult.RemoteNewer) {
       const remoteData = await fetchServerDatas([type], client)
-      if (remoteData.length) {
+      if (remoteData?.length) {
         await applyRemoteDataByType(type, remoteData[0], store, settingStore)
         return remoteData[0]
       }
@@ -447,7 +447,7 @@ export function useDataSyncPersistence() {
       //如果云端数据较新并允许拉取，则拉取云端数据，之后不再上传本地数据
       if (compareResult === CompareResult.RemoteNewer && pullWhenRemoteNewer) {
         const remoteData = await fetchServerDatas([type], options?.client)
-        if (remoteData.length) {
+        if (remoteData?.length) {
           await applyRemoteDataByType(type, remoteData[0], store, settingStore)
           return
         }

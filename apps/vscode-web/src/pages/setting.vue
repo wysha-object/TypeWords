@@ -38,7 +38,7 @@ import SettingItem from '@typewords/core/components/setting/SettingItem.vue'
 import { Supabase } from '@typewords/core/utils/supabase.ts'
 import BackupGateDialog from '@typewords/core/components/dialog/BackupGateDialog.vue'
 import type { BackupData, Snapshot } from '@typewords/core'
-import BasePage from '@/z-polyfill/BasePage.vue'
+import { BasePage } from '@typewords/base'
 
 import { createClient } from '@supabase/supabase-js'
 import { useRoute } from 'vue-router'

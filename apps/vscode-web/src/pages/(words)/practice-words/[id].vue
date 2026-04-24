@@ -52,7 +52,7 @@ import dayjs from 'dayjs'
 import prefixTxt from './template-vue-prefix.txt?raw'
 import suffixTxt from './template-vue-suffix.txt?raw'
 import TypeWord from '@/z-polyfill/TypeWord.vue'
-import PracticeLayout from '@/z-polyfill/PracticeLayout.vue'
+import PracticeLayout from '@typewords/core/components/PracticeLayout.vue'
 
 const { toggleWordCollect, isWordSimple, toggleWordSimple } = useWordOptions()
 const settingStore = useSettingStore()

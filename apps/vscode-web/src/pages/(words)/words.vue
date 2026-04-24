@@ -1,7 +1,17 @@
 <script setup lang="ts">
 import { useBaseStore } from '@typewords/core/stores/base.ts'
 import { useRouter } from 'vue-router'
-import { BaseButton, BaseIcon, Calendar, OptionButton, PopConfirm, Progress, Toast } from '@typewords/base'
+import {
+  BaseButton,
+  BaseIcon,
+  BasePage,
+  Calendar,
+  Dialog,
+  OptionButton,
+  PopConfirm,
+  Progress,
+  Toast,
+} from '@typewords/base'
 import {
   _getAccomplishDate,
   _getDictDataByUrl,
@@ -40,15 +50,16 @@ import { myDictList } from '@typewords/core/apis'
 import PracticeWordListDialog from '@typewords/core/components/word/PracticeWordListDialog.vue'
 import ShufflePracticeSettingDialog from '@typewords/core/components/word/ShufflePracticeSettingDialog.vue'
 import { deleteDict } from '@typewords/core/apis/dict.ts'
-import { usePracticeWordPersistence } from '@typewords/core/composables/usePracticePersistence'
+import { flushStatToStore, usePracticeWordPersistence } from '@typewords/core/composables/usePracticePersistence'
+import { useDataSyncPersistence } from '@typewords/core/composables/useDataSyncPersistence'
 import { WordPracticeMode } from '@typewords/core/types/enum.ts'
 import type { PracticeWordCache } from '@typewords/core/utils/cache.ts'
-import BasePage from '@/z-polyfill/BasePage.vue'
 import dayjs from 'dayjs'
 
 const store = useBaseStore()
 const settingStore = useSettingStore()
 const wordPersistence = usePracticeWordPersistence()
+const dataSync = useDataSyncPersistence()
 const router = useRouter()
 const { nav } = useNav()
 const runtimeStore = useRuntimeStore()
@@ -75,6 +86,14 @@ function resetCacheData() {
   practiceData.practiceData = null
   practiceData.statStoreData = null
   wordPersistence.clear()
+}
+
+/**
+ * 清空练习缓存前，将进行中的统计数据落库到 store.sdict.statistics，避免学习记录丢失
+ */
+function saveStatBeforeClear() {
+  if (!isSaveData) return
+  flushStatToStore(practiceData.statStoreData)
 }
 
 // runtimeStore.globalLoading练习界面，退出时会调用一个保存，可能会卡住。当调用完成再init
@@ -234,9 +253,10 @@ const cacheDaySpendMap = $computed((): Map<string, number> => {
     // 老数据 / 无 segments：全部归到 startDate 那天
     map.set(dayjs(st.startDate).format('YYYY-MM-DD'), st.spend)
   }
-  console.log('map', map, practiceData.statStoreData)
+  console.log('map',map,practiceData.statStoreData)
   return map
 })
+
 
 const todayCacheMs = $computed(() => cacheDaySpendMap.get(todayDateKey) ?? 0)
 
@@ -390,12 +410,15 @@ function check(cb: Function) {
 
 async function savePracticeSetting() {
   Toast.success('修改成功')
+  saveStatBeforeClear()
   resetCacheData()
   await store.changeDict(runtimeStore.editDict)
   practiceData.taskWords = getCurrentStudyWord()
 }
 
 async function onShufflePracticeSettingOk(total) {
+  saveStatBeforeClear()
+  await dataSync.saveDictState()
   resetCacheData()
   settingStore.wordPracticeMode = editingWordPracticeMode
 
@@ -431,6 +454,7 @@ async function saveLastPracticeIndex(e) {
   // runtimeStore.editDict.complete = e >= runtimeStore.editDict.length - 1
   showChangeLastPracticeIndexDialog = false
   isSaveData = false
+  saveStatBeforeClear()
   resetCacheData()
   await store.changeDict(runtimeStore.editDict)
   practiceData.taskWords = getCurrentStudyWord()
@@ -679,7 +703,7 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="card flex flex-col md:flex-row gap-4 p-4 md:p-6">
+   <div class="card flex flex-col md:flex-row gap-4 xl:gap-20 p-4 md:p-6">
       <div class="flex-1 flex flex-col gap-3 min-w-0">
         <div class="title">统计</div>
         <div class="flex gap-3 items-center w-full">
@@ -707,6 +731,7 @@ onUnmounted(() => {
       </div>
     </div>
 
+    
     <div class="card flex flex-col">
       <div class="flex justify-between">
         <div class="title">{{ $t('my_dictionaries') }}</div>
@@ -780,6 +805,37 @@ onUnmounted(() => {
     @ok="onShufflePracticeSettingOk"
     :wordPracticeMode="editingWordPracticeMode"
   />
+
+  <Dialog v-model="showStudyDayDialog" :title="studyDayDialogTitle" :footer="false" :padding="true">
+    <div
+      v-if="!studyDayRecords.length && !(isStudyDayKeyToday(selectedStudyDateKey) && todayCacheMs > 0)"
+      class="text-gray-500 py-6 text-center"
+    >
+      当日无学习记录
+    </div>
+    <ul v-if="studyDayRecords.length" class="study-day-list max-h-70vh overflow-y-auto space-y-3">
+      <li v-for="(row, idx) in studyDayRecords" :key="idx" class="border-b border-gray-200 pb-3 last:border-0">
+        <div class="flex items-center gap-2">
+          <span class="font-medium">{{ row.dictName }}</span>
+          <span
+            v-if="row.sessionRole && row.sessionRole !== 'single'"
+            class="text-xs px-1.5 py-0.5 rounded-full"
+            :class="{
+              'bg-green-100 text-green-700': row.sessionRole === 'start',
+              'bg-blue-100 text-blue-700': row.sessionRole === 'middle',
+              'bg-orange-100 text-orange-700': row.sessionRole === 'end',
+            }"
+          >
+            {{ { start: '学习开始', middle: '学习中', end: '学习结束' }[row.sessionRole] }}
+          </span>
+        </div>
+        <div class="text-sm text-gray-600 mt-1">
+          时长 {{ msToHourMinute(row.spend) }} · 新学 {{ row.new }} · 复习 {{ row.review }} · 错词 {{ row.wrong }}
+          <template v-if="row.total"> · 共 {{ row.total }} 词</template>
+        </div>
+      </li>
+    </ul>
+  </Dialog>
 </template>
 
 <style scoped lang="scss">

@@ -703,10 +703,10 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <div class="card flex flex-col md:flex-row gap-20 p-4 md:p-6">
+   <div class="card flex flex-col md:flex-row gap-4 xl:gap-20 p-4 md:p-6">
       <div class="flex-1 flex flex-col gap-3 min-w-0">
         <div class="title">统计</div>
-        <div class="flex flex-col sm:flex-row gap-3 items-center w-full">
+        <div class="flex gap-3 items-center w-full">
           <div class="stat2">
             <div class="num">{{ todayTotalSpend }}</div>
             <div class="txt">{{ $t('today_study_time') }}</div>
@@ -731,6 +731,7 @@ onUnmounted(() => {
       </div>
     </div>
 
+    
     <div class="card flex flex-col">
       <div class="flex justify-between">
         <div class="title">{{ $t('my_dictionaries') }}</div>

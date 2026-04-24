@@ -12,6 +12,7 @@ import Icons from 'unplugin-icons/vite'
 import Components from 'unplugin-vue-components/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import AutoImport from 'unplugin-auto-import/vite'
+import polyfillComponentPlugin from './vite-plugin-polyfill-component.js'
 
 function pathResolve(dir: string) {
   return resolve(__dirname, '.', dir)
@@ -65,6 +66,7 @@ export default defineConfig(() => {
       if (!err) latestCommitHash = commit.shortHash
       resolve({
         plugins: [
+          polyfillComponentPlugin(),
           recordBuildAssetsJson(),
           AutoImport({
             imports: ['vue'],

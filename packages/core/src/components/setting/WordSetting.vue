@@ -43,11 +43,8 @@ const settingStore = useSettingStore()
       <RadioGroup v-model="settingStore.identifyMethod">
         <Radio :value="IdentifyMethod.SelfAssessment" size="default">{{ $t('self_assessment') }}</Radio>
         <Radio :value="IdentifyMethod.WordTest" size="default">{{ $t('word_test') }}</Radio>
+        <Radio :value="IdentifyMethod.QuickIdentify" size="default">快速自测</Radio>
       </RadioGroup>
-    </SettingItem>
-
-    <SettingItem :title="`快速自测`">
-      <Switch v-model="settingStore.quickIdentify" />
     </SettingItem>
 
     <!--          自动切换-->

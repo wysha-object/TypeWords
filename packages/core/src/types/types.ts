@@ -1,4 +1,4 @@
-import { DictType, PracticeArticleWordType } from './enum'
+import { DictType, Frequency, PracticeArticleWordType } from './enum'
 import type { Rating } from 'ts-fsrs'
 import { PRACTICE_ARTICLE_CACHE, PRACTICE_WORD_CACHE } from '../utils/cache'
 import { APP_VERSION } from '../config/env'
@@ -12,6 +12,7 @@ export type Word = {
   trans: {
     pos: string
     cn: string
+    frequency?: Frequency
   }[]
   sentences: {
     c: string //content
@@ -201,14 +202,11 @@ export interface BackupData {
   }
 }
 
-export type Candidate = { word: string; wordObj?: Word; label: string }
+export type Candidate = { word: Word; similarity: number }
 
 export type Question = {
-  stem: Word
   candidates: Candidate[]
   correctIndex: number
-  selectedIndex: number
-  submitted: boolean
 }
 // 类型定义
 export interface Resource {

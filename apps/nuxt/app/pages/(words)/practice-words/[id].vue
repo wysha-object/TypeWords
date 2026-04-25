@@ -42,7 +42,7 @@ import GroupList from '@typewords/core/components/word/GroupList.vue'
 import { getPracticeWordCacheLocal } from '@typewords/core/utils/cache.ts'
 import { useDataSyncPersistence } from '@typewords/core/composables/useDataSyncPersistence.ts'
 import { flushStatToStore, usePracticeWordPersistence } from '@typewords/core/composables/usePracticePersistence.ts'
-import { ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@typewords/core/types/enum.ts'
+import { IdentifyMethod, ShortcutKey, WordPracticeMode, WordPracticeStage, WordPracticeType } from '@typewords/core/types/enum.ts'
 import ConflictNotice2 from '@typewords/core/components/dialog/ConflictNotice2.vue'
 import { createEmptyCard, Rating } from 'ts-fsrs'
 import { useGetGradeByWrongTimes, useNextCard } from '@typewords/core/hooks/fsrs.ts'
@@ -997,13 +997,13 @@ useEvents([
           v-if="
             settingStore.wordPracticeType === WordPracticeType.Identify &&
             data.wrongWords.length === 0 &&
-            settingStore.quickIdentify
+            settingStore.identifyMethod === IdentifyMethod.QuickIdentify
           "
           :words="data.words"
           @complete="onWordMarkPickComplete"
         />
 
-        <div class="mb-50" v-else>
+        <div class="mb-50 w-full" v-else>
           <!--        前后单词-->
           <div
             class="fixed z-1 top-4 w-full"

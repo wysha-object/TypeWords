@@ -3,7 +3,7 @@ import type { Word } from '../../types'
 import { usePlayWordAudio } from '../../hooks/sound.ts'
 import { BaseIcon, Tooltip, VolumeIcon } from '@typewords/base'
 import { useWordOptions } from '../../hooks/dict.ts'
-import SentenceHightLightWord from './SentenceHightLightWord.vue'
+import TranslationList from './TranslationList.vue'
 
 withDefaults(
   defineProps<{
@@ -39,32 +39,14 @@ const { isWordCollect, toggleWordCollect, isWordSimple, toggleWordSimple } = use
   <div class="common-list-item" :class="{ active, disabled }">
     <div class="left">
       <slot name="prefix" :item="item"></slot>
-      <div class="title-wrapper">
+      <div class="title-wrapper" :class="!showWord && 'word-shadow'">
         <div class="item-title">
           <span class="text-sm translate-y-0.5 text-gray-500" v-if="index != undefined">{{ index }}.</span>
-          <span class="word" :class="!showWord && 'word-shadow'">{{ item.word }}</span>
+          <span class="word">{{ item.word }}</span>
           <span class="phonetic text-gray" :class="!showWord && 'word-shadow'">{{ item.phonetic0 }}</span>
           <VolumeIcon class="volume" @click="playWordAudio(item.word)"></VolumeIcon>
         </div>
-        <div class="item-sub-title flex flex-col gap-2" v-if="item.trans.length && showTranslate">
-          <div v-for="v in item.trans">
-            <Tooltip v-if="v.cn.length > 30 && showTransPop" :title="v.pos + '  ' + v.cn">
-              <SentenceHightLightWord
-                :text="v.pos + '  ' + v.cn.slice(0, 30) + '...'"
-                :word="item.word"
-                :high-light="false"
-                :dictation="!showWord"
-              />
-            </Tooltip>
-            <SentenceHightLightWord
-              v-else
-              :text="v.pos + '  ' + v.cn"
-              :word="item.word"
-              :high-light="false"
-              :dictation="!showWord"
-            />
-          </div>
-        </div>
+        <TranslationList :word="item" :showFull="showWord" />
       </div>
     </div>
     <div class="right" v-if="showOption">

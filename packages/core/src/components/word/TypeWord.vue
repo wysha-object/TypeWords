@@ -12,6 +12,7 @@ import Space from '../article/Space.vue'
 import { useI18n } from 'vue-i18n'
 import { useWordOptions } from '../../hooks/dict.ts'
 import { ref } from 'vue'
+import TranslationList from './TranslationList.vue'
 
 const { t: $t } = useI18n()
 
@@ -786,10 +787,10 @@ const isCollect = $computed(() => isWordCollect(props.word))
             {{ ['A', 'B', 'C', 'D'][index] }}
           </BaseButton>
           <span class="ml-2">
-            <div class="min-h-10" :class="{ 'word-shadow': !showAllCandidates && !completeSelect }">
-              {{ value.word }}
+            <div class="min-h-10 text-2xl" :class="{ 'word-shadow': !showAllCandidates && !completeSelect }">
+              {{ value.word.word }}
             </div>
-            <div>{{ value.label }}</div>
+            <TranslationList :word="value.word" :showFull="showAllCandidates || completeSelect"/>
           </span>
         </div>
       </div>
@@ -804,22 +805,10 @@ const isCollect = $computed(() => isWordCollect(props.word))
           @close="settingStore.showUsageTips = false"
         />
       </div>
+    </div>
 
-      <div
-        class="translate flex flex-col gap-2 my-3"
-        v-opacity="settingStore.translate || showWordResult || showFullWord"
-        :style="{
-          fontSize: settingStore.fontSize.wordTranslateFontSize + 'px',
-        }"
-      >
-        <div class="flex" v-for="v in word.trans">
-          <div class="shrink-0" :class="v.pos ? 'w-12' : '-ml-3'">
-            {{ v.pos }}
-          </div>
-          <span v-if="!settingStore.dictation || showWordResult || showFullWord">{{ v.cn }}</span>
-          <SentenceHightLightWord v-else :text="v.cn" :word="word.word" :dictation="true" :high-light="false" />
-        </div>
-      </div>
+    <div v-if="settingStore.translate || showFullWord || showWordResult">
+      <TranslationList :word="word" :showFull="showFullWord || showWordResult"/>
     </div>
 
     <div
@@ -1048,8 +1037,7 @@ const isCollect = $computed(() => isWordCollect(props.word))
       margin: 0.5rem 0;
     }
 
-    .phonetic,
-    .translate {
+    .phonetic {
       font-size: 1rem;
     }
 

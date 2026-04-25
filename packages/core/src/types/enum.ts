@@ -124,6 +124,8 @@ export enum IdentifyMethod {
   SelfAssessment = 0,
   // 单词测试
   WordTest = 1,
+  // 快速自测
+  QuickIdentify = 2,
 }
 
 export enum SyncDataType {
@@ -131,4 +133,10 @@ export enum SyncDataType {
   setting = 'setting',
   practice_word = 'practice_word',
   practice_article = 'practice_article',
+}
+
+export enum Frequency {
+  Rare = 0,
+  Uncommon = 1,
+  Common = 2,
 }

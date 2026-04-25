@@ -12,6 +12,7 @@ import { useStartKeyboardEventListener } from '@typewords/core/hooks/event.ts'
 import { ShortcutKey } from '@typewords/core/types/enum'
 import { useSettingStore } from '@typewords/core/stores/setting.ts'
 import { buildQuestion } from '@typewords/core/utils/word-test'
+import TranslationList from '@typewords/core/components/word/TranslationList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -68,18 +69,20 @@ async function init() {
   Toast.info('可以按快捷键进行选择,例如按快捷键[' + aShortcutKey + ']选择A', { duration: 3000 })
 }
 
+let submitted = $ref(false)
+let selectedIndex = $ref(-1)
 function select(i: number) {
   let q = questions[index]
-  if (!q || q.submitted) return
-  q.selectedIndex = i
-  q.submitted = true
+  if (!q || submitted) return
+  selectedIndex = i
+  submitted = true
   if (i === q.correctIndex) {
     playCorrect()
   } else {
     playBeep()
-    let temp = q.stem.word.toLowerCase()
+    let temp = q.candidates[q.correctIndex].word.word.toLowerCase()
     if (!base.wrong.words.find((v: Word) => v.word.toLowerCase() === temp)) {
-      base.wrong.words.push(q.stem)
+      base.wrong.words.push(q.candidates[q.correctIndex].word)
       base.wrong.length = base.wrong.words.length
     }
   }
@@ -88,6 +91,8 @@ function select(i: number) {
 const { nav } = useNav()
 
 function next() {
+  submitted = false
+  selectedIndex = -1
   if (no >= testWords.length) {
     nav('/words')
   }
@@ -136,8 +141,8 @@ onMounted(init)
 
       <div v-if="questions.length" class="flex flex-col gap-4">
         <div class="text-4xl en-article-family flex items-center gap-2">
-          <span>{{ questions[index].stem.word }}</span>
-          <VolumeIcon :simple="true" :title="'发音'" :cb="() => playWordAudio(questions[index].stem.word)" />
+          <span>{{ questions[index].candidates[questions[index].correctIndex].word.word }}</span>
+          <VolumeIcon :simple="true" :title="'发音'" :cb="() => playWordAudio(questions[index].candidates[questions[index].correctIndex].word.word)" />
         </div>
         <div class="grid gap-6">
           <div
@@ -145,10 +150,10 @@ onMounted(init)
             :key="i"
             class="option border rounded cursor-pointer"
             :class="{
-              'text-green-600': questions[index].submitted && i === questions[index].correctIndex,
+              'text-green-600': submitted && i === questions[index].correctIndex,
               'text-red-600':
-                questions[index].submitted &&
-                i === questions[index].selectedIndex &&
+                submitted &&
+                i === selectedIndex &&
                 i !== questions[index].correctIndex,
             }"
             @click="select(i)"
@@ -156,9 +161,9 @@ onMounted(init)
             <span class="">
               <span class="italic">{{ ['A', 'B', 'C', 'D'][i] }}</span>
               <span class="mx-2">[{{ [aShortcutKey, bShortcutKey, cShortcutKey, dShortcutKey][i] }}]</span>
-              <span>{{ opt.label }}</span>
+              <TranslationList :word="opt.word" :show-full="false"></TranslationList>
             </span>
-            <div class="" v-opacity="questions[index].submitted">{{ opt.word }}</div>
+            <div class="" v-opacity="submitted">{{ opt.word.word }}</div>
           </div>
         </div>
 
@@ -176,6 +181,6 @@ onMounted(init)
   background: var(--color-second);
 }
 .option {
-  //min-height: 80px;
+  min-height: 80px;
 }
 </style>

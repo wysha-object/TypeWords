@@ -67,7 +67,6 @@ export interface SettingState {
   fsrsParameters: FSRSParameters
 
   identifyMethod: IdentifyMethod
-  quickIdentify: boolean //快速标记
   _ignoreWatch: boolean //忽略监听，避免重复保存和上传
   ttsVoiceMap: { key: string; voice: string }[] // 浏览器 TTS 声色映射，key 为 OS+浏览器组合（如 mac+chrome）
 }
@@ -145,7 +144,6 @@ export const getDefaultSettingState = (): SettingState => ({
   },
 
   identifyMethod: IdentifyMethod.SelfAssessment,
-  quickIdentify: false,
   _ignoreWatch: false,
   ttsVoiceMap: [],
 })

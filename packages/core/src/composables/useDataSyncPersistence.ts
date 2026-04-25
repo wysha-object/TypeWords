@@ -380,7 +380,7 @@ export function useDataSyncPersistence() {
     return null
   }
 
-  // 同步数据，远程新则拉取（默认），本地新则推送（可选）
+  // 同步数据，远程新则拉取（默认），本地新则推送（默认）
   async function syncData(
     localData: Partial<Record<SyncDataType, SaveData | null>>,
     options?: SaveLocalAndSyncOptions

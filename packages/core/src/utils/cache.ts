@@ -58,8 +58,8 @@ async function migrateFromLocalStorage<T>(config: CacheConfig): Promise<LocalCac
     const raw = localStorage.getItem(config.key)
     if (!raw) return null
     const parsed = JSON.parse(raw) as LocalCacheResult<T>
-    // 迁移到 idb（直接存对象，不再序列化字符串）
-    await set(config.key, parsed)
+    // 迁移到 idb
+    await set(config.key, raw)
     // 删除 localStorage 中的老数据
     localStorage.removeItem(config.key)
     console.log(`[cache] migrated ${config.key} from localStorage to idb`)
@@ -99,7 +99,7 @@ async function setLocal<T>(config: CacheConfig, val: T | null, updated_at: strin
     val,
     updated_at,
   }
-  await set(config.key, payload)
+  await set(config.key, JSON.stringify(payload))
 }
 
 export async function getPracticeWordCacheLocal(): Promise<PracticeWordCacheStored | null> {

@@ -21,8 +21,9 @@ function getCommonCount(str1: string, str2: string): number {
     str2 = str2.toLowerCase();
     let count = 0;
     let set1 = new Set(str1.split(''));
-    for (let char of str2) {
-        if (set1.has(char)) {
+    let set2 = new Set(str2.split(''));
+    for (let char of set1) {
+        if (set2.has(char)) {
             count++;
         }
     }

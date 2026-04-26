@@ -82,8 +82,8 @@ export default defineNuxtConfig({
             'Type Words 官方网站 - 在线英语练习平台，支持单词、文章跟打练习，提升英语学习效率，电脑上背单词。Practice English, one strike, one step forward',
         },
         { property: 'og:type', content: 'website' },
-        { property: 'og:url', content: toSiteURL('/', appBaseURL) },
-        { property: 'og:image', content: toSiteURL('/favicon.ico', appBaseURL) },
+        { property: 'og:url', content: 'https://typewords.cc/' },
+        { property: 'og:image', content: 'https://typewords.cc/favicon.ico' },
 
         // Twitter Card（用于 Twitter 分享）
         { name: 'twitter:card', content: 'summary_large_image' },
@@ -93,7 +93,7 @@ export default defineNuxtConfig({
           content:
             'Type Words 官方网站 - 在线英语练习平台，支持单词、文章跟打练习，提升英语学习效率，电脑上背单词。Practice English, one strike, one step forward',
         },
-        { name: 'twitter:image', content: toSiteURL('/favicon.ico', appBaseURL) },
+        { name: 'twitter:image', content: 'https://typewords.cc/favicon.ico' },
 
         //设置浏览器地址栏颜色（在 Android Chrome 特别明显
         { name: 'theme-color', content: '#818CF8' },
@@ -108,11 +108,11 @@ export default defineNuxtConfig({
         { name: 'color-scheme', content: 'light dark' },
       ],
       link: [
-        { rel: 'icon', type: 'image/x-icon', href: withBaseURL('/favicon.ico', appBaseURL) },
-        { rel: 'canonical', href: toSiteURL('/', appBaseURL) },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        { rel: 'canonical', href: 'https://typewords.cc/' },
         //苹果设备（iOS Safari）在用户添加到主屏时显示的图标
-        { rel: 'apple-touch-icon', sizes: '180x180', href: withBaseURL('/favicon.ico', appBaseURL) },
-        { rel: 'manifest', href: withBaseURL('/manifest.json', appBaseURL) },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/favicon.ico' },
+        { rel: 'manifest', href: '/manifest.json' },
       ],
     },
   },

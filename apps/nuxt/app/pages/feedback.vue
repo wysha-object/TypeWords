@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { BasePage } from '@typewords/base'
 import About from '@typewords/core/components/About.vue'
-import { APP_NAME } from '@typewords/core/config/env.ts'
-import { toSiteURL } from '@typewords/core/utils/base-url'
+import { APP_NAME, Origin } from '@typewords/core/config/env.ts'
 
 let route = useRoute()
-const config = useRuntimeConfig()
 let title = APP_NAME + ' 反馈'
 useSeoMeta({
   title: title,
   description: title,
   ogTitle: title,
   ogDescription: title,
-  ogUrl: toSiteURL(route.fullPath, config.public.origin, config.app.baseURL),
+  ogUrl: Origin + route.fullPath,
   twitterTitle: title,
   twitterDescription: title,
 })

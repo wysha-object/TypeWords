@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { BasePage, Collapse } from '@typewords/base'
 import WeChat from '@typewords/core/components/channel-icons/WeChat.vue'
-import { APP_NAME, GITHUB } from '@typewords/core/config/env.ts'
+import { APP_NAME, GITHUB, Origin } from '@typewords/core/config/env.ts'
 import ConflictNoticeText from '@typewords/core/components/dialog/ConflictNoticeText.vue'
-import { toSiteURL } from '@typewords/core/utils/base-url'
 
 let title = APP_NAME + ' 常见问题解答'
 let route = useRoute()
-const config = useRuntimeConfig()
 useSeoMeta({
   title: title,
   description: title,
   ogTitle: title,
   ogDescription: title,
-  ogUrl: toSiteURL(route.fullPath, config.public.origin, config.app.baseURL),
+  ogUrl: Origin + route.fullPath,
   twitterTitle: title,
   twitterDescription: title,
 })

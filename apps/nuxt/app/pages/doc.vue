@@ -2,19 +2,17 @@
 import { computed, ref } from 'vue'
 import { BaseButton, BasePage } from '@typewords/base'
 import ResourceCard from '@typewords/core/components/ResourceCard.vue'
-import { APP_NAME } from '@typewords/core/config/env.ts'
-import { toSiteURL } from '@typewords/core/utils/base-url'
+import { APP_NAME, Origin } from '@typewords/core/config/env.ts'
 import type { Resource } from '@typewords/core'
 
 let route = useRoute()
-const config = useRuntimeConfig()
 let title = APP_NAME + ' 英语学习资源分享'
 useSeoMeta({
   title: title,
   description: title,
   ogTitle: title,
   ogDescription: title,
-  ogUrl: toSiteURL(route.fullPath, config.public.origin, config.app.baseURL),
+  ogUrl: Origin + route.fullPath,
   twitterTitle: title,
   twitterDescription: title,
 })

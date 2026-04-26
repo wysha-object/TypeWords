@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const settingStore = useSettingStore()
 
-let posList = computed<{ pos: string; totalFreq?: number; trans: { pos: string; cn: string; frequency?: number }[] }[]>(() => {
+const posList = computed<{ pos: string; totalFreq?: number; trans: { pos: string; cn: string; frequency?: number }[] }[]>(() => {
     const trans = props.word.trans
     let posMap = new Map<string, { pos: string; cn: string; frequency?: number }[]>()
     trans.forEach(item => {

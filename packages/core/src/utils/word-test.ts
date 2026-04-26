@@ -16,18 +16,20 @@ function getTrans(word: Word): { cn: string, freq: number }[] {
     return Array.from(rsMap.values());
 }
 
-function getCommonCount(str1: string, str2: string): number {
+function calCommon(str1: string, str2: string): number {
     str1 = str1.toLowerCase();
     str2 = str2.toLowerCase();
-    let count = 0;
+    let rs = 0;
     let set1 = new Set(str1.split(''));
     let set2 = new Set(str2.split(''));
     for (let char of set1) {
         if (set2.has(char)) {
-            count++;
+            rs += 1 << 2;
+        } else {
+            rs--;
         }
     }
-    return count;
+    return rs;
 }
 
 function calSimilarity(word1: Word, word2: Word): number {
@@ -48,8 +50,8 @@ function calSimilarity(word1: Word, word2: Word): number {
         }
     })
 
-    similarity += getCommonCount(word1Trans.map(item => item.cn).join(''), word2Trans.map((item) => item.cn).join(''));
-    similarity += getCommonCount(word1.word, word2.word) << 16;
+    similarity += calCommon(word1Trans.map(item => item.cn).join(''), word2Trans.map((item) => item.cn).join(''));
+    similarity += calCommon(word1.word, word2.word) << 16;
 
     return similarity;
 }

@@ -50,7 +50,7 @@ const posList = computed<{ pos: string; totalFreq?: number; trans: { pos: string
         <div class="flex gap-3 flex-wrap items-end">
           <span v-for="tran in pos.trans">
             <span v-if="tran.frequency != undefined" :class="['rare', 'uncommon', 'common'][tran.frequency]">{{ tran.cn }}</span>
-            <SentenceHightLightWord :text="tran.cn" :word="word.word" :dictation="!props.showFull" :high-light="false" />
+            <SentenceHightLightWord v-else :text="tran.cn" :word="word.word" :dictation="!props.showFull" :high-light="false" />
           </span>
         </div>
       </div>

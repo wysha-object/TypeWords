@@ -29,6 +29,13 @@ function calCommon(str1: string, str2: string): number {
             rs--;
         }
     }
+    for (let char of set2) {
+        if (set1.has(char)) {
+            rs += 1 << 2;
+        } else {
+            rs--;
+        }
+    }
     return rs;
 }
 
